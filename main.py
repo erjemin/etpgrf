@@ -1,8 +1,17 @@
 import etpgrf
+from etpgrf.hyphenation import HyphenationRule, Typographer
 
 
 if __name__ == '__main__':
-    text_in = 'Привет, World! Это <i>тестовый текст для проверки расстановки</i> переносов в словах. Миллион 1000000'
-    result = etpgrf.hyphenation.hyphenation_in_text(text_in, min_len_word_hyphenation=8, sep='-')
-    print(result)
+    # --- Пример использования ---
+    print("\n--- Пример использования класса---\n")
+    # Определяем пользовательские правила переносов
+    hyphen_settings = HyphenationRule(langs=frozenset(['ru']), max_len_hyphenation_not_required=8)
+    # Определяем пользовательские правила типографа
+    typo = Typographer(langs='ru', code_out='utf-8', hyphenation_rule=hyphen_settings)
+
+    result = typo.process(text="Какой-то длинный текст для проверки переносов. Перпердикюляция!")
+    print(result, "\n\n")
+    result = typo.process(text="Привет, World! Это <i>тестовый текст для проверки расстановки</i> переносов в словах. Миллион 100-метровошеих жирножирафов.")
+    print(result, "\n\n")
 
