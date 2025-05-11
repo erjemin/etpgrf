@@ -8,7 +8,7 @@ if __name__ == '__main__':
     # Определяем пользовательские правила переносов
     hyphen_settings = etpgrf.Hyphenator(langs=frozenset(['ru']), max_unhyphenated_len=8)
     # Определяем пользовательские правила типографа
-    typo = etpgrf.Typographer(langs='ru', code_out='utf-8', hyphenation_rule=hyphen_settings)
+    typo = etpgrf.Typographer(langs='ru', mode='mnemonic', hyphenation_rule=hyphen_settings)
 
     result = hyphen_settings.hyp_in_text("Бармалейщина")
     print(result, "\n\n")

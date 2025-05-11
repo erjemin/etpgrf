@@ -1,7 +1,6 @@
-from os.path import exists
-
 import regex
-from etpgrf.comutil import parse_and_validate_langs
+from etpgrf.config import DEFAULT_MODE, DEFAULT_LANGS, SHY_ENTITIES, MODE_UNICODE
+from etpgrf.comutil import parce_and_validate_mode, parse_and_validate_langs
 
 _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
 _RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ'])
@@ -16,10 +15,12 @@ class Hyphenator:
     """Правила расстановки переносов для разных языков.
     """
     def __init__(self,
-                 langs: frozenset[str],  # Языки, которые обрабатываем в переносе слов
+                 langs: frozenset[str] = DEFAULT_LANGS,  # Языки, которые обрабатываем в переносе слов
+                 mode: str = DEFAULT_MODE,  # Режим обработки текста
                  max_unhyphenated_len: int = 14,  # Максимальная длина непереносимой группы
                  min_chars_per_part: int = 3):  # Минимальная длина после переноса (хвост, который разрешено переносить)
         self.langs: frozenset[str] = parse_and_validate_langs(langs)
+        self.mode: str = parce_and_validate_mode(mode)
         self.max_unhyphenated_len = max_unhyphenated_len
         self.min_chars_per_part = min_chars_per_part
 
@@ -28,10 +29,10 @@ class Hyphenator:
         self._consonants: frozenset = frozenset()
         self._j_sound_upper: frozenset = frozenset()
         self._signs_upper: frozenset = frozenset()
-
-        self._load_language_resources_for_hyphenation() # Загружает наборы символов на основе self.langs
-
-        self._split_memo: dict[str, str] = {} # Кеш для этого экземпляра
+        # Загружает наборы символов на основе self.langs
+        self._load_language_resources_for_hyphenation()
+        # Определяем символ переноса в зависимости от режима
+        self._split_code: str = SHY_ENTITIES['SHY'][0] if self.mode == MODE_UNICODE else SHY_ENTITIES['SHY'][1]
 
 
     def _load_language_resources_for_hyphenation(self):
@@ -118,8 +119,8 @@ class Hyphenator:
             left_part = word_to_split[:hyphen_idx]
             right_part = word_to_split[hyphen_idx:]
 
-            # Рекурсивно делим левую и правую части
-            return split_word(left_part) + "-­" + split_word(right_part)
+            # Рекурсивно делим левую и правую части и соединяем их через символ переноса
+            return split_word(left_part) + self._split_code + split_word(right_part)
 
         # Основная логика
         if len(word) <= self.max_unhyphenated_len or not any(self._is_vow(c) for c in word):

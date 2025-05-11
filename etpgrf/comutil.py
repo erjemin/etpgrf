@@ -1,7 +1,34 @@
-from etpgrf.config import DEFAULT_LANGS, SUPPORTED_LANGS
+# Общие функции для типографа etpgrf
+from etpgrf.config import MODE_UNICODE, MODE_MNEMONIC, MODE_MIXED, DEFAULT_MODE, DEFAULT_LANGS, SUPPORTED_LANGS
 import os
 import regex
-# Общие функции для типографа etpgrf
+
+
+def parce_and_validate_mode(
+    mode_input: str | None = None,
+) -> str:
+    """
+    Обрабатывает и валидирует входной параметр mode.
+    Если mode_input не предоставлен (None), используется режим по умолчанию.
+
+    :param mode_input: Режим обработки текста. Может быть 'unicode', 'mnemonic' или 'mixed'.
+    :return: Валидированный режим в нижнем регистре.
+    :raises TypeError: Если mode_input имеет неожиданный тип.
+    :raises ValueError: Если mode_input пуст после обработки или содержит неподдерживаемый режим.
+    """
+    if mode_input is None:
+        # Если mode_input не предоставлен явно, используем режим по умолчанию
+        _mode_input = DEFAULT_MODE
+    else:
+        _mode_input = str(mode_input).lower()
+
+    if _mode_input not in {MODE_UNICODE, MODE_MNEMONIC, MODE_MIXED}:
+        raise ValueError(
+            f"etpgrf: режим '{_mode_input}' не поддерживается. Поддерживаемые режимы: {MODE_UNICODE}, {MODE_MNEMONIC}, {MODE_MIXED}"
+        )
+
+    return _mode_input
+
 
 def parse_and_validate_langs(
     langs_input: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
