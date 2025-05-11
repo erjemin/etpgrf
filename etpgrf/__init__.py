@@ -10,5 +10,5 @@ Typography - библиотека для экранной типографики
 """
 __version__ = "0.1.0"
 
-import regex
-from etpgrf import processor, hyphenation
+from etpgrf.typograph import Typographer
+from etpgrf.hyphenation import Hyphenator

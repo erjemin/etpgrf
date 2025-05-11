@@ -1,9 +1,7 @@
+from os.path import exists
+
 import regex
-
-UTF = frozenset(['utf-8', 'utf-16', 'utf-32'])
-MNEMO_CODE = frozenset(['mnemo', '&'])
-
-LANGS = frozenset(['ru', 'en'])
+from etpgrf.comutil import parse_and_validate_langs
 
 _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
 _RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ'])
@@ -14,14 +12,14 @@ _EN_VOWELS_UPPER = frozenset(['A', 'E', 'I', 'O', 'U'])
 _EN_CONSONANTS_UPPER = frozenset(['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'])
 
 
-class HyphenationRule:
+class Hyphenator:
     """Правила расстановки переносов для разных языков.
     """
     def __init__(self,
                  langs: frozenset[str],  # Языки, которые обрабатываем в переносе слов
                  max_unhyphenated_len: int = 14,  # Максимальная длина непереносимой группы
                  min_chars_per_part: int = 3):  # Минимальная длина после переноса (хвост, который разрешено переносить)
-        self.langs = langs
+        self.langs: frozenset[str] = parse_and_validate_langs(langs)
         self.max_unhyphenated_len = max_unhyphenated_len
         self.min_chars_per_part = min_chars_per_part
 
@@ -30,9 +28,11 @@ class HyphenationRule:
         self._consonants: frozenset = frozenset()
         self._j_sound_upper: frozenset = frozenset()
         self._signs_upper: frozenset = frozenset()
+
         self._load_language_resources_for_hyphenation() # Загружает наборы символов на основе self.langs
 
         self._split_memo: dict[str, str] = {} # Кеш для этого экземпляра
+
 
     def _load_language_resources_for_hyphenation(self):
         # Определяем наборы гласных, согласных и т.д. в зависимости языков.
@@ -71,7 +71,7 @@ class HyphenationRule:
         return char.upper() in self._signs_upper
 
 
-    def hyphenation_in_word(self, word: str) -> str:
+    def hyp_in_word(self, word: str) -> str:
         """ Расстановка переносов в русском слове с учетом максимальной длины непереносимой группы.
         Переносы ставятся половинным делением слова, рекурсивно.
 
@@ -128,7 +128,7 @@ class HyphenationRule:
         return split_word(word)    # Рекурсивно делим слово на части с переносами
 
 
-    def apply(self, text: str) -> str:
+    def hyp_in_text(self, text: str) -> str:
         """ Расстановка переносов в тексте
 
             :param text: Строка, которую надо обработать (главный аргумент).
@@ -137,68 +137,8 @@ class HyphenationRule:
         rus_worlds = regex.findall(r'\b[а-яА-Я]+\b', text)  # ищем все русскоязычные слова в тексте
         for word in rus_worlds:
             if len(word) > self.max_unhyphenated_len:
-                hyphenated_word = self.hyphenation_in_word(word)
+                hyphenated_word = self.hyp_in_word(word)
                 print(f'{word} -> {hyphenated_word}')
                 text = text.replace(word, hyphenated_word)
         return text
-
-
-# --- Основной класс Typographer ---
-class Typographer:
-    def __init__(self,
-                 langs: str | list[str] | tuple[str, ...] | frozenset[str] = 'ru',
-                 code_out: str = 'mnemo',
-                 hyphenation_rule: HyphenationRule | None = None,       # Перенос слов и параметры расстановки переносов
-                 # glue_prepositions_rule: GluePrepositionsRule | None = None, # Для других правил
-                 # ... другие модули правил ...
-                 ):
-
-        # --- Обработка и валидация параметра langs ---
-        # Параметр langs может быть строкой, списком или кортежем ("ru+en", ["ru", "en"] или ("ru", "en"))
-        # Для удобств в классе буду использовать только frozenset, чтобы не дублировать коды языков
-        self.langs = set()
-        if isinstance(langs, str):
-            # Разделяем строку по любым небуквенным символам, приводим к нижнему регистру
-            # и фильтруем пустые строки, которые могут появиться, если разделители идут подряд
-            lang_codes = [lang.lower() for lang in regex.split(r'[^a-zA-Z]+', langs) if lang]
-        elif isinstance(langs, (list, tuple)):
-            lang_codes = [str(lang).lower() for lang in langs]  # Приводим к строке и нижнему регистру
-        else:
-            raise TypeError(f"etpgrf: 'langs' parameter must be a string, list, or tuple. Got {type(langs)}")
-        if not lang_codes:
-            raise ValueError("etpgrf: 'langs' parameter cannot be empty or result in an empty list of languages after parsing.")
-        for code in lang_codes:
-            if code not in LANGS:  # LANGS = frozenset(['ru', 'en'])
-                raise ValueError(f"etpgrf: langs code '{code}' is not supported. Supported languages: {list(LANGS)}")
-            self.langs.add(code)
-        self.langs: frozenset[str] = frozenset(self.langs)
-
-        # --- Обработка и валидация параметра code_out ---
-        if code_out not in MNEMO_CODE | UTF:
-            raise ValueError(f"etpgrf: code_out '{code_out}' is not supported. Supported codes: {MNEMO_CODE | UTF}")
-
-        # Сохраняем переданные модули правил
-        self.hyphenation_rule = hyphenation_rule
-
-        # TODO: вынести все соответствия UTF ⇄ MNEMO_CODE в отдельный класс
-        # self.hyphen_char = "­" if code_out in UTF else "&shy;" # Мягкий перенос по умолчанию
-
-    # Конвейер для обработки текста
-    def process(self, text: str) -> str:
-        processed_text = text
-        if self.hyphenation_rule:
-            # Передаем активные языки и символ переноса, если модуль HyphenationRule
-            # не получает их в своем __init__ напрямую от пользователя,
-            # а конструируется с настройками по умолчанию, а потом конфигурируется.
-            # В нашем примере HyphenationRule уже получает их в __init__.
-            processed_text = self.hyphenation_rule.apply(processed_text)
-
-        # if self.glue_prepositions_rule:
-        #     processed_text = self.glue_prepositions_rule.apply(processed_text, non_breaking_space_char=self._get_nbsp())
-
-        # ... вызовы других активных модулей правил ...
-        return processed_text
-
-    # def _get_nbsp(self): # Пример получения неразрывного пробела
-    #     return "\u00A0" if self.code_out in UTF else "&nbsp;"
 
