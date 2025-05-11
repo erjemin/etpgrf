@@ -1,12 +1,57 @@
 # etpgrf/conf.py
 # Настройки по умолчанию для типографа etpgrf
+from email.header import SPACE
 
-UTF = frozenset(['utf-8', 'utf-16', 'utf-32'])
-MNEMO_CODE = frozenset(['mnemo', '&'])
+# Режимы "отдачи" результатов обработки
+MODE_UNICODE = "unicode"
+MODE_MNEMONIC = "mnemonic"
+MODE_MIXED = "mixed"
+DEFAULT_MODE = MODE_MIXED
+
+# Языки, поддерживаемые библиотекой
 SUPPORTED_LANGS = frozenset(['ru', 'en'])
-
-
 # Язык(и) по умолчанию, если не указаны пользователем и не заданы через ETPGRF_DEFAULT_LANGS_MODULE
 DEFAULT_LANGS = 'ru'
 #
-DEFAULT_CODE = 'utf-8'
+
+# ----------------- соответствия `unicode` и `mnemonic` для типографа
+
+# Переносы
+SHY_ENTITIES = {
+    'SHY': ('\u00AD', '&shy;'),  # Мягкий перенос
+}
+
+# Пробелы и неразрывные пробелы
+SPACE_ENTITIES = {
+    'NBSP':   ('\u00A0', '&nbsp;'),   # Неразрывный пробел
+    'ZWSP':   ('\u200B', '&ZeroWidthSpace;'), # Пробел нулевой ширины (если нужен)
+}
+
+# Тире и дефисы
+DASH_ENTITIES = {
+    'NDASH':  ('\u2013', '&ndash;'), # Короткое тире
+    'MDASH':  ('\u2014', '&mdash;'), # Длинное тире
+    # 'HYPHEN': ('\u2010', '&#8208;'), # Обычный дефис (если нужно отличать от минуса)
+}
+
+# Кавычки
+QUOTE_ENTITIES = {
+    'LAQUO':  ('\u00AB', '&laquo;'), # «
+    'RAQUO':  ('\u00BB', '&raquo;'), # »
+    'LDQUO':  ('\u201C', '&ldquo;'), # “ (левая двойная)
+    'RDQUO':  ('\u201D', '&rdquo;'), # ” (правая двойная)
+    'LSQUO':  ('\u2018', '&lsquo;'), # ‘ (левая одинарная)
+    'RSQUO':  ('\u2019', '&rsquo;'), # ’ (правая одинарная)
+}
+
+# Другие символы (пример для расширения)
+SYMBOL_ENTITIES = {
+    'HELLIP': ('\u2026', '&hellip;'), # Многоточие
+    'COPY':   ('\u00A9', '&copy;'),   # Копирайт
+    # ... стрелочки, математические символы и т.д. по мере необходимости
+}
+
+# Сущности, которые ВСЕГДА должны выводиться как мнемоники в режиме MODE_MIXED
+# Указываются их ИМЕНА (ключи из словарей выше)
+ALWAYS_MNEMONIC_IN_SAFE_MODE = frozenset(['SHY', 'NBSP', 'ZWSP'])
+
