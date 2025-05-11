@@ -15,8 +15,8 @@ class Hyphenator:
     """Правила расстановки переносов для разных языков.
     """
     def __init__(self,
-                 langs: frozenset[str] = DEFAULT_LANGS,  # Языки, которые обрабатываем в переносе слов
-                 mode: str = DEFAULT_MODE,  # Режим обработки текста
+                 langs: frozenset[str] = None,  # Языки, которые обрабатываем в переносе слов
+                 mode: str = None,  # Режим обработки текста
                  max_unhyphenated_len: int = 14,  # Максимальная длина непереносимой группы
                  min_chars_per_part: int = 3):  # Минимальная длина после переноса (хвост, который разрешено переносить)
         self.langs: frozenset[str] = parse_and_validate_langs(langs)

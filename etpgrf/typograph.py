@@ -1,13 +1,13 @@
-from etpgrf.config import DEFAULT_MODE, DEFAULT_LANGS
 from etpgrf.comutil import parce_and_validate_mode, parse_and_validate_langs
 from etpgrf.hyphenation import Hyphenator
+import copy
 
 
 # --- Основной класс Typographer ---
 class Typographer:
     def __init__(self,
-                 langs: str | list[str] | tuple[str, ...] | frozenset[str] = DEFAULT_LANGS,
-                 mode: str = DEFAULT_MODE,
+                 langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
+                 mode: str | None = None,
                  hyphenation_rule: Hyphenator | None = None,  # Перенос слов и параметры расстановки переносов
                  # glue_prepositions_rule: GluePrepositionsRule | None = None, # Для других правил
                  # ... другие модули правил ...
@@ -20,16 +20,24 @@ class Typographer:
         self.mode: str = parce_and_validate_mode(mode)
 
         # Сохраняем переданные модули правил
-        self.hyphenation_rule = hyphenation_rule
+        if hyphenation_rule is not None:
+            # 1. Создаем поверхностную копию объекта hyphenation_rule.
+            self.hyphenation_rule = copy.copy(hyphenation_rule)
+            # 2. Наследуем режим типографа, если он не задан в hyphenation_rule.
+            if self.hyphenation_rule.mode is None:
+                self.hyphenation_rule.mode = self.mode
+            # 2. Наследуем языки от типографа, если они не заданы в hyphenation_rule.
+            if self.hyphenation_rule.langs is None:
+                self.hyphenation_rule.langs = self.langs
+        else:
+            self.hyphenation_rule = hyphenation_rule
+
 
     # Конвейер для обработки текста
     def process(self, text: str) -> str:
         processed_text = text
         if self.hyphenation_rule:
-            # Передаем активные языки и символ переноса, если модуль Hyphenator
-            # не получает их в своем __init__ напрямую от пользователя,
-            # а конструируется с настройками по умолчанию, а потом конфигурируется.
-            # В нашем примере Hyphenator уже получает их в __init__.
+            # Обработчик переносов (Hyphenator) активен. Обрабатываем текст...
             processed_text = self.hyphenation_rule.hyp_in_text(processed_text)
 
         # if self.glue_prepositions_rule:
