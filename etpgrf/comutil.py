@@ -4,7 +4,7 @@ import os
 import regex
 
 
-def parce_and_validate_mode(
+def parse_and_validate_mode(
     mode_input: str | None = None,
 ) -> str:
     """

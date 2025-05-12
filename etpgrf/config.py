@@ -9,9 +9,11 @@ MODE_MIXED = "mixed"
 DEFAULT_MODE = MODE_MIXED
 
 # Языки, поддерживаемые библиотекой
-SUPPORTED_LANGS = frozenset(['ru', 'en'])
+LANG_RU = 'ru'  # Русский
+LANG_EN = 'en'  # Английский
+SUPPORTED_LANGS = frozenset([LANG_RU, LANG_EN])
 # Язык(и) по умолчанию, если не указаны пользователем и не заданы через ETPGRF_DEFAULT_LANGS_MODULE
-DEFAULT_LANGS = 'ru'
+DEFAULT_LANGS = LANG_RU
 #
 
 # ----------------- соответствия `unicode` и `mnemonic` для типографа

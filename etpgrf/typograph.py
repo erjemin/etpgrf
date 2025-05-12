@@ -1,4 +1,4 @@
-from etpgrf.comutil import parce_and_validate_mode, parse_and_validate_langs
+from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 from etpgrf.hyphenation import Hyphenator
 import copy
 
@@ -17,7 +17,7 @@ class Typographer:
         self.langs: frozenset[str] = parse_and_validate_langs(langs)
 
         # --- Обработка и валидация параметра mode ---
-        self.mode: str = parce_and_validate_mode(mode)
+        self.mode: str = parse_and_validate_mode(mode)
 
         # Сохраняем переданные модули правил
         if hyphenation_rule is not None:
