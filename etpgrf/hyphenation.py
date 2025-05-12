@@ -51,10 +51,6 @@ class Hyphenator:
             self._en_alphabet_upper |= _EN_VOWELS_UPPER | _EN_CONSONANTS_UPPER
         # ... и для других языков, если они поддерживаются переносами
 
-    # --- Сюда переносятся все методы, связанные с переносами ---
-    # (адаптированные версии _is_vow, _is_cons, _is_j_sound, _is_sign,
-    # _hyphenate_one_word, _recursive_split_word, _find_hyphen_point_in_sub_word, _is_valid_split_point)
-    # Они будут использовать self._vowels, self.hyphen_char и т.д.
 
     # Проверка гласных букв
     def _is_vow(self, char: str) -> bool:
