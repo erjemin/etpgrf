@@ -14,7 +14,10 @@ LANG_EN = 'en'  # Английский
 SUPPORTED_LANGS = frozenset([LANG_RU, LANG_EN])
 # Язык(и) по умолчанию, если не указаны пользователем и не заданы через ETPGRF_DEFAULT_LANGS_MODULE
 DEFAULT_LANGS = LANG_RU
-#
+
+# Значения по умолчанию для параметров Hyphenator
+DEFAULT_HYP_MAX_LEN = 10  # Максимальная длина слова без переносов
+DEFAULT_HYP_MIN_LEN = 3  # Минимальный "хвост" слова для переноса
 
 # ----------------- соответствия `unicode` и `mnemonic` для типографа
 

@@ -1,5 +1,5 @@
 import regex
-from etpgrf.config import LANG_RU, LANG_EN, DEFAULT_MODE, DEFAULT_LANGS, SHY_ENTITIES, MODE_UNICODE
+from etpgrf.config import LANG_RU, LANG_EN, SHY_ENTITIES, MODE_UNICODE, DEFAULT_HYP_MAX_LEN, DEFAULT_HYP_MIN_LEN
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 
 _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
@@ -17,8 +17,8 @@ class Hyphenator:
     def __init__(self,
                  langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
                  mode: str = None,  # Режим обработки текста
-                 max_unhyphenated_len: int = 14,  # Максимальная длина непереносимой группы
-                 min_chars_per_part: int = 3):  # Минимальная длина после переноса (хвост, который разрешено переносить)
+                 max_unhyphenated_len: int = DEFAULT_HYP_MAX_LEN,  # Максимальная длина непереносимой группы
+                 min_chars_per_part: int = DEFAULT_HYP_MIN_LEN):  # Минимальная длина после переноса (хвост, который разрешено переносить)
         self.langs: frozenset[str] = parse_and_validate_langs(langs)
         self.mode: str = parse_and_validate_mode(mode)
         self.max_unhyphenated_len = max_unhyphenated_len
@@ -35,6 +35,7 @@ class Hyphenator:
         self._load_language_resources_for_hyphenation()
         # Определяем символ переноса в зависимости от режима
         self._split_code: str = SHY_ENTITIES['SHY'][0] if self.mode == MODE_UNICODE else SHY_ENTITIES['SHY'][1]
+        print(f"========={self.max_unhyphenated_len}===========")
 
 
     def _load_language_resources_for_hyphenation(self):
@@ -87,12 +88,13 @@ class Hyphenator:
         if len(word) <= self.max_unhyphenated_len or not any(self._is_vow(c) for c in word):
             # Если слово короткое или не содержит гласных, перенос не нужен
             return word
-
+        print("слово:", word, " // mode:", self.mode, " // langs:", self.langs)
         # 2. ОБНАРУЖЕНИЕ ЯЗЫКА И ПОДКЛЮЧЕНИЕ ЯЗЫКОВОЙ ЛОГИКИ
         # Поиск вхождения букв строки (слова) через `frozenset` -- O(1). Это быстрее регулярного выражения -- O(n)
         # 2.1. Проверяем RU
         if LANG_RU in self.langs and frozenset(word.upper()) <= self._ru_alphabet_upper:
             # Пользователь подключил русскую логику, и слово содержит только русские буквы
+            print(f"#### Applying Russian rules to: {word}")
             # Поиск допустимой позиции для переноса около заданного индекса
             def find_hyphen_point_ru(word_segment: str, start_idx: int) -> int:
                 vow_indices = [i for i, char_w in enumerate(word_segment) if self._is_vow(char_w)]
@@ -181,8 +183,11 @@ class Hyphenator:
             hyphenated_word = self.hyp_in_word(word_to_process)
 
             # ============= Для отладки (слова в которых появились переносы) ==================
+            print(f"hyp_in_text: '{word_to_process}'", end="")
             if word_to_process != hyphenated_word:
-                print(f"hyp_in_text: '{word_to_process}' -> '{hyphenated_word}'")
+                print(f" -> '{hyphenated_word}'")
+            else:
+                print(" (no change)")
 
             return hyphenated_word
 
