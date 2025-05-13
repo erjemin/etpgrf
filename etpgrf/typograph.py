@@ -1,6 +1,9 @@
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
-
 from etpgrf.hyphenation import Hyphenator
+import logging
+
+# --- Настройки логирования ---
+logger = logging.getLogger(__name__)
 
 
 # --- Основной класс Typographer ---
@@ -17,7 +20,6 @@ class Typographer:
         self.langs: frozenset[str] = parse_and_validate_langs(langs)
         # B. --- Обработка и валидация параметра mode ---
         self.mode: str = parse_and_validate_mode(mode)
-        print("Typographer: langs:", self.langs, "// mode:", self.mode)  # Для отладки
         # C. --- Инициализация правила переноса ---
         #    Предпосылка: если вызвали типограф, значит, мы хотим обрабатывать текст и переносы тоже нужно расставлять.
         #    А для специальных случаев, когда переносы не нужны, пусть не ленятся и делают `hyphenation=False`.
@@ -35,6 +37,7 @@ class Typographer:
             # 4. Если hyphenation что-то неведомое, то игнорируем его и правило переноса выключено
             self.hyphenation = None
         # D. --- Конфигурация других правил---
+        logger.debug(f"Typographer `__init__`: langs: {self.langs}, mode: {self.mode}, hyphenation: {self.hyphenation}")
 
 
     # Конвейер для обработки текста

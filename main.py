@@ -1,11 +1,14 @@
 import etpgrf
-
+import logging
 
 if __name__ == '__main__':
     # --- Пример использования ---
     print("\n--- Пример использования класса---\n")
-
     etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 8
+    etpgrf.defaults.etpgrf_settings.logging_settings.LEVEL = logging.DEBUG
+    etpgrf.logger.update_etpgrf_log_level_from_settings()  # Обновляем уровень логирования из настроек
+    etpgrf.defaults.etpgrf_settings.logging_settings.FORMAT = '%(asctime)s - %(name)s = %(levelname)s - %(message)s'
+    etpgrf.logger.update_etpgrf_log_format_from_settings() # Обновляем формат логирования из настроек
 
     # Определяем пользовательские правила переносов
     hyphen_settings = etpgrf.Hyphenator(langs='ru', max_unhyphenated_len=8)

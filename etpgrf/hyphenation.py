@@ -1,4 +1,5 @@
 import regex
+import logging
 from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, SHY_ENTITIES, MODE_UNICODE
 from etpgrf.defaults import etpgrf_settings
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
@@ -16,7 +17,11 @@ _RU_OLD_CONSONANTS_UPPER = frozenset(['Ѳ',   # Фита (согласная)
 _EN_VOWELS_UPPER = frozenset(['A', 'E', 'I', 'O', 'U', 'Æ', 'Œ'])
 _EN_CONSONANTS_UPPER = frozenset(['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'])
 
+# --- Настройки логирования ---
+logger = logging.getLogger(__name__)
 
+
+# --- Класс Hyphenator (расстановка переносов) ---
 class Hyphenator:
     """Правила расстановки переносов для разных языков.
     """
@@ -41,8 +46,10 @@ class Hyphenator:
         self._load_language_resources_for_hyphenation()
         # Определяем символ переноса в зависимости от режима
         self._split_code: str = SHY_ENTITIES['SHY'][0] if self.mode == MODE_UNICODE else SHY_ENTITIES['SHY'][1]
-        print(f"========={self.max_unhyphenated_len}===========")
-
+        # ...
+        logger.debug(f"Hyphenator `__init__`. Langs: {self.langs}, Mode: {self.mode},"
+                     f" Max unhyphenated_len: {self.max_unhyphenated_len},"
+                     f" Min chars_per_part: {self.min_chars_per_part}")
 
     def _load_language_resources_for_hyphenation(self):
         # Определяем наборы гласных, согласных и т.д. в зависимости языков.
@@ -100,13 +107,13 @@ class Hyphenator:
         if len(word) <= self.max_unhyphenated_len or not any(self._is_vow(c) for c in word):
             # Если слово короткое или не содержит гласных, перенос не нужен
             return word
-        print("слово:", word, " // mode:", self.mode, " // langs:", self.langs)
+        logger.debug(f"Hyphenator: word: `{word}` // langs: {self.langs} // mode: {self.mode} // max_unhyphenated_len: {self.max_unhyphenated_len} // min_tail_len: {self.min_chars_per_part}")
         # 2. ОБНАРУЖЕНИЕ ЯЗЫКА И ПОДКЛЮЧЕНИЕ ЯЗЫКОВОЙ ЛОГИКИ
         # Поиск вхождения букв строки (слова) через `frozenset` -- O(1). Это быстрее регулярного выражения -- O(n)
         # 2.1. Проверяем RU и RU_OLD (правила одинаковые, но разные наборы букв)
         if (LANG_RU in self.langs or LANG_RU_OLD in self.langs) and frozenset(word.upper()) <= self._ru_alphabet_upper:
             # Пользователь подключил русскую логику, и слово содержит только русские буквы
-            print(f"#### Applying Russian rules to: {word}")
+            logger.debug(f"`{word}` -- use `{LANG_RU}` or `{LANG_RU_OLD}` rules")
             # Поиск допустимой позиции для переноса около заданного индекса
             def find_hyphen_point_ru(word_segment: str, start_idx: int) -> int:
                 vow_indices = [i for i, char_w in enumerate(word_segment) if self._is_vow(char_w)]
@@ -153,7 +160,7 @@ class Hyphenator:
         # 2.2. Проверяем EN
         elif LANG_EN in self.langs and frozenset(word.upper()) <= self._en_alphabet_upper:
             # Пользователь подключил английскую логику, и слово содержит только английские буквы
-            print(f"#### Applying English rules to: {word}") # Для отладки
+            logger.debug(f"`{word}` -- use `{LANG_EN}` rules")
             # --- Начало логики для английского языка (заглушка) ---
             # ПРИМЕЧАНИЕ: Это очень упрощенная заглушка.
             def find_hyphen_point_en(word_segment: str) -> int:
@@ -175,7 +182,7 @@ class Hyphenator:
             return split_word_en(word)
         else:
             # кстати "слова" в которых есть пробелы или другие разделители, тоже попадают сюда
-            print("!!!!ФИГНЯ")
+            logger.debug(f"`{word}` -- use `UNDEFINE` rules")
             return word
 
 
@@ -195,11 +202,8 @@ class Hyphenator:
             hyphenated_word = self.hyp_in_word(word_to_process)
 
             # ============= Для отладки (слова в которых появились переносы) ==================
-            print(f"hyp_in_text: '{word_to_process}'", end="")
             if word_to_process != hyphenated_word:
-                print(f" -> '{hyphenated_word}'")
-            else:
-                print(" (no change)")
+                logger.debug(f"hyp_in_text: '{word_to_process}' -> '{hyphenated_word}'")
 
             return hyphenated_word
 

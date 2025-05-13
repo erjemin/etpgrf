@@ -1,5 +1,14 @@
 # etpgrf/defaults.py -- Настройки по умолчанию для типографа etpgrf
+import logging
 from etpgrf.config import LANG_RU, MODE_MIXED
+
+class LoggingDefaults:
+    LEVEL = logging.DEBUG
+    FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    # Можно добавить ещё настройки, если понадобятся:
+    # FORMAT: str = '%(asctime)s - %(name)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)d - %(message)s'
+    # FILE_PATH: str | None = None # Путь к файлу лога, если None - не пишем в файл
+
 
 class HyphenationDefaults:
     """
@@ -16,6 +25,7 @@ class EtpgrfDefaultSettings:
     def __init__(self):
         self.LANGS: list[str] | str = LANG_RU
         self.MODE: str = MODE_MIXED
+        self.logging_settings = LoggingDefaults()
         self.hyphenation = HyphenationDefaults()
         # self.quotes = EtpgrfQuoteDefaults()
 

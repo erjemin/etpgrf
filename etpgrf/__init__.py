@@ -10,6 +10,7 @@ Typography - библиотека для экранной типографики
 """
 __version__ = "0.1.0"
 
+import etpgrf.defaults
 from etpgrf.typograph import Typographer
 from etpgrf.hyphenation import Hyphenator
-import etpgrf.defaults
+import etpgrf.logger
