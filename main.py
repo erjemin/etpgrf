@@ -5,7 +5,7 @@ if __name__ == '__main__':
     # --- Пример использования ---
     print("\n--- Пример использования класса---\n")
 
-    etpgrf.config.DEFAULT_HYP_MAX_LEN = 6
+    etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 8
 
     # Определяем пользовательские правила переносов
     hyphen_settings = etpgrf.Hyphenator(langs='ru', max_unhyphenated_len=8)

@@ -1,11 +1,17 @@
 import regex
-from etpgrf.config import LANG_RU, LANG_EN, SHY_ENTITIES, MODE_UNICODE, DEFAULT_HYP_MAX_LEN, DEFAULT_HYP_MIN_LEN
+from etpgrf.config import LANG_RU, LANG_EN, SHY_ENTITIES, MODE_UNICODE
+from etpgrf.defaults import etpgrf_settings
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 
 _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
 _RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ'])
 _RU_J_SOUND_UPPER = frozenset(['Й'])
 _RU_SIGNS_UPPER = frozenset(['Ь', 'Ъ'])
+_RU_OLD_I_DESYAT = frozenset(['І']) # И-десятеричное
+_RU_OLD_YAT = frozenset(['Ѣ'])      # Ять
+_RU_OLD_FITA = frozenset(['Ѳ'])     # Фита
+_RU_OLD_IZHITSA = frozenset(['Ѵ'])  # Ижица (может быть и гласной, и согласной - сложный случай!)
+
 
 _EN_VOWELS_UPPER = frozenset(['A', 'E', 'I', 'O', 'U', 'Æ', 'Œ'])
 _EN_CONSONANTS_UPPER = frozenset(['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'])
@@ -17,12 +23,12 @@ class Hyphenator:
     def __init__(self,
                  langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
                  mode: str = None,  # Режим обработки текста
-                 max_unhyphenated_len: int = DEFAULT_HYP_MAX_LEN,  # Максимальная длина непереносимой группы
-                 min_chars_per_part: int = DEFAULT_HYP_MIN_LEN):  # Минимальная длина после переноса (хвост, который разрешено переносить)
+                 max_unhyphenated_len: int | None = None,  # Максимальная длина непереносимой группы
+                 min_tail_len: int | None = None):  # Минимальная длина после переноса (хвост, который разрешено переносить)
         self.langs: frozenset[str] = parse_and_validate_langs(langs)
         self.mode: str = parse_and_validate_mode(mode)
-        self.max_unhyphenated_len = max_unhyphenated_len
-        self.min_chars_per_part = min_chars_per_part
+        self.max_unhyphenated_len = etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN if max_unhyphenated_len is None else max_unhyphenated_len
+        self.min_chars_per_part = etpgrf_settings.hyphenation.MIN_TAIL_LEN if min_tail_len is None else min_tail_len
 
         # Внутренние языковые ресурсы, если нужны специфично для переносов
         self._vowels: frozenset = frozenset()

@@ -1,4 +1,5 @@
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
+
 from etpgrf.hyphenation import Hyphenator
 
 

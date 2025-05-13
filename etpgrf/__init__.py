@@ -12,4 +12,4 @@ __version__ = "0.1.0"
 
 from etpgrf.typograph import Typographer
 from etpgrf.hyphenation import Hyphenator
-import etpgrf.config
+import etpgrf.defaults
