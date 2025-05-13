@@ -1,5 +1,5 @@
 import regex
-from etpgrf.config import LANG_RU, LANG_EN, SHY_ENTITIES, MODE_UNICODE
+from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, SHY_ENTITIES, MODE_UNICODE
 from etpgrf.defaults import etpgrf_settings
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 
@@ -7,10 +7,10 @@ _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', '�
 _RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ'])
 _RU_J_SOUND_UPPER = frozenset(['Й'])
 _RU_SIGNS_UPPER = frozenset(['Ь', 'Ъ'])
-_RU_OLD_I_DESYAT = frozenset(['І']) # И-десятеричное
-_RU_OLD_YAT = frozenset(['Ѣ'])      # Ять
-_RU_OLD_FITA = frozenset(['Ѳ'])     # Фита
-_RU_OLD_IZHITSA = frozenset(['Ѵ'])  # Ижица (может быть и гласной, и согласной - сложный случай!)
+_RU_OLD_VOWELS_UPPER = frozenset(['І',      # И-десятеричное (гласная)
+                                  'Ѣ'])     # Ять (гласная)
+_RU_OLD_CONSONANTS_UPPER = frozenset(['Ѳ',   # Фита (согласная)
+                                      'Ѵ'])  # Ижица (может быть и гласной, и согласной - сложный случай!)
 
 
 _EN_VOWELS_UPPER = frozenset(['A', 'E', 'I', 'O', 'U', 'Æ', 'Œ'])
@@ -51,7 +51,13 @@ class Hyphenator:
             self._consonants |= _RU_CONSONANTS_UPPER
             self._j_sound_upper |= _RU_J_SOUND_UPPER
             self._signs_upper |= _RU_SIGNS_UPPER
-            self._ru_alphabet_upper |= _RU_VOWELS_UPPER | _RU_CONSONANTS_UPPER | _RU_SIGNS_UPPER | _RU_J_SOUND_UPPER
+            self._ru_alphabet_upper |= self._vowels | self._consonants | self._j_sound_upper | self._signs_upper
+        if LANG_RU_OLD in self.langs:
+            self._vowels |= _RU_VOWELS_UPPER | _RU_OLD_VOWELS_UPPER
+            self._consonants |= _RU_CONSONANTS_UPPER | _RU_OLD_CONSONANTS_UPPER
+            self._j_sound_upper |= _RU_J_SOUND_UPPER
+            self._signs_upper |= _RU_SIGNS_UPPER
+            self._ru_alphabet_upper |= self._vowels | self._consonants | self._j_sound_upper | self._signs_upper
         if LANG_EN in self.langs:
             self._vowels |= _EN_VOWELS_UPPER
             self._consonants |= _EN_CONSONANTS_UPPER
@@ -97,8 +103,8 @@ class Hyphenator:
         print("слово:", word, " // mode:", self.mode, " // langs:", self.langs)
         # 2. ОБНАРУЖЕНИЕ ЯЗЫКА И ПОДКЛЮЧЕНИЕ ЯЗЫКОВОЙ ЛОГИКИ
         # Поиск вхождения букв строки (слова) через `frozenset` -- O(1). Это быстрее регулярного выражения -- O(n)
-        # 2.1. Проверяем RU
-        if LANG_RU in self.langs and frozenset(word.upper()) <= self._ru_alphabet_upper:
+        # 2.1. Проверяем RU и RU_OLD (правила одинаковые, но разные наборы букв)
+        if (LANG_RU in self.langs or LANG_RU_OLD in self.langs) and frozenset(word.upper()) <= self._ru_alphabet_upper:
             # Пользователь подключил русскую логику, и слово содержит только русские буквы
             print(f"#### Applying Russian rules to: {word}")
             # Поиск допустимой позиции для переноса около заданного индекса

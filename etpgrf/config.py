@@ -9,8 +9,9 @@ MODE_MIXED = "mixed"
 
 # Языки, поддерживаемые библиотекой
 LANG_RU = 'ru'  # Русский
+LANG_RU_OLD = 'ru-old'  # Русская дореволюционная орфография
 LANG_EN = 'en'  # Английский
-SUPPORTED_LANGS = frozenset([LANG_RU, LANG_EN])
+SUPPORTED_LANGS = frozenset([LANG_RU, LANG_RU_OLD, LANG_EN])
 # Язык(и) по умолчанию, если не указаны пользователем и не заданы через ETPGRF_DEFAULT_LANGS_MODULE
 # DEFAULT_LANGS = LANG_RU
 
