@@ -4,9 +4,8 @@ from etpgrf.config import LANG_RU, MODE_MIXED
 
 class LoggingDefaults:
     LEVEL = logging.DEBUG
-    FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)d - %(message)s'
     # Можно добавить ещё настройки, если понадобятся:
-    # FORMAT: str = '%(asctime)s - %(name)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)d - %(message)s'
     # FILE_PATH: str | None = None # Путь к файлу лога, если None - не пишем в файл
 
 

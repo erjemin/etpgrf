@@ -20,7 +20,10 @@ def setup_library_logging():
     # Проверяем инициализацию хандлеров логера, чтобы случайно не добавлять хендлеры многократно
     if not _etpgrf_init_logger.hasHandlers():
         log_level_to_set = logging.WARNING      # Значение по умолчанию
-        log_format_to_set = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'      # Формат по умолчанию
+        # самый мощный формат, который мы можем использовать
+        log_format_to_set = '%(asctime)s - %(name)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)d - %(message)s'
+        # обычно достаточно:
+        # log_format_to_set = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'      # Формат по умолчанию
 
         fin_message: str | None = None
         if hasattr(etpgrf_settings, 'logging_settings'):
