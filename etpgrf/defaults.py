@@ -3,7 +3,7 @@ import logging
 from etpgrf.config import LANG_RU, MODE_MIXED
 
 class LoggingDefaults:
-    LEVEL = logging.DEBUG
+    LEVEL = logging.NOTSET
     FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)d - %(message)s'
     # Можно добавить ещё настройки, если понадобятся:
     # FILE_PATH: str | None = None # Путь к файлу лога, если None - не пишем в файл

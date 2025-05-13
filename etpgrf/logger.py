@@ -44,7 +44,7 @@ def setup_library_logging():
         if fin_message is not None:
             # Если есть сообщение об отсутствии настроек в `etpgrf_settings`, выводим его
             _etpgrf_init_logger.warning(fin_message)
-        _etpgrf_init_logger.debug(f"Корневой логгер 'etpgrf' инициализирован."
+        _etpgrf_init_logger.debug(f"Корневой логгер `etpgrf` инициализирован."
                                   f" Уровень: {logging.getLevelName(_etpgrf_init_logger.getEffectiveLevel())}")
 
 
@@ -89,7 +89,7 @@ def update_etpgrf_log_format_from_settings():
     for handler in _etpgrf_init_logger.handlers:
         handler.setFormatter(new_formatter) # Применяем новый форматтер к каждому хендлеру
 
-    _etpgrf_init_logger.info(f"Формат логирования для 'etpgrf' динамически обновлен на: '{new_format_string}'")
+    _etpgrf_init_logger.info(f"Формат логирования для `etpgrf` динамически обновлен на: `{new_format_string}`")
 
 
 # --- Инициализация логгера при первом импорте ---

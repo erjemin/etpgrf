@@ -4,6 +4,10 @@ import logging
 if __name__ == '__main__':
     # --- Пример использования ---
     print("\n--- Пример использования класса---\n")
+    # меняем настройки логирования
+    etpgrf.defaults.etpgrf_settings.logging_settings.LEVEL = logging.INFO
+    etpgrf.logger.update_etpgrf_log_level_from_settings()  # Обновляем уровень логирования из настроек
+
     # Меняем настройки по умолчанию для переносов
     etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 8
 
