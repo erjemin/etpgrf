@@ -14,7 +14,7 @@ class HyphenationDefaults:
     Настройки по умолчанию для Hyphenator etpgrf.
     """
     MAX_UNHYPHENATED_LEN: int = 14
-    MIN_TAIL_LEN: int = 3
+    MIN_TAIL_LEN: int = 4           # Это значение должно быть >= 2 (чтоб не "вылетать" за индекс в английских словах)
 
 
 class EtpgrfDefaultSettings:

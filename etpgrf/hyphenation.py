@@ -43,6 +43,15 @@ class Hyphenator:
         self.mode: str = parse_and_validate_mode(mode)
         self.max_unhyphenated_len = etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN if max_unhyphenated_len is None else max_unhyphenated_len
         self.min_chars_per_part = etpgrf_settings.hyphenation.MIN_TAIL_LEN if min_tail_len is None else min_tail_len
+        if self.min_chars_per_part < 2:
+            # Минимальная длина хвоста должна быть >= 2, иначе вылезаем за индекс в английских словах
+            raise ValueError(f"etpgrf: минимальная длина хвоста (min_tail_len) должна быть >= 2,"
+                             f" а не {self.min_chars_per_part}")
+        if self.max_unhyphenated_len <= self.min_chars_per_part:
+            # Максимальная длина непереносимой группы должна быть больше минимальной длины хвоста
+            raise ValueError(f"etpgrf: максимальная длина непереносимой группы (max_unhyphenated_len) "
+                             f"должна быть больше минимальной длины хвоста (min_tail_len), "
+                             f"а не {self.max_unhyphenated_len} >= {self.min_chars_per_part}")
 
         # Внутренние языковые ресурсы, если нужны специфично для переносов
         self._vowels: frozenset = frozenset()
@@ -202,14 +211,14 @@ class Hyphenator:
                     # Упрощенные правила английского переноса (основаны на частых паттернах, не на слогах):
                     # 1. Перенос между двумя согласными (C-C), например, 'but-ter', 'subjec-tive'
                     #    Точка переноса - индекс i. Проверяем символы word[i-1] и word[i].
-                    if i > 0 and self._is_cons(word_segment[i - 1]) and self._is_cons(word_segment[i]):
+                    if self._is_cons(word_segment[i - 1]) and self._is_cons(word_segment[i]):
                         logger.debug(f"Found C-C split point at index {i} in '{word_segment}'")
                         return i
 
                     # 2. Перенос перед одиночной согласной между двумя гласными (V-C-V), например, 'ho-tel', 'ba-by'
                     #    Точка переноса - индекс i (перед согласной). Проверяем word[i-1], word[i], word[i+1].
                     #    Требуется как минимум 3 символа для этого паттерна.
-                    if 0 < i < word_len - 1 and \
+                    if i < word_len - 1 and \
                             self._is_vow(word_segment[i - 1]) and self._is_cons(word_segment[i]) and self._is_vow(
                         word_segment[i + 1]):
                         logger.debug(f"Found V-C-V (split before C) split point at index {i} in '{word_segment}'")
@@ -218,29 +227,16 @@ class Hyphenator:
                     # 3. Перенос после одиночной согласной между двумя гласными (V-C-V), например, 'riv-er', 'fin-ish'
                     #    Точка переноса - индекс i (после согласной). Проверяем word[i-2], word[i-1], word[i].
                     #    Требуется как минимум 3 символа для этого паттерна.
-                    if 1 < i < word_len and \
+                    if i < word_len and \
                             self._is_vow(word_segment[i - 2]) and self._is_cons(word_segment[i - 1]) and \
                             self._is_vow(word_segment[i]):
                         logger.debug(f"Found V-C-V (split after C) split point at index {i} in '{word_segment}'")
                         return i
 
                     # 4. Правила для распространенных суффиксов (перенос ПЕРЕД суффиксом)
-                    #    Убедимся, что i > 0, чтобы не было переноса в самом начале слова.
-                    #    Длина части перед суффиксом (i) должна быть >= min_part.
-                    #    Длина самого суффикса (len(word_segment) - i) также должна быть >= min_part.
-                    #    Это уже учтено при формировании valid_split_indices.
-                    if i > 0:
-                        current_ending = word_segment[i:].upper()
-                        for suffix in _EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER:
-                            # Проверяем, что оставшаяся часть слова (потенциальный суффикс)
-                            # имеет достаточную длину (min_part) и совпадает с суффиксом из списка.
-                            # Длина части *перед* суффиксом (i) уже проверена через valid_split_indices.
-                            if len(current_ending) == len(suffix) and \
-                                    len(current_ending) >= min_part and \
-                                    current_ending == suffix:
-                                logger.debug(
-                                    f"Found suffix '-{suffix}' split point at index {i} in '{word_segment}'")
-                                return i
+                    if word_segment[i:].upper() in _EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER:
+                        logger.debug(f"Found suffix '-{word_segment[i:]}' split point at index {i} in '{word_segment}'")
+                        return i
 
                 # Если ни одна подходящая точка переноса не найдена в допустимом диапазоне
                 logger.debug(f"No suitable hyphen point found for '{word_segment}' near center.")
