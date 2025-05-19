@@ -44,11 +44,38 @@ if __name__ == '__main__':
     etpgrf.defaults.etpgrf_settings.logging_settings.FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     etpgrf.logger.update_etpgrf_log_format_from_settings() # Обновляем формат логирования из настроек
 
-
-    # Проверяем переносы в тексте с метакодом
-    txt = ("Каждое пальто, которое мы создаём&nbsp;— это не&nbsp;просто одежда. Это"
-           " вещь, в&nbsp;которой должно быть удобно жить: ходить, ждать, ехать, молчать&nbsp;и&nbsp;— главное&nbsp;—"
-           " чувствовать себя собой. <b>Мы&nbsp;не&nbsp;шьём одина&shy;ковые пальто. Мы шьём ваше. </b> Ниже&nbsp;—"
-           " как устроен процесс заказа.</p>")
+    # Меняем настройки по умолчанию для переносов
+    etpgrf.defaults.etpgrf_settings.LANGS = "ru"
+    etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 8
+    txt = ("В самом сердце Санкт-Петербурга — там, где старинные фасады спорят с неоном вывесок — мелькнуло"
+           " пятно алого. Это было пальто от КейтБлаш, сшитое на заказ для перформанс-художницы Серафимы-Лукреции"
+           " Д’Анжу-Палладиновой.\n"
+           "\n"
+           "— Что-то среднее между коконом и пламенем, — прошептала девушка в очках-авиаторах, снимая его"
+           " на свой смартфон.\n"
+           "\n"
+           "Пальто (а точнее — то самое, из осенне-зимней коллекции 2025) мгновенно стало мемом. В блогах"
+           " писали: «Серафима Лу ваяет мрачные киберпанк-инсталляций в стиле милитари, а в жизни обычная"
+           " модница». На спине — вышивка шёлком в стиле Энди Уорхола -- \"пингвин парящий в закатном море\".\n"
+           "\n"
+           "Вдруг — бац! — порыв ветра раскрыл полы, обнажив подклад-трансформер: «днём — офис, вечером — клуб».")
     result = typo_ru.process(text=txt)
+    print(result, "\n-----\n\n-----")
+
+    # Проверяем переносы в смешанном тексте (русский + английский)
+    typo_en = etpgrf.Typographer(langs='en', mode='mixed', hyphenation=True)
+    etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 6
+    txt = ("As the sun set—casting long shadows across the meadow—a remarkably sophisticated individual pondered"
+           " life’s complexities. \"Is it possible,\" they wondered aloud, \"that such an inconsequential event"
+           " could hold deeper meaning?\n"
+           "\n"
+           "Their notebook (a leather-bound relic from 1923) contained hastily scribbled observations:"
+           " \"Interdisciplinary collaboration requires mutual understanding—not just technical expertise.\""
+           " Nearby, an unfinished cup of coffee sat atop a stack of papers titled \"The Phenomenology of"
+           " Subjective Experience in Modern Literature.\n"
+           "\n"
+           "Suddenly, a deafening noise—like thunder, yet mechanical—echoed in the distance."
+           " \"What on Earth…?\" they muttered, peering through binoculars. Was it an airplane?"
+           " A construction vehicle? Or something entirely different?")
+    result = typo_en.process(text=txt)
     print(result, "\n\n")

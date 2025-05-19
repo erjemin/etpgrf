@@ -5,17 +5,26 @@ from etpgrf.defaults import etpgrf_settings
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 
 _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
-_RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ'])
+_RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х',
+                                  'Ц', 'Ч', 'Ш', 'Щ'])
 _RU_J_SOUND_UPPER = frozenset(['Й'])
 _RU_SIGNS_UPPER = frozenset(['Ь', 'Ъ'])
 _RU_OLD_VOWELS_UPPER = frozenset(['І',      # И-десятеричное (гласная)
-                                  'Ѣ'])     # Ять (гласная)
-_RU_OLD_CONSONANTS_UPPER = frozenset(['Ѳ',   # Фита (согласная)
-                                      'Ѵ'])  # Ижица (может быть и гласной, и согласной - сложный случай!)
+                                  'Ѣ',      # Ять (гласная)
+                                  'Ѵ'])     # Ижица (может быть и гласной, и согласной - сложный случай!)
+_RU_OLD_CONSONANTS_UPPER = frozenset(['Ѳ',],)   # Фита (согласная)
 
 
 _EN_VOWELS_UPPER = frozenset(['A', 'E', 'I', 'O', 'U', 'Æ', 'Œ'])
-_EN_CONSONANTS_UPPER = frozenset(['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'])
+_EN_CONSONANTS_UPPER = frozenset(['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
+                                  'V', 'W', 'X', 'Y', 'Z'])
+_EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER = frozenset([
+        "ATION", "ITION", "UTION", "OSITY",   # 5-символьные, типа: creation, position, solution, generosity
+        "ABLE", "IBLE", "MENT", "NESS",       # 4-символьные, типа: readable, visible, development, kindness
+        "LESS", "SHIP", "HOOD", "TIVE",       #                     fearless, friendship, childhood, active (спорно)
+        "SION", "TION",                       #                     decision, action (часто покрываются C-C или V-C-V)
+        # "ING", "ED", "ER", "EST", "LY"      # совсем короткие, но распространенные, не рассматриваем.
+])
 
 # --- Настройки логирования ---
 logger = logging.getLogger(__name__)
@@ -162,22 +171,98 @@ class Hyphenator:
             # Пользователь подключил английскую логику, и слово содержит только английские буквы
             logger.debug(f"`{word}` -- use `{LANG_EN}` rules")
             # --- Начало логики для английского языка (заглушка) ---
-            # ПРИМЕЧАНИЕ: Это очень упрощенная заглушка.
-            def find_hyphen_point_en(word_segment: str) -> int:
-                for i in range(self.min_chars_per_part, len(word_segment) - self.min_chars_per_part):
-                    if self._is_vow(word_segment[i - 1]) and self._is_cons(word_segment[i]):
-                        if len(word_segment[:i]) >= self.min_chars_per_part and \
-                                len(word_segment[i:]) >= self.min_chars_per_part:
-                            return i
+            # ПРИМЕЧАНИЕ: правила переноса в английском языке основаны на слогах, и их точное определение без словаря
+            # слогов или сложного алгоритма (вроде Knuth-Liang) — непростая задача. Здесь реализована упрощенная
+            # логика и поиск потенциальных точек переноса основан на простых правилах: между согласными, или между
+            # гласной и согласной. Метод половинного деления и рекурсии (поиск переносов о середины слова).
+
+            # Функция для поиска допустимой позиции для переноса около заданного индекса
+            # Ищет точку переноса, соблюдая min_chars_per_part и простые правила
+            def find_hyphen_point_en(word_segment: str, start_idx: int) -> int:
+                word_len = len(word_segment)
+                min_part = self.min_chars_per_part
+
+                # Определяем диапазон допустимых индексов для переноса
+                # Индекс 'i' - это точка разреза. word_segment[:i] и word_segment[i:] должны быть не короче min_part.
+                # i >= min_part
+                # word_len - i >= min_part => i <= word_len - min_part
+                valid_split_indices = [i for i in range(min_part, word_len - min_part + 1)]
+
+                if not valid_split_indices:
+                    # Нет ни одного места, где можно поставить перенос, соблюдая min_part
+                    logger.debug(f"No valid split indices for '{word_segment}' within min_part={min_part}")
+                    return -1
+
+                # Сортируем допустимые индексы по удаленности от start_idx (середины)
+                # Это реализует поиск "около центра"
+                valid_split_indices.sort(key=lambda i: abs(i - start_idx))
+
+                # Проверяем каждый потенциальный индекс переноса по упрощенным правилам
+                for i in valid_split_indices:
+                    # Упрощенные правила английского переноса (основаны на частых паттернах, не на слогах):
+                    # 1. Перенос между двумя согласными (C-C), например, 'but-ter', 'subjec-tive'
+                    #    Точка переноса - индекс i. Проверяем символы word[i-1] и word[i].
+                    if i > 0 and self._is_cons(word_segment[i - 1]) and self._is_cons(word_segment[i]):
+                        logger.debug(f"Found C-C split point at index {i} in '{word_segment}'")
+                        return i
+
+                    # 2. Перенос перед одиночной согласной между двумя гласными (V-C-V), например, 'ho-tel', 'ba-by'
+                    #    Точка переноса - индекс i (перед согласной). Проверяем word[i-1], word[i], word[i+1].
+                    #    Требуется как минимум 3 символа для этого паттерна.
+                    if 0 < i < word_len - 1 and \
+                            self._is_vow(word_segment[i - 1]) and self._is_cons(word_segment[i]) and self._is_vow(
+                        word_segment[i + 1]):
+                        logger.debug(f"Found V-C-V (split before C) split point at index {i} in '{word_segment}'")
+                        return i
+
+                    # 3. Перенос после одиночной согласной между двумя гласными (V-C-V), например, 'riv-er', 'fin-ish'
+                    #    Точка переноса - индекс i (после согласной). Проверяем word[i-2], word[i-1], word[i].
+                    #    Требуется как минимум 3 символа для этого паттерна.
+                    if 1 < i < word_len and \
+                            self._is_vow(word_segment[i - 2]) and self._is_cons(word_segment[i - 1]) and \
+                            self._is_vow(word_segment[i]):
+                        logger.debug(f"Found V-C-V (split after C) split point at index {i} in '{word_segment}'")
+                        return i
+
+                    # 4. Правила для распространенных суффиксов (перенос ПЕРЕД суффиксом)
+                    #    Убедимся, что i > 0, чтобы не было переноса в самом начале слова.
+                    #    Длина части перед суффиксом (i) должна быть >= min_part.
+                    #    Длина самого суффикса (len(word_segment) - i) также должна быть >= min_part.
+                    #    Это уже учтено при формировании valid_split_indices.
+                    if i > 0:
+                        current_ending = word_segment[i:].upper()
+                        for suffix in _EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER:
+                            # Проверяем, что оставшаяся часть слова (потенциальный суффикс)
+                            # имеет достаточную длину (min_part) и совпадает с суффиксом из списка.
+                            # Длина части *перед* суффиксом (i) уже проверена через valid_split_indices.
+                            if len(current_ending) == len(suffix) and \
+                                    len(current_ending) >= min_part and \
+                                    current_ending == suffix:
+                                logger.debug(
+                                    f"Found suffix '-{suffix}' split point at index {i} in '{word_segment}'")
+                                return i
+
+                # Если ни одна подходящая точка переноса не найдена в допустимом диапазоне
+                logger.debug(f"No suitable hyphen point found for '{word_segment}' near center.")
                 return -1
 
+            # Рекурсивная функция для деления слова на части с переносами
             def split_word_en(word_to_split: str) -> str:
+                # Базовый случай рекурсии: если часть слова достаточно короткая, не делим ее дальше
                 if len(word_to_split) <= self.max_unhyphenated_len:
                     return word_to_split
-                hyphen_idx = find_hyphen_point_en(word_to_split)
-                if hyphen_idx != -1:
-                    return word_to_split[:hyphen_idx] + self._split_code + word_to_split[hyphen_idx:]
-                return word_to_split
+
+                # Ищем точку переноса около середины текущей части слова
+                hyphen_idx = find_hyphen_point_en(word_to_split, len(word_to_split) // 2)
+
+                # Если подходящая точка переноса не найдена, возвращаем часть слова как есть
+                if hyphen_idx == -1:
+                    return word_to_split
+
+                # Рекурсивно обрабатываем обе части и объединяем их символом переноса
+                return (split_word_en(word_to_split[:hyphen_idx]) +
+                        self._split_code + split_word_en(word_to_split[hyphen_idx:]))
+
             # --- Конец логики для английского языка ---
             return split_word_en(word)
         else:
