@@ -3,6 +3,10 @@ from etpgrf.config import MODE_UNICODE, MODE_MNEMONIC, MODE_MIXED, SUPPORTED_LAN
 from etpgrf.defaults import etpgrf_settings
 import os
 import regex
+import logging
+
+# --- Настройки логирования ---
+logger = logging.getLogger(__name__)
 
 
 def parse_and_validate_mode(
@@ -90,3 +94,47 @@ def parse_and_validate_langs(
         raise ValueError("etpgrf: не предоставлено ни одного валидного кода языка.")
 
     return frozenset(validated_langs_set)
+
+
+def is_inside_unbreakable_segment(
+    word_segment: str,
+    split_index: int,
+    unbreakable_set: frozenset[str] | list[str] | set[str],
+) -> bool:
+    """
+    Проверяет, находится ли позиция разбиения внутри неразрывного сегмента.
+
+    :param word_segment: -- Сегмент слова, в котором мы ищем позицию разбиения.
+    :param split_index: -- Индекс (позиция внутри сегмента), по которому мы хотим проверить разбиение.
+    :param unbreakable_set: -- Набор неразрывных сегментов (например: диграфы, триграфы, акронимы...).
+    :return:
+    """
+    segment_len = len(word_segment)
+    # Проверяем, что позиция разбиения не выходит за границы сегмента
+    if not (0 < split_index < segment_len):
+        return False
+    # Пер образуем все в верхний регистр, чтобы сравнения строк работали
+    word_segment_upper = word_segment.upper()
+    # unbreakable_set_upper = (unit.upper() for unit in unbreakable_set)        # <-- С помощью генератора
+
+    # Отсортируем unbreakable_set по длине лексем (чем короче, тем больше шансов на "ранний выход")
+    # и заодно превратим в list
+    sorted_units = sorted(unbreakable_set, key=len)
+    # sorted_units = sorted(unbreakable_set_upper, key=len)
+    for unbreakable in sorted_units:
+        unit_len = len(unbreakable)
+        if unit_len < 2:
+            continue
+        # Спорно, что преобразование в верхний регистр эффективнее делать тут, но благодаря возможному
+        # "раннему выходу" это может быть быстрее с помощью генератора (см. выше комментарии)
+        unbreakable_upper = unbreakable.upper()
+        for offset in range(1, unit_len):
+            position_start_in_segment = split_index - offset
+            position_end_in_segment = position_start_in_segment + unit_len
+            # Убедимся, что предполагаемое положение 'unit' не выходит за границы word_segment
+            if position_start_in_segment >= 0 and position_end_in_segment <= segment_len and \
+                    word_segment_upper[position_start_in_segment:position_end_in_segment] == unbreakable_upper:
+                # Нашли 'unbreakable', и split_index находится внутри него.
+                return True
+    return False
+

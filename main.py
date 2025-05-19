@@ -38,11 +38,7 @@ if __name__ == '__main__':
                                " в словах. Миллион 100-метровошеих жирножирафов.")
     print(result, "\n\n")
 
-    # меняем настройки логирования
-    etpgrf.defaults.etpgrf_settings.logging_settings.LEVEL = logging.DEBUG
-    etpgrf.logger.update_etpgrf_log_level_from_settings()  # Обновляем уровень логирования из настроек
-    etpgrf.defaults.etpgrf_settings.logging_settings.FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    etpgrf.logger.update_etpgrf_log_format_from_settings() # Обновляем формат логирования из настроек
+
 
     # Меняем настройки по умолчанию для переносов
     etpgrf.defaults.etpgrf_settings.LANGS = "ru"
@@ -63,19 +59,49 @@ if __name__ == '__main__':
     print(result, "\n-----\n\n-----")
 
     # Проверяем переносы в смешанном тексте (русский + английский)
-    typo_en = etpgrf.Typographer(langs='en', mode='mixed', hyphenation=True)
     etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 6
-    txt = ("As the sun set—casting long shadows across the meadow—a remarkably sophisticated individual pondered"
-           " life’s complexities. \"Is it possible,\" they wondered aloud, \"that such an inconsequential event"
-           " could hold deeper meaning?\n"
+    typo_en = etpgrf.Typographer(langs='en', mode='mixed', hyphenation=True)
+    txt = ("It was a chilly autumn afternoon when Anna finally received her custom-made KATEBLASH coat."
+           " “I can’t believe how perfectly it fits!” she exclaimed, wrapping the soft, woolen fabric tightly"
+           " around her shoulders.\n"
            "\n"
-           "Their notebook (a leather-bound relic from 1923) contained hastily scribbled observations:"
-           " \"Interdisciplinary collaboration requires mutual understanding—not just technical expertise.\""
-           " Nearby, an unfinished cup of coffee sat atop a stack of papers titled \"The Phenomenology of"
-           " Subjective Experience in Modern Literature.\n"
+           "The coat - designed with unique check patterns and a detachable hood - was more than just a garment."
+           " It was a statement of style and comfort, crafted with care and precision. Anna remembered the"
+           " fitting session vividly: “The tailor said, ‘This coat will keep you style through even the coldest"
+           " things winter throws at you.’”\n"
            "\n"
-           "Suddenly, a deafening noise—like thunder, yet mechanical—echoed in the distance."
-           " \"What on Earth…?\" they muttered, peering through binoculars. Was it an airplane?"
-           " A construction vehicle? Or something entirely different?")
+           "Her friend Mark raised an eyebrow: “Only you would get a coat with such an elaborate"
+           " design - and those fancy oughtstanding stitches! Sounds like your coat has more personality"
+           " than some people I know!”\n"
+           "\n"
+           "As they walked down the street, Anna noticed how the coat’s tailored cut moved gracefully with her."
+           " The consideration of every detail - from the choice of fabric to the delicate embroidery - made it"
+           " clear that this was no ordinary coat.\n"
+           "\n"
+           "Later, over coffee, Anna joked, “I told the tailor, ‘Make it so I never want to take it off.’ "
+           "Looks like they succeeded!\n"
+           "\n"
+           "Mark nodded, “Well, with KATEBLASH, it’s not just about fashion - it’s about craftsmanship, comfort,"
+           " and a little bit of magic.”")
     result = typo_en.process(text=txt)
     print(result, "\n\n")
+
+    # Спасибо. Для английского текста, для проверки типографа, мне не хватает неразрывных диграфов-квадрографов -- sh, ch, th, ph, wh, ck, ng, aw, tch, dge, igh, eigh, ough и неразрывных суффиксов -- ation, ition, ution, osity, able, ible, ment, ness,  less, ship, hood, tive, sion, tion в длинный словах (8 символов и более). и пусть тескт  тоже будет про пальто KATEBLASH. Справишься??
+
+    # меняем настройки логирования
+    etpgrf.defaults.etpgrf_settings.logging_settings.LEVEL = logging.DEBUG
+    etpgrf.logger.update_etpgrf_log_level_from_settings()  # Обновляем уровень логирования из настроек
+    # etpgrf.defaults.etpgrf_settings.logging_settings.FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    # etpgrf.logger.update_etpgrf_log_format_from_settings() # Обновляем формат логирования из настроек
+    # Определяем пользовательские правила переносов
+    hyphen_settings = etpgrf.Hyphenator(langs='en', max_unhyphenated_len=6)
+
+    # Проверяем переносы в словах
+    result = hyphen_settings.hyp_in_text("oughtstanding")
+    print(result, "==\n\n")
+    result = hyphen_settings.hyp_in_text("blacksmithing")
+    print(result, "==\n\n")
+    result = hyphen_settings.hyp_in_text("dccadckpoooughremawgreen")
+    print(result, "==\n\n")
+
+

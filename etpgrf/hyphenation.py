@@ -1,8 +1,14 @@
+# etpgrf/hyphenation.py
+# Представленные здесь алгоритмы реализуют упрощенные правила. Но эти правила лучше, чем их полное отсутствие.
+# Тем более что пользователь может отключить переносы из типографа.
+# Для русского языка правила реализованы лучше. Для английского дают "разумные" переносы во многих случаях, но из-за
+# большого числа беззвучных согласных и их сочетаний, могут давать не совсем корректный результат.
+
 import regex
 import logging
 from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, SHY_ENTITIES, MODE_UNICODE
 from etpgrf.defaults import etpgrf_settings
-from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
+from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs, is_inside_unbreakable_segment
 
 _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
 _RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х',
@@ -25,6 +31,10 @@ _EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER = frozenset([
         "SION", "TION",                       #                     decision, action (часто покрываются C-C или V-C-V)
         # "ING", "ED", "ER", "EST", "LY"      # совсем короткие, но распространенные, не рассматриваем.
 ])
+_EN_UNBREAKABLE_X_GRAPHS_UPPER = frozenset(["SH", "CH", "TH", "PH", "WH", "CK", "NG", "AW",   # диграфы с согласными
+                                         "TCH", "DGE", "IGH",               # триграфы
+                                         "EIGH", "OUGH"])                   # квадрографы
+
 
 # --- Настройки логирования ---
 logger = logging.getLogger(__name__)
@@ -143,16 +153,18 @@ class Hyphenator:
                     if i >= start_idx - self.min_chars_per_part and i + self.min_chars_per_part < len(word_segment):
                         # Проверяем, что после гласной есть минимум символов "хвоста"
                         ind = i + 1
-                        if (self._is_cons(word_segment[ind]) or self._is_j_sound(word_segment[ind])) and not self._is_vow(word_segment[ind + 1]):
-                            # Й -- полугласная. Перенос после неё только в случае, если дальше идет согласная
-                            # (например, "бой-кий"), но запретить, если идет гласная (например, "ма-йка" не переносится).
-                            ind += 1
+                        # 1. Не отделяем "хвостов" с начала или конца (это некрасиво)
                         if ind <= self.min_chars_per_part or ind >= len(word_segment) - self.min_chars_per_part:
-                            # Не отделяем 3 символ с начала или конца (это некрасиво)
                             continue
+                        # 2. Пропускаем мягкий/твердый знак, если перенос начинается или заканчивается
+                        # на них (правило из ГОСТ 7.62-2008)
                         if self._is_sign(word_segment[ind]) or (ind > 0 and self._is_sign(word_segment[ind-1])):
-                            # Пропускаем мягкий/твердый знак, если перенос начинается или заканчивается на них (ГОСТ 7.62-2008)
                             continue
+                        # 3. Провека на `Й` (полугласная). Перенос после неё только в случае, если дальше идет
+                        #    согласная (например, "бой-кий"), но запретить, если идет гласная (например,
+                        #    "ма-йка" не переносится).
+                        if (self._is_cons(word_segment[ind]) or self._is_j_sound(word_segment[ind])) and not self._is_vow(word_segment[ind + 1]):
+                            ind += 1
                         return ind
                 return -1  # Не нашли подходящую позицию
 
@@ -209,13 +221,26 @@ class Hyphenator:
                 # Проверяем каждый потенциальный индекс переноса по упрощенным правилам
                 for i in valid_split_indices:
                     # Упрощенные правила английского переноса (основаны на частых паттернах, не на слогах):
-                    # 1. Перенос между двумя согласными (C-C), например, 'but-ter', 'subjec-tive'
+                    # 1. Запрет переноса между гласными
+                    if self._is_vow(word_segment[i - 1]) and self._is_vow(word_segment[i]):
+                        logger.debug(
+                            f"Skipping V-V split point at index {i} in '{word_segment}' ({word_segment[i - 1]}{word_segment[i]})")
+                        continue  # Переходим к следующему кандидату i
+
+                    # 2. Запрет переноса ВНУТРИ неразрывных диграфов/триграфов и т.д.
+                    if is_inside_unbreakable_segment(word_segment=word_segment,
+                                                     split_index=i,
+                                                     unbreakable_set=_EN_UNBREAKABLE_X_GRAPHS_UPPER):
+                        logger.debug(f"Skipping unbreakable segment at index {i} in '{word_segment}'")
+                        continue
+
+                    # 3. Перенос между двумя согласными (C-C), например, 'but-ter', 'subjec-tive'
                     #    Точка переноса - индекс i. Проверяем символы word[i-1] и word[i].
                     if self._is_cons(word_segment[i - 1]) and self._is_cons(word_segment[i]):
                         logger.debug(f"Found C-C split point at index {i} in '{word_segment}'")
                         return i
 
-                    # 2. Перенос перед одиночной согласной между двумя гласными (V-C-V), например, 'ho-tel', 'ba-by'
+                    # 4. Перенос перед одиночной согласной между двумя гласными (V-C-V), например, 'ho-tel', 'ba-by'
                     #    Точка переноса - индекс i (перед согласной). Проверяем word[i-1], word[i], word[i+1].
                     #    Требуется как минимум 3 символа для этого паттерна.
                     if i < word_len - 1 and \
@@ -224,7 +249,7 @@ class Hyphenator:
                         logger.debug(f"Found V-C-V (split before C) split point at index {i} in '{word_segment}'")
                         return i
 
-                    # 3. Перенос после одиночной согласной между двумя гласными (V-C-V), например, 'riv-er', 'fin-ish'
+                    # 5. Перенос после одиночной согласной между двумя гласными (V-C-V), например, 'riv-er', 'fin-ish'
                     #    Точка переноса - индекс i (после согласной). Проверяем word[i-2], word[i-1], word[i].
                     #    Требуется как минимум 3 символа для этого паттерна.
                     if i < word_len and \
@@ -233,7 +258,7 @@ class Hyphenator:
                         logger.debug(f"Found V-C-V (split after C) split point at index {i} in '{word_segment}'")
                         return i
 
-                    # 4. Правила для распространенных суффиксов (перенос ПЕРЕД суффиксом)
+                    # 6. Правила для распространенных суффиксов (перенос ПЕРЕД суффиксом)
                     if word_segment[i:].upper() in _EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER:
                         logger.debug(f"Found suffix '-{word_segment[i:]}' split point at index {i} in '{word_segment}'")
                         return i
