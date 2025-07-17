@@ -43,6 +43,7 @@ if __name__ == '__main__':
     # Меняем настройки по умолчанию для переносов
     etpgrf.defaults.etpgrf_settings.LANGS = "ru"
     etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 8
+    etpgrf.defaults.etpgrf_settings.unbreakables = True
     txt = ("В самом сердце Санкт-Петербурга — там, где старинные фасады спорят с неоном вывесок — мелькнуло"
            " пятно алого. Это было пальто от КейтБлаш, сшитое на заказ для перформанс-художницы Серафимы-Лукреции"
            " Д’Анжу-Палладиновой.\n"
@@ -79,10 +80,7 @@ if __name__ == '__main__':
            " clear that this was no ordinary coat.\n"
            "\n"
            "Later, over coffee, Anna joked, “I told the tailor, ‘Make it so I never want to take it off.’ "
-           "Looks like they succeeded!\n"
-           "\n"
-           "Mark nodded, “Well, with KATEBLASH, it’s not just about fashion - it’s about craftsmanship, comfort,"
-           " and a little bit of magic.”")
+           "Looks like they succeeded!")
     result = typo_en.process(text=txt)
     print(result, "\n\n")
 

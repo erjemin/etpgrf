@@ -13,4 +13,5 @@ __version__ = "0.1.0"
 import etpgrf.defaults
 from etpgrf.typograph import Typographer
 from etpgrf.hyphenation import Hyphenator
+from etpgrf.unbreakables import Unbreakables
 import etpgrf.logger

@@ -1,5 +1,6 @@
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 from etpgrf.hyphenation import Hyphenator
+from etpgrf.unbreakables import Unbreakables
 import logging
 
 # --- Настройки логирования ---
@@ -12,7 +13,7 @@ class Typographer:
                  langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
                  mode: str | None = None,
                  hyphenation: Hyphenator | bool | None = True,  # Перенос слов и параметры расстановки переносов
-                 # glue_prepositions_rule: GluePrepositionsRule | None = None, # Для других правил
+                 unbreakables: Unbreakables | bool | None = True, # Правила для предотвращения разрыва коротких слов
                  # ... другие модули правил ...
                  ):
 
@@ -25,24 +26,47 @@ class Typographer:
         #    А для специальных случаев, когда переносы не нужны, пусть не ленятся и делают `hyphenation=False`.
         self.hyphenation: Hyphenator | None = None
         if hyphenation is True or hyphenation is None:
-            # 1. Создаем новый объект Hyphenator с заданными языками и режимом, а все остальное по умолчанию
+            # C1. Создаем новый объект Hyphenator с заданными языками и режимом, а все остальное по умолчанию
             self.hyphenation = Hyphenator(langs=self.langs, mode=self.mode)
         elif isinstance(hyphenation, Hyphenator):
-            # 2. Если hyphenation - это объект Hyphenator, то просто сохраняем его (и используем его langs и mode)
+            # C2. Если hyphenation - это объект Hyphenator, то просто сохраняем его (и используем его langs и mode)
             self.hyphenation = hyphenation
         elif hyphenation is False:
-            # 3. Если hyphenation - False, то правило переноса выключено.
+            # C3. Если hyphenation - False, то правило переноса выключено.
             self.hyphenation = None
         else:
-            # 4. Если hyphenation что-то неведомое, то игнорируем его и правило переноса выключено
+            # D4. Если hyphenation что-то неведомое, то игнорируем его и правило переноса выключено
             self.hyphenation = None
-        # D. --- Конфигурация других правил---
-        logger.debug(f"Typographer `__init__`: langs: {self.langs}, mode: {self.mode}, hyphenation: {self.hyphenation}")
+        # D. --- Конфигурация правил неразрывных слов ---
+        self.unbreakables: Unbreakables | None = None
+        if unbreakables is True or unbreakables is None:
+            # D1. Создаем новый объект Unbreakables с заданными языками и режимом, а все остальное по умолчанию
+            self.unbreakables = Unbreakables(langs=self.langs, mode=self.mode)
+        elif isinstance(unbreakables, Unbreakables):
+            # D2. Если unbreakables - это объект Unbreakables, то просто сохраняем его (и используем его langs и mode)
+            self.unbreakables = unbreakables
+        elif unbreakables is False:
+            # D3. Если unbreakables - False, то правило неразрывных слов выключено.
+            self.unbreakables = None
+        else:
+            # D4. Если unbreakables что-то неведомое, то игнорируем его и правило неразрывных слов выключено
+            self.unbreakables = None
+        # E. --- Конфигурация других правил---
+
+        # Z. --- Логирование инициализации ---
+        logger.debug(f"Typographer `__init__`: langs: {self.langs}, mode: {self.mode}, "
+                     f"hyphenation: {self.hyphenation is not None}, "
+                     f"unbreakables: {self.unbreakables is not None}")
+
 
 
     # Конвейер для обработки текста
     def process(self, text: str) -> str:
         processed_text = text
+        # Применяем правила в определенном порядке.
+        # Неразрывные конструкции лучше применять до переносов.
+        if self.unbreakables is not None:
+            processed_text = self.unbreakables.process(processed_text)
         if self.hyphenation is not None:
             # Обработчик переносов (Hyphenator) активен. Обрабатываем текст...
             processed_text = self.hyphenation.hyp_in_text(processed_text)
