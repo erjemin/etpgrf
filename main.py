@@ -60,8 +60,6 @@ if __name__ == '__main__':
     print(result, "\n-----\n\n-----")
 
     # Проверяем переносы в смешанном тексте (русский + английский)
-    etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 6
-    typo_en = etpgrf.Typographer(langs='en', mode='mixed', hyphenation=True)
     txt = ("It was a chilly autumn afternoon when Anna finally received her custom-made KATEBLASH coat."
            " “I can’t believe how perfectly it fits!” she exclaimed, wrapping the soft, woolen fabric tightly"
            " around her shoulders.\n"
@@ -81,25 +79,19 @@ if __name__ == '__main__':
            "\n"
            "Later, over coffee, Anna joked, “I told the tailor, ‘Make it so I never want to take it off.’ "
            "Looks like they succeeded!")
+    etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 6
+    typo_en = etpgrf.Typographer(langs='en', mode='mixed', hyphenation=True)
     result = typo_en.process(text=txt)
-    print(result, "\n\n")
+    print(result, "\n\n--------------\n\n")
 
-    # Спасибо. Для английского текста, для проверки типографа, мне не хватает неразрывных диграфов-квадрографов -- sh, ch, th, ph, wh, ck, ng, aw, tch, dge, igh, eigh, ough и неразрывных суффиксов -- ation, ition, ution, osity, able, ible, ment, ness,  less, ship, hood, tive, sion, tion в длинный словах (8 символов и более). и пусть тескт  тоже будет про пальто KATEBLASH. Справишься??
+    # Проверяем если есть HTML-тегов
+    txt = ("<p>As they walked down the street, Anna noticed how the coat’s tailored cut moved gracefully with her."
+           " The consideration of every detail - from the <i>choice of fabric</i> to the delicate embroidery - made it"
+           " clear that this was no ordinary coat.</p><style>body { font-family: Arial; }</style>")
+    typo_en = etpgrf.Typographer(langs='en', mode='mixed', process_html=True, hyphenation=True)
+    result = typo_en.process(text=txt)
+    print(result, "\n\n--------------\n\n")
 
-    # меняем настройки логирования
-    etpgrf.defaults.etpgrf_settings.logging_settings.LEVEL = logging.DEBUG
-    etpgrf.logger.update_etpgrf_log_level_from_settings()  # Обновляем уровень логирования из настроек
-    # etpgrf.defaults.etpgrf_settings.logging_settings.FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    # etpgrf.logger.update_etpgrf_log_format_from_settings() # Обновляем формат логирования из настроек
-    # Определяем пользовательские правила переносов
-    hyphen_settings = etpgrf.Hyphenator(langs='en', max_unhyphenated_len=6)
 
-    # Проверяем переносы в словах
-    result = hyphen_settings.hyp_in_text("oughtstanding")
-    print(result, "==\n\n")
-    result = hyphen_settings.hyp_in_text("blacksmithing")
-    print(result, "==\n\n")
-    result = hyphen_settings.hyp_in_text("dccadckpoooughremawgreen")
-    print(result, "==\n\n")
 
 
