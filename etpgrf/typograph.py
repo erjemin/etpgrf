@@ -1,4 +1,5 @@
 import logging
+import html
 try:
     from bs4 import BeautifulSoup, NavigableString
 except ImportError:
@@ -6,6 +7,7 @@ except ImportError:
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 from etpgrf.hyphenation import Hyphenator
 from etpgrf.unbreakables import Unbreakables
+from etpgrf.codec import decode_to_unicode, encode_from_unicode
 
 
 # --- Настройки логирования ---
@@ -40,7 +42,7 @@ class Typographer:
         self.hyphenation: Hyphenator | None = None
         if hyphenation is True or hyphenation is None:
             # C1. Создаем новый объект Hyphenator с заданными языками и режимом, а все остальное по умолчанию
-            self.hyphenation = Hyphenator(langs=self.langs, mode=self.mode)
+            self.hyphenation = Hyphenator(langs=self.langs)
         elif isinstance(hyphenation, Hyphenator):
             # C2. Если hyphenation - это объект Hyphenator, то просто сохраняем его (и используем его langs и mode)
             self.hyphenation = hyphenation
@@ -49,7 +51,7 @@ class Typographer:
         self.unbreakables: Unbreakables | None = None
         if unbreakables is True or unbreakables is None:
             # D1. Создаем новый объект Unbreakables с заданными языками и режимом, а все остальное по умолчанию
-            self.unbreakables = Unbreakables(langs=self.langs, mode=self.mode)
+            self.unbreakables = Unbreakables(langs=self.langs)
         elif isinstance(unbreakables, Unbreakables):
             # D2. Если unbreakables - это объект Unbreakables, то просто сохраняем его (и используем его langs и mode)
             self.unbreakables = unbreakables
@@ -69,8 +71,8 @@ class Typographer:
         """
         # Шаг 1: Декодируем весь входящий текст в канонический Unicode
         # (здесь можно использовать html.unescape, но наш кодек тоже подойдет)
-        # processed_text = decode_to_unicode(text)
-        processed_text = text  # ВРЕМЕННО: используем текст как есть
+        processed_text = decode_to_unicode(text)
+        # processed_text = text  # ВРЕМЕННО: используем текст как есть
 
         # Шаг 2: Применяем правила к чистому Unicode-тексту
         if self.unbreakables is not None:
@@ -79,10 +81,7 @@ class Typographer:
             processed_text = self.hyphenation.hyp_in_text(processed_text)
         # ... вызовы других активных модулей правил ...
 
-        # Шаг 3: Кодируем результат в запрошенный формат (mnemonic или mixed)
-        # final_text = encode_from_unicode(processed_text, self.mode)
-        final_text = processed_text  # ВРЕМЕННО: используем текст как есть
-        return final_text
+        return processed_text
 
 
 
@@ -105,24 +104,23 @@ class Typographer:
                 if not node.string.strip() or node.parent.name in ['style', 'script', 'pre', 'code']:
                     continue
                 # К каждому текстовому узлу применяем "внутренний" процессор
-                processed_node_text = self._process_text_node(node.string)
+                processed_node_text: str = self._process_text_node(node.string)
                 # Отладочная печать, чтобы видеть, что происходит
                 if node.string != processed_node_text:
                     logger.info(f"Processing node: '{node.string}' -> '{processed_node_text}'")
                 # Заменяем узел в дереве на обработанный текст.
                 # BeautifulSoup сама позаботится об экранировании, если нужно.
                 # Важно: мы не можем просто заменить строку, нужно создать новый объект NavigableString,
-                # чтобы BeautifulSoup правильно обработал символы вроде '<' и '>'.
-                # Однако, replace_with достаточно умен, чтобы справиться с этим.
+                #        чтобы BeautifulSoup правильно обработал символы вроде '<' и '>'.
+                #        Однако, replace_with достаточно умен, чтобы справиться с этим.
                 node.replace_with(processed_node_text)
 
-            # Возвращаем измененный HTML. BeautifulSoup по умолчанию выводит без тегов <html><body>
+            # Получаем измененный HTML. BeautifulSoup по умолчанию выводит без тегов <html><body>
             # если их не было в исходной строке.
-            return str(soup)
+            processed = str(soup)
         else:
-            # Если HTML-режим выключен, работаем как раньше
-            return self._process_text_node(text)
-
-    # def _get_nbsp(self): # Пример получения неразрывного пробела
-    #     return "\u00A0" if self.mode in UTF else "&nbsp;"
+            # Если HTML-режим выключен
+            processed = self._process_text_node(text)
+        # Возвращаем
+        return encode_from_unicode(processed, self.mode)
 

@@ -6,7 +6,8 @@
 
 import regex
 import logging
-from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, SPACE_ENTITIES, MODE_UNICODE
+from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, KEY_NBSP, ALL_ENTITIES
+from etpgrf.comutil import parse_and_validate_langs
 from etpgrf.defaults import etpgrf_settings
 
 # --- Наборы коротких слов для разных языков ---
@@ -17,7 +18,7 @@ _RU_UNBREAKABLE_WORDS = frozenset([
     # Предлоги (только короткие... длинные, типа `ввиду`, `ввиду` и т.п., могут быть "висячими")
     'в', 'без', 'до', 'из', 'к', 'на', 'по', 'о', 'от', 'перед', 'при', 'через', 'с', 'у', 'за', 'над',
     'об', 'под', 'про', 'для', 'ко', 'со', 'без', 'то', 'во', 'из-за', 'из-под', 'как'
-    # Союзы (без сложных, тип 'как будто', 'как если бы', `за то` и т.п.)
+    # Союзы (без сложных, тип `как будто`, `как если бы`, `за то` и т.п.)
     'и', 'а', 'но', 'да', 'как',
     # Частицы
     'не', 'ни',
@@ -62,15 +63,11 @@ class Unbreakables:
     от последующих слов.
     """
 
-    def __init__(self,
-                 langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
-                 mode: str = None):
-        from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
+    def __init__(self, langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None):
         self.langs = parse_and_validate_langs(langs)
-        self.mode = parse_and_validate_mode(mode)
 
-        # Определяем символ неразрывного пробела в зависимости от режима
-        self._nbsp_char = SPACE_ENTITIES['NBSP'][0] if self.mode == MODE_UNICODE else SPACE_ENTITIES['NBSP'][1]
+        # Так как внутри типографа кодировка html, то символ неразрывного пробела независим от режима
+        self._nbsp_char = ALL_ENTITIES[KEY_NBSP][0]
 
         # --- 1. Собираем наборы слов для обработки ---
         pre_words = set()
@@ -104,7 +101,7 @@ class Unbreakables:
             # Паттерн для слов, ПЕРЕД которыми нужен nbsp.
             self._post_pattern = regex.compile(r"(?i)(\s)\b(" + "|".join(map(regex.escape, sorted_particles)) + r")\b")
 
-        logger.debug(f"Unbreakables `__init__`. Langs: {self.langs}, Mode: {self.mode}, "
+        logger.debug(f"Unbreakables `__init__`. Langs: {self.langs}, "
                       f"Pre-words: {len(pre_words)}, Post-words: {len(post_words)}")
 
 

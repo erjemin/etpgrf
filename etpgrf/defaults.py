@@ -24,6 +24,7 @@ class EtpgrfDefaultSettings:
     def __init__(self):
         self.LANGS: list[str] | str = LANG_RU
         self.MODE: str = MODE_MIXED
+        # self.PROCESS_HTML: bool = False   # Флаг обработки HTML-тегов
         self.logging_settings = LoggingDefaults()
         self.hyphenation = HyphenationDefaults()
         # self.quotes = EtpgrfQuoteDefaults()

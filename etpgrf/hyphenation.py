@@ -6,9 +6,9 @@
 
 import regex
 import logging
-from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, SHY_ENTITIES, MODE_UNICODE
+from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, KEY_SHY, ALL_ENTITIES
 from etpgrf.defaults import etpgrf_settings
-from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs, is_inside_unbreakable_segment
+from etpgrf.comutil import parse_and_validate_langs, is_inside_unbreakable_segment
 
 _RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
 _RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х',
@@ -46,11 +46,9 @@ class Hyphenator:
     """
     def __init__(self,
                  langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
-                 mode: str = None,  # Режим обработки текста
                  max_unhyphenated_len: int | None = None,  # Максимальная длина непереносимой группы
                  min_tail_len: int | None = None):  # Минимальная длина после переноса (хвост, который разрешено переносить)
         self.langs: frozenset[str] = parse_and_validate_langs(langs)
-        self.mode: str = parse_and_validate_mode(mode)
         self.max_unhyphenated_len = etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN if max_unhyphenated_len is None else max_unhyphenated_len
         self.min_chars_per_part = etpgrf_settings.hyphenation.MIN_TAIL_LEN if min_tail_len is None else min_tail_len
         if self.min_chars_per_part < 2:
@@ -72,10 +70,10 @@ class Hyphenator:
         self._en_alphabet_upper: frozenset = frozenset()
         # Загружает наборы символов на основе self.langs
         self._load_language_resources_for_hyphenation()
-        # Определяем символ переноса в зависимости от режима
-        self._split_code: str = SHY_ENTITIES['SHY'][0] if self.mode == MODE_UNICODE else SHY_ENTITIES['SHY'][1]
+        # Так как внутри типографа кодировка html, то символ переноса независим от режима
+        self._split_code: str = ALL_ENTITIES[KEY_SHY][0]
         # ...
-        logger.debug(f"Hyphenator `__init__`. Langs: {self.langs}, Mode: {self.mode},"
+        logger.debug(f"Hyphenator `__init__`. Langs: {self.langs},"
                      f" Max unhyphenated_len: {self.max_unhyphenated_len},"
                      f" Min chars_per_part: {self.min_chars_per_part}")
 
@@ -135,7 +133,7 @@ class Hyphenator:
         if len(word) <= self.max_unhyphenated_len or not any(self._is_vow(c) for c in word):
             # Если слово короткое или не содержит гласных, перенос не нужен
             return word
-        logger.debug(f"Hyphenator: word: `{word}` // langs: {self.langs} // mode: {self.mode} // max_unhyphenated_len: {self.max_unhyphenated_len} // min_tail_len: {self.min_chars_per_part}")
+        logger.debug(f"Hyphenator: word: `{word}` // langs: {self.langs} // max_unhyphenated_len: {self.max_unhyphenated_len} // min_tail_len: {self.min_chars_per_part}")
         # 2. ОБНАРУЖЕНИЕ ЯЗЫКА И ПОДКЛЮЧЕНИЕ ЯЗЫКОВОЙ ЛОГИКИ
         # Поиск вхождения букв строки (слова) через `frozenset` -- O(1). Это быстрее регулярного выражения -- O(n)
         # 2.1. Проверяем RU и RU_OLD (правила одинаковые, но разные наборы букв)
