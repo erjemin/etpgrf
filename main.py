@@ -28,7 +28,7 @@ if __name__ == '__main__':
     print(result, "\n\n")
 
     # Определяем пользовательские правила типографа
-    typo_ru = etpgrf.Typographer(langs='ru', mode='mixed', hyphenation=hyphen_settings)
+    typo_ru = etpgrf.Typographer(langs='ru', mode='unicode', hyphenation=hyphen_settings)
     result = typo_ru.process(text="Какой-то длинный текст для проверки переносов. Перпердикюляция!")
     print(result, "\n\n")
 
@@ -80,15 +80,15 @@ if __name__ == '__main__':
            "Later, over coffee, Anna joked, “I told the tailor, ‘Make it so I never want to take it off.’ "
            "Looks like they succeeded!")
     etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 6
-    typo_en = etpgrf.Typographer(langs='en', mode='mixed', hyphenation=True)
+    typo_en = etpgrf.Typographer(langs='en', hyphenation=True)
     result = typo_en.process(text=txt)
     print(result, "\n\n--------------\n\n")
 
     # Проверяем если есть HTML-тегов
     txt = ("<p>As they walked down the street, Anna noticed how the coat’s tailored cut moved gracefully with her."
-           " The consideration of every detail - from the <i>choice of fabric</i> to the delicate embroidery - made it"
+           " The consideration of every detail&nbsp;- from the <i>choice of fabric</i> to the delicate embroidery - made it"
            " clear that this was no ordinary coat.</p><style>body { font-family: Arial; }</style>")
-    typo_en = etpgrf.Typographer(langs='en', mode='mixed', process_html=True, hyphenation=True)
+    typo_en = etpgrf.Typographer(langs='en', process_html=True, hyphenation=True)
     result = typo_en.process(text=txt)
     print(result, "\n\n--------------\n\n")
 

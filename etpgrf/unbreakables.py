@@ -49,7 +49,7 @@ _EN_UNBREAKABLE_WORDS = frozenset([
     'a', 'an', 'as', 'at', 'by', 'in', 'is', 'it', 'of', 'on', 'or', 'so', 'to', 'if',
     # 3-4 letter words
     'for', 'from', 'into', 'that', 'then', 'they', 'this', 'was', 'were', 'what', 'when', 'with',
-    'not', 'but', 'which',
+    'not', 'but', 'which', 'the'
 ])
 
 # --- Настройки логирования ---
