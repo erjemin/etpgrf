@@ -128,7 +128,7 @@ class Hyphenator:
         # 1. ОБЩИЕ ПРОВЕРКИ
         # TODO: возможно, для скорости, надо сделать проверку на пробелы и другие разделители, которых не должно быть
         if not word:
-            # Добавим явную проверку на пустую строку
+            # Явная проверка на пустую строку
             return ""
         if len(word) <= self.max_unhyphenated_len or not any(self._is_vow(c) for c in word):
             # Если слово короткое или не содержит гласных, перенос не нужен
@@ -140,29 +140,61 @@ class Hyphenator:
         if (LANG_RU in self.langs or LANG_RU_OLD in self.langs) and frozenset(word.upper()) <= self._ru_alphabet_upper:
             # Пользователь подключил русскую логику, и слово содержит только русские буквы
             logger.debug(f"`{word}` -- use `{LANG_RU}` or `{LANG_RU_OLD}` rules")
+
             # Поиск допустимой позиции для переноса около заданного индекса
             def find_hyphen_point_ru(word_segment: str, start_idx: int) -> int:
                 vow_indices = [i for i, char_w in enumerate(word_segment) if self._is_vow(char_w)]
                 # Если в слове нет гласных, то перенос невозможен
                 if not vow_indices:
                     return -1
+                word_segment_len = len(word_segment)
                 # Ищем ближайшую гласную до или после start_idx
                 for i in vow_indices:
-                    if i >= start_idx - self.min_chars_per_part and i + self.min_chars_per_part < len(word_segment):
+                    if i >= start_idx - self.min_chars_per_part and i + self.min_chars_per_part < word_segment_len:
                         # Проверяем, что после гласной есть минимум символов "хвоста"
                         ind = i + 1
                         # 1. Не отделяем "хвостов" с начала или конца (это некрасиво)
-                        if ind <= self.min_chars_per_part or ind >= len(word_segment) - self.min_chars_per_part:
+                        if ind <= self.min_chars_per_part or ind >= word_segment_len - self.min_chars_per_part:
                             continue
-                        # 2. Пропускаем мягкий/твердый знак, если перенос начинается или заканчивается
-                        # на них (правило из ГОСТ 7.62-2008)
-                        if self._is_sign(word_segment[ind]) or (ind > 0 and self._is_sign(word_segment[ind-1])):
+                        # 2. Сдвигаем перенос за мягкий/твердый знак, если он сразу за согласной (ГОСТ 7.62-2008)
+                        if self._is_sign(word_segment[ind]):
+                            # 2.1 Текущая буква мягкий/твердый знак. Ставим перенос за ней (индекс ind+1).
+                            return ind + 1
+                        if (self._is_cons(word_segment[ind]) and
+                                i+1 < word_segment_len and self._is_sign(word_segment[ind+1])):
+                            # 2.2 Текущая буква согласная, а следующая мягкий/твердый знак. Ставим перенос за ней
+                            return ind+2
+                        # 3. Проверка на `Й` (полугласная). Не бывает слов, когда сразу не ней идет гласная,
+                        #    или перед ней идет согласная. Сдвигает перенос за полугласную букву если она идет после
+                        #    гласной.
+                        if self._is_j_sound(word_segment[ind+1]):
+                            # 3.1 Текущая буква `й`. Ставим за ней перенос (индекс ind+1).
+                            return ind+1
+                        if (self._is_vow(word_segment[ind]) and
+                                i+1 < word_segment_len and self._is_j_sound(word_segment[ind+1])):
+                            # 3.2 Текущая буква гласная, а следующая `й`. Ставим перенос за `й` (индекс ind+2).
+                            #     Ставим перенос за `й` (индекс ind+2).
+                            return ind+2
+                        # 4. Проверка на сдвоенная-согласная (C-C).
+                        if (self._is_cons(word_segment[ind]) and
+                                i+1 < word_segment_len and word_segment[ind] == word_segment[ind+1]):
+                            print("сдвоенная согласная")
+                            # 4.1 Текущая буква согласная и следующая така же (сдвоенная согласная). Ставим перенос
+                            #     за ней (индекс ind+1).
+                            return ind + 1
+                        if (self._is_cons(word_segment[ind]) and
+                                i+1 < word_segment_len and self._is_cons(word_segment[ind+1])):
+                            # 4.2 НЕ ОБЯЗАТЕЛЬНОЕ ПРАВИЛО: Текущая буква согласная, а следующая тоже согласная.
+                            # Ставим перенос за ней (индекс ind+1).
+                            return ind+1
+                        # 5. Проверка на гласная-гласная (V-V).
+                        if (self._is_vow(word_segment[ind]) and
+                                i+1 < word_segment_len and self._is_vow(word_segment[ind+1])):
+                            # 5.1 Текущая буква гласная, а следующая гласная. Перенос не делаем. Возможно,
+                            #     надо дальше искать до ближайшей согласной, но это усложнит алгоритм.
                             continue
-                        # 3. Провека на `Й` (полугласная). Перенос после неё только в случае, если дальше идет
-                        #    согласная (например, "бой-кий"), но запретить, если идет гласная (например,
-                        #    "ма-йка" не переносится).
-                        if (self._is_cons(word_segment[ind]) or self._is_j_sound(word_segment[ind])) and not self._is_vow(word_segment[ind + 1]):
-                            ind += 1
+                        # 6. TODO (опционально): Проверка на суффикс и приставку (не разбивать). Нужен словарь.
+                        # 7. TODO (опционально): Проверка на короткий корень (не разбивать). Нужен очень большой словарь.
                         return ind
                 return -1  # Не нашли подходящую позицию
 
