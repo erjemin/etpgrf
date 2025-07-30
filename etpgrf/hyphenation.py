@@ -165,6 +165,7 @@ class Hyphenator:
                     # РАЗРЕШЕНИЕ 2: Перенос после "слога" с Ь/Ъ, если дальше идет СОГЛАСНАЯ.
                     #               Пример: "строитель-ство", но НЕ "компь-ютер".
                     #               По-хорошему нужно проверять, что перед Ь/Ъ нет йотированной гласной
+                    #               (и переработать ЗАПРЕТ 2), но это еще больше усложнит логику.
                     if self._is_sign(word_segment[i - 1]) and self._is_cons(word_segment[i]):
                         return 9
                     # РАЗРЕШЕНИЕ 3: Перенос после "слога" если предыдущий Й (очень качественный перенос).
@@ -179,8 +180,6 @@ class Hyphenator:
                     # РАЗРЕШЕНИЕ 6 (Основное правило): Перенос после гласной.
                     if self._is_vow(word_segment[i - 1]):
                         return 5
-
-
                     # Если ни одно правило не подошло, точка не подходит для переноса.
                     return 0
 
@@ -295,8 +294,10 @@ class Hyphenator:
                         logger.debug(f"Found V-C-V (split after C) split point at index {i} in '{word_segment}'")
                         return i
 
-                    # 6. Правила для распространенных суффиксов (перенос ПЕРЕД суффиксом)
+                    # 6. Правила для распространенных суффиксов (перенос ПЕРЕД суффиксом). Проверяем, что word_segment
+                    #    заканчивается на суффикс, и точка переноса (i) находится как раз перед ним
                     if word_segment[i:].upper() in _EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER:
+                        # Мы нашли потенциальный суффикс.
                         logger.debug(f"Found suffix '-{word_segment[i:]}' split point at index {i} in '{word_segment}'")
                         return i
 
