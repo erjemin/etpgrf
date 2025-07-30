@@ -1,6 +1,7 @@
 # tests/test_hyphenation.py
 import pytest
 from etpgrf import Hyphenator
+from tests.test_unbreakables import ENGLISH_PREPOSITIONS_TO_TEST
 
 # --- Тестовые данные для русского языка ---
 # Формат: (входное_слово, ожидаемый_результат_с_переносами)
@@ -45,4 +46,31 @@ def test_russian_word_hyphenation(input_word, expected_output):
     assert actual_output == expected_output
 
 
+ENGLISH_HYPHENATION_CASES = [
+    ("color", "color"),  # Короткое слово, не должно меняться
+    ("throughout", "throughout"),  # Длинное слово, но из-за икс-графа "ough" не будет переноситься
+    ("ambrella", "amb\u00ADrella"),
+    ("unbelievable", "unbel\u00ADiev\u00ADable"),  # Проверка переноса перед суффиксом "able"
+    ("acknowledgment", "ack\u00ADnow\u00ADledg\u00ADment"),  # Проверка переноса перед суффиксом "ment"
+    ("friendship", "frien\u00ADdship"),  # Проверка переноса перед суффиксом "ship"
+    ("thoughtful", "though\u00ADtful"),  #
+    ("psychology", "psy\u00ADcho\u00ADlogy"),  # Проверка переноса после "psy"
+    ("extraordinary", "ext\u00ADraor\u00ADdin\u00ADary"),  # Проверка сложного слова
+    ("unbreakable", "unb\u00ADrea\u00ADkable"),  # Проверка переноса перед "able"
+    ("acknowledgement", "ack\u00ADnow\u00ADledge\u00ADment"),  # Проверка икс-графа "dge"
+    ("misunderstanding", "mis\u00ADunder\u00ADstan\u00ADding"),  # Проверка сложного слова
+    ("floccinaucinihilipilification", "floc\u00ADcin\u00ADauc\u00ADinih\u00ADili\u00ADpili\u00ADfica\u00ADtion"),
+]
+
+@pytest.mark.parametrize("input_word, expected_output", ENGLISH_HYPHENATION_CASES)
+def test_english_word_hyphenation(input_word, expected_output):
+    """
+    Проверяет ПОВЕДЕНИЕ: правильная расстановка переносов в отдельных английских словах.
+    """
+    # Arrange (подготовка)
+    hyphenator_en = Hyphenator(langs='en', max_unhyphenated_len=5, min_tail_len=3)
+    # Act (действие) - тестируем самый "атомарный" метод
+    actual_output = hyphenator_en.hyp_in_word(input_word)
+    # Assert (проверка)
+    assert actual_output == expected_output
 
