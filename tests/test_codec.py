@@ -19,7 +19,7 @@ STRINGS_FOR_DECODE = [
     ("&lsquo; &rsquo; &sbquo;", "‘ ’ ‚"),  # Одиночные кавычки
     ("&lsaquo; &rsaquo;", "‹ ›"),  # Французские угловые кавычки
     ("&dollar; &cent; &pound; &curren; &yen; &euro; &#8381;", "$ ¢ £ ¤ ¥ € ₽"),  # Валютные символы
-    ("&plus; &minus; &times; &divide; &equals; &ne;", "+ − × ÷ = ≠"),   # Математические символы
+    ("&plus; &minus; &times; &divide; &equals; &ne;", "+ − × ÷ = ≠"),            # Математические символы
     ("&plusmn; &not; &deg; &sup1; &sup2 &sup3;", "± ¬ ° ¹ ² ³"),
     ("&fnof; &percnt; &permil; &pertenk;", "ƒ % ‰ ‱"),
     ("&forall; &comp; &part; &exist; &nexist;", "∀ ∁ ∂ ∃ ∄"),
@@ -79,9 +79,36 @@ STRINGS_FOR_DECODE = [
     ("&loz; &sung; &flat; &natural; &sharp; &check;", "◊ ♪ ♭ ♮ ♯ ✓"),
     ("&cross; &malt; &sext; &VerticalSeparator;", "✗ ✠ ✶ ❘"),
     ("&lbbrk; &rbbrk;", "❲ ❳"),
+    ("&excl; &num; &percnt; &lpar; &rpar; &ast;", "! # % ( ) *"),               # Знаки препинания
+    ("&comma; &period; &sol; &colon; &semi;", ", . / : ;"),
+    ("&quest; &lbrack; &bsol; &rbrack; &Hat; &lowbar;", "? [ \\ ] ^ _"),
+    ("&grave; &lbrace; &vert; &rbrace; &tilde;", "` { | } ˜"),
+    ("&circ; &lrm; &rlm; &iexcl; &brvbar; &sect;", "ˆ \u200e \u200f ¡ ¦ §"),
+    ("&uml; &ordf; &not; &macr; &acute; &micro; &bprime;", "¨ ª ¬ ¯ ´ µ ‵"),
+    ("&para; &middot; &cedil; &ordm; &iquest; &Vert;", "¶ · ¸ º ¿ ‖"),
+    ("&dagger; &Dagger; &bull; &nldr; &hellip;", "† ‡ • ‥ …"),
+    ("&permil; &pertenk; &prime; &Prime; &tprime;", "‰ ‱ ′ ″ ‴"),
+    ("&oline; &caret; &hybull; &frasl; &bsemi; &qprime;", "‾ ⁁ ⁃ ⁄ ⁏ ⁗"),
+    ("&frac12; &frac13; &frac14; &frac15; &frac16;", "½ ⅓ ¼ ⅕ ⅙"),              # Дробные символы и знаки
+    ("&frac18; &frac23; &frac25; &frac34; &frac35;", "⅛ ⅔ ⅖ ¾ ⅗"),
+    ("&frac38; &frac45; &frac56; &frac58; &frac78;", "⅜ ⅘ ⅚ ⅝ ⅞"),
+    ("&Alpha; &Beta; &Gamma; &Delta; &Epsilon; &Zeta;", "Α Β Γ Δ Ε Ζ"),        # Греческие символы
+    ("&Eta; &Theta; &Iota; &Kappa; &Lambda; &Mu;", "Η Θ Ι Κ Λ Μ"),
+    ("&Nu; &Xi; &Omicron; &Pi; &Rho; &Sigma; &Tau;", "Ν Ξ Ο Π Ρ Σ Τ"),
+    ("&Upsilon; &Phi; &Chi; &Psi; &Omega; &alpha;", "Υ Φ Χ Ψ Ω α"),
+    ("&beta; &gamma; &delta; &epsilon; &zeta; &eta;", "β γ δ ε ζ η"),
+    ("&theta; &iota; &kappa; &lambda; &mu; &nu;", "θ ι κ λ μ ν"),
+    ("&xi; &omicron; &pi; &rho; &sigmaf; &tau;", "ξ ο π ρ ς τ"),
+    ("&upsilon; &phi; &chi; &psi; &omega;", "υ φ χ ψ ω"),
+    ("&thetasym; &upsih; &piv;", "ϑ ϒ ϖ"),
     ("", ""),
     ("", ""),
-    ("", ""),
+
+
+
+
+
+
 
 
 
