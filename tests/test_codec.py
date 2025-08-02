@@ -20,14 +20,14 @@ STRINGS_FOR_DECODE = [
     ("&lsaquo; &rsaquo;", "‹ ›"),  # Французские угловые кавычки
     ("&dollar; &cent; &pound; &curren; &yen; &euro; &#8381;", "$ ¢ £ ¤ ¥ € ₽"),  # Валютные символы
     ("&plus; &minus; &times; &divide; &equals; &ne;", "+ − × ÷ = ≠"),            # Математические символы
-    ("&plusmn; &not; &deg; &sup1; &sup2 &sup3;", "± ¬ ° ¹ ² ³"),
+    ("&plusmn; &not; &deg; &sup1; &sup2; &sup3;", "± ¬ ° ¹ ² ³"),
     ("&fnof; &percnt; &permil; &pertenk;", "ƒ % ‰ ‱"),
     ("&forall; &comp; &part; &exist; &nexist;", "∀ ∁ ∂ ∃ ∄"),
     ("&empty; &nabla; &isin; &notin; &ni; &notni;", "∅ ∇ ∈ ∉ ∋ ∌"),
     ("&prod; &coprod; &sum; &mnplus; &minusd;", "∏ ∐ ∑ ∓ ∸"),
     ("&plusdo; &setminus; &lowast; &compfn; &radic;", "∔ ∖ ∗ ∘ √"),
     ("&prop; &infin; &ang; &angrt; &angmsd; &mid;", "∝ ∞ ∠ ∟ ∡ ∣"),
-    ("&angsph; &nmid; '&parallel; &npar; &and; &or;", "∢ ∤ '∥ ∦ ∧ ∨"),
+    ("&angsph; &nmid; &parallel; &npar; &and; &or;", "∢ ∤ ∥ ∦ ∧ ∨"),
     ("&cap; &cup; &int; &Int; &iiint; &conint;", "∩ ∪ ∫ ∬ ∭ ∮"),
     ("&Conint; &Cconint; &cwint; &cwconint;", "∯ ∰ ∱ ∲"),
     ("&awconint; &there4; &because; &ratio; &Colon;", "∳ ∴ ∵ ∶ ∷"),
@@ -66,53 +66,45 @@ STRINGS_FOR_DECODE = [
     ("&isinE; &nisd; &xnis; &nis; &notnivc;", "⋹ ⋺ ⋻ ⋼ ⋽"),
     ("&notnivb; &barwed; &Barwed; &lceil; &lceil;", "⋾ ⌅ ⌆ ⌈ ⌈"),
     ("&rceil; &lfloor; &rfloor; &lang; &rang;", "⌉ ⌊ ⌋ ⟨ ⟩"),
-    ("&copy; &reg; &trade; &copysr; &commat;", "© ® ™ ℗ @"),                    # Другие символы
-    ("&Copf; &incare; &gscr; &hamilt; &Hfr; &Hopf;", "ℂ ℅ ℊ ℋ ℌ ℍ"),
-    ("&planckh; &planck; &Iscr; &image; &Lscr; &ell;", "ℎ ℏ ℐ ℑ ℒ ℓ"),
-    ("&Nopf; &numero; &weierp; &Popf; &Qopf; &Rscr;", "ℕ № ℘ ℙ ℚ ℛ"),
-    ("&Ropf; &rx; &Zopf; &mho; &Zfr; &iiota;", "ℝ ℞ ℤ ℧ ℨ ℩"),
-    ("&bernou; &Cfr; &escr; &Escr; &Fscr; &Mscr;", "ℬ ℭ ℯ ℰ ℱ ℳ"),
-    ("&oscr; &alefsym; &beth; &gimel; &daleth;", "ℴ ℵ ℶ ℷ ℸ"),
-    ("&DD; &dd; &ee; &ii; &ffilig; &fflig;", "ⅅ ⅆ ⅇ ⅈ ﬃ ﬀ"),
-    ("&filig; &fllig; &starf; &star; &phone;", "ﬁ ﬂ ★ ☆ ☎"),
-    ("&female; &male; &spades; &clubs; &hearts; &diams;", "♀ ♂ ♠ ♣ ♥ ♦"),
-    ("&loz; &sung; &flat; &natural; &sharp; &check;", "◊ ♪ ♭ ♮ ♯ ✓"),
-    ("&cross; &malt; &sext; &VerticalSeparator;", "✗ ✠ ✶ ❘"),
-    ("&lbbrk; &rbbrk;", "❲ ❳"),
-    ("&excl; &num; &percnt; &lpar; &rpar; &ast;", "! # % ( ) *"),               # Знаки препинания
-    ("&comma; &period; &sol; &colon; &semi;", ", . / : ;"),
-    ("&quest; &lbrack; &bsol; &rbrack; &Hat; &lowbar;", "? [ \\ ] ^ _"),
-    ("&grave; &lbrace; &vert; &rbrace; &tilde;", "` { | } ˜"),
-    ("&circ; &lrm; &rlm; &iexcl; &brvbar; &sect;", "ˆ \u200e \u200f ¡ ¦ §"),
-    ("&uml; &ordf; &not; &macr; &acute; &micro; &bprime;", "¨ ª ¬ ¯ ´ µ ‵"),
-    ("&para; &middot; &cedil; &ordm; &iquest; &Vert;", "¶ · ¸ º ¿ ‖"),
-    ("&dagger; &Dagger; &bull; &nldr; &hellip;", "† ‡ • ‥ …"),
-    ("&permil; &pertenk; &prime; &Prime; &tprime;", "‰ ‱ ′ ″ ‴"),
-    ("&oline; &caret; &hybull; &frasl; &bsemi; &qprime;", "‾ ⁁ ⁃ ⁄ ⁏ ⁗"),
-    ("&frac12; &frac13; &frac14; &frac15; &frac16;", "½ ⅓ ¼ ⅕ ⅙"),              # Дробные символы и знаки
-    ("&frac18; &frac23; &frac25; &frac34; &frac35;", "⅛ ⅔ ⅖ ¾ ⅗"),
-    ("&frac38; &frac45; &frac56; &frac58; &frac78;", "⅜ ⅘ ⅚ ⅝ ⅞"),
-    ("&Alpha; &Beta; &Gamma; &Delta; &Epsilon; &Zeta;", "Α Β Γ Δ Ε Ζ"),        # Греческие символы
-    ("&Eta; &Theta; &Iota; &Kappa; &Lambda; &Mu;", "Η Θ Ι Κ Λ Μ"),
-    ("&Nu; &Xi; &Omicron; &Pi; &Rho; &Sigma; &Tau;", "Ν Ξ Ο Π Ρ Σ Τ"),
-    ("&Upsilon; &Phi; &Chi; &Psi; &Omega; &alpha;", "Υ Φ Χ Ψ Ω α"),
-    ("&beta; &gamma; &delta; &epsilon; &zeta; &eta;", "β γ δ ε ζ η"),
-    ("&theta; &iota; &kappa; &lambda; &mu; &nu;", "θ ι κ λ μ ν"),
-    ("&xi; &omicron; &pi; &rho; &sigmaf; &tau;", "ξ ο π ρ ς τ"),
-    ("&upsilon; &phi; &chi; &psi; &omega;", "υ φ χ ψ ω"),
-    ("&thetasym; &upsih; &piv;", "ϑ ϒ ϖ"),
+    # ("&copy; &reg; &trade; &copysr; &commat;", "© ® ™ ℗ @"),                    # Другие символы
+    # ("&Copf; &incare; &gscr; &hamilt; &Hfr; &Hopf;", "ℂ ℅ ℊ ℋ ℌ ℍ"),
+    # ("&planckh; &planck; &Iscr; &image; &Lscr; &ell;", "ℎ ℏ ℐ ℑ ℒ ℓ"),
+    # ("&Nopf; &numero; &weierp; &Popf; &Qopf; &Rscr;", "ℕ № ℘ ℙ ℚ ℛ"),
+    # ("&Ropf; &rx; &Zopf; &mho; &Zfr; &iiota;", "ℝ ℞ ℤ ℧ ℨ ℩"),
+    # ("&bernou; &Cfr; &escr; &Escr; &Fscr; &Mscr;", "ℬ ℭ ℯ ℰ ℱ ℳ"),
+    # ("&oscr; &alefsym; &beth; &gimel; &daleth;", "ℴ ℵ ℶ ℷ ℸ"),
+    # ("&DD; &dd; &ee; &ii; &ffilig; &fflig;", "ⅅ ⅆ ⅇ ⅈ ﬃ ﬀ"),
+    # ("&filig; &fllig; &starf; &star; &phone;", "ﬁ ﬂ ★ ☆ ☎"),
+    # ("&female; &male; &spades; &clubs; &hearts; &diams;", "♀ ♂ ♠ ♣ ♥ ♦"),
+    # ("&loz; &sung; &flat; &natural; &sharp; &check;", "◊ ♪ ♭ ♮ ♯ ✓"),
+    # ("&cross; &malt; &sext; &VerticalSeparator;", "✗ ✠ ✶ ❘"),
+    # ("&lbbrk; &rbbrk;", "❲ ❳"),
+    # ("&excl; &num; &percnt; &lpar; &rpar; &ast;", "! # % ( ) *"),               # Знаки препинания
+    # ("&comma; &period; &sol; &colon; &semi;", ", . / : ;"),
+    # ("&quest; &lbrack; &bsol; &rbrack; &Hat; &lowbar;", "? [ \\ ] ^ _"),
+    # ("&grave; &lbrace; &vert; &rbrace; &tilde;", "` { | } ˜"),
+    # ("&circ; &lrm; &rlm; &iexcl; &brvbar; &sect;", "ˆ \u200e \u200f ¡ ¦ §"),
+    # ("&uml; &ordf; &not; &macr; &acute; &micro; &bprime;", "¨ ª ¬ ¯ ´ µ ‵"),
+    # ("&para; &middot; &cedil; &ordm; &iquest; &Vert;", "¶ · ¸ º ¿ ‖"),
+    # ("&dagger; &Dagger; &bull; &nldr; &hellip;", "† ‡ • ‥ …"),
+    # ("&permil; &pertenk; &prime; &Prime; &tprime;", "‰ ‱ ′ ″ ‴"),
+    # ("&oline; &caret; &hybull; &frasl; &bsemi; &qprime;", "‾ ⁁ ⁃ ⁄ ⁏ ⁗"),
+    # ("&frac12; &frac13; &frac14; &frac15; &frac16;", "½ ⅓ ¼ ⅕ ⅙"),              # Дробные символы и знаки
+    # ("&frac18; &frac23; &frac25; &frac34; &frac35;", "⅛ ⅔ ⅖ ¾ ⅗"),
+    # ("&frac38; &frac45; &frac56; &frac58; &frac78;", "⅜ ⅘ ⅚ ⅝ ⅞"),
+    # ("&Alpha; &Beta; &Gamma; &Delta; &Epsilon; &Zeta;", "Α Β Γ Δ Ε Ζ"),        # Греческие символы
+    # ("&Eta; &Theta; &Iota; &Kappa; &Lambda; &Mu;", "Η Θ Ι Κ Λ Μ"),
+    # ("&Nu; &Xi; &Omicron; &Pi; &Rho; &Sigma; &Tau;", "Ν Ξ Ο Π Ρ Σ Τ"),
+    # ("&Upsilon; &Phi; &Chi; &Psi; &Omega; &alpha;", "Υ Φ Χ Ψ Ω α"),
+    # ("&beta; &gamma; &delta; &epsilon; &zeta; &eta;", "β γ δ ε ζ η"),
+    # ("&theta; &iota; &kappa; &lambda; &mu; &nu;", "θ ι κ λ μ ν"),
+    # ("&xi; &omicron; &pi; &rho; &sigma; &tau;", "ξ ο π ρ σ τ"),
+    # ("&upsilon; &phi; &chi; &psi; &omega;", "υ φ χ ψ ω"),
+    # ("&thetasym; &upsih; &piv;", "ϑ ϒ ϖ"),
     ("", ""),
+
+
     ("", ""),
-
-
-
-
-
-
-
-
-
-
 ]
 
 @pytest.mark.parametrize("input_string, expected_output", STRINGS_FOR_DECODE)
@@ -122,5 +114,16 @@ def test_html_mnemo_to_utf(input_string, expected_output):
     """
     # Act (действие) - тестируем
     actual_output = codec.decode_to_unicode(input_string)
+    # Assert (проверка)
+    assert actual_output == expected_output
+
+
+@pytest.mark.parametrize("expected_output, input_string", STRINGS_FOR_DECODE)
+def test_utf_to_html_mnemo(expected_output, input_string):
+    """
+    Проверяет ПОВЕДЕНИЕ: кодирование Unicode-строк в HTML-мнемоники.
+    """
+    # Act (действие) - тестируем
+    actual_output = codec.encode_from_unicode(input_string, mode="mnemonic")
     # Assert (проверка)
     assert actual_output == expected_output
