@@ -6,24 +6,21 @@
 
 import regex
 import logging
-from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, KEY_SHY, ALL_ENTITIES
+import html
+from etpgrf.config import (
+    LANG_RU, LANG_RU_OLD, LANG_EN,
+    RU_VOWELS_UPPER, RU_CONSONANTS_UPPER, RU_J_SOUND_UPPER, RU_SIGNS_UPPER, # RU_ALPHABET_UPPER,
+    EN_VOWELS_UPPER, EN_CONSONANTS_UPPER # , EN_ALPHABET_UPPER
+)
 from etpgrf.defaults import etpgrf_settings
 from etpgrf.comutil import parse_and_validate_langs, is_inside_unbreakable_segment
 
-_RU_VOWELS_UPPER = frozenset(['А', 'О', 'И', 'Е', 'Ё', 'Э', 'Ы', 'У', 'Ю', 'Я'])
-_RU_CONSONANTS_UPPER = frozenset(['Б', 'В', 'Г', 'Д', 'Ж', 'З', 'К', 'Л', 'М', 'Н', 'П', 'Р', 'С', 'Т', 'Ф', 'Х',
-                                  'Ц', 'Ч', 'Ш', 'Щ'])
-_RU_J_SOUND_UPPER = frozenset(['Й'])
-_RU_SIGNS_UPPER = frozenset(['Ь', 'Ъ'])
+
 _RU_OLD_VOWELS_UPPER = frozenset(['І',      # И-десятеричное (гласная)
                                   'Ѣ',      # Ять (гласная)
                                   'Ѵ'])     # Ижица (может быть и гласной, и согласной - сложный случай!)
 _RU_OLD_CONSONANTS_UPPER = frozenset(['Ѳ',],)   # Фита (согласная)
 
-
-_EN_VOWELS_UPPER = frozenset(['A', 'E', 'I', 'O', 'U', 'Æ', 'Œ'])
-_EN_CONSONANTS_UPPER = frozenset(['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
-                                  'V', 'W', 'X', 'Y', 'Z'])
 _EN_SUFFIXES_WITHOUT_HYPHENATION_UPPER = frozenset([
         "ATION", "ITION", "UTION", "OSITY",   # 5-символьные, типа: creation, position, solution, generosity
         "ABLE", "IBLE", "MENT", "NESS",       # 4-символьные, типа: readable, visible, development, kindness
@@ -71,7 +68,10 @@ class Hyphenator:
         # Загружает наборы символов на основе self.langs
         self._load_language_resources_for_hyphenation()
         # Так как внутри типографа кодировка html, то символ переноса независим от режима
-        self._split_code: str = ALL_ENTITIES[KEY_SHY][0]
+        # self._split_code: str = ALL_ENTITIES[KEY_SHY][0]
+        # Получаем символ неразрывного пробела напрямую из стандартной библиотеки
+        self._split_code = chr(html.entities.name2codepoint['shy']) # <--- ИЗМЕНИТЬ
+
         # ...
         logger.debug(f"Hyphenator `__init__`. Langs: {self.langs},"
                      f" Max unhyphenated_len: {self.max_unhyphenated_len},"
@@ -80,21 +80,21 @@ class Hyphenator:
     def _load_language_resources_for_hyphenation(self):
         # Определяем наборы гласных, согласных и т.д. в зависимости языков.
         if LANG_RU in self.langs:
-            self._vowels |= _RU_VOWELS_UPPER
-            self._consonants |= _RU_CONSONANTS_UPPER
-            self._j_sound_upper |= _RU_J_SOUND_UPPER
-            self._signs_upper |= _RU_SIGNS_UPPER
+            self._vowels |= RU_VOWELS_UPPER
+            self._consonants |= RU_CONSONANTS_UPPER
+            self._j_sound_upper |= RU_J_SOUND_UPPER
+            self._signs_upper |= RU_SIGNS_UPPER
             self._ru_alphabet_upper |= self._vowels | self._consonants | self._j_sound_upper | self._signs_upper
         if LANG_RU_OLD in self.langs:
-            self._vowels |= _RU_VOWELS_UPPER | _RU_OLD_VOWELS_UPPER
-            self._consonants |= _RU_CONSONANTS_UPPER | _RU_OLD_CONSONANTS_UPPER
-            self._j_sound_upper |= _RU_J_SOUND_UPPER
-            self._signs_upper |= _RU_SIGNS_UPPER
+            self._vowels |= RU_VOWELS_UPPER | _RU_OLD_VOWELS_UPPER
+            self._consonants |= RU_CONSONANTS_UPPER | _RU_OLD_CONSONANTS_UPPER
+            self._j_sound_upper |= RU_J_SOUND_UPPER
+            self._signs_upper |= RU_SIGNS_UPPER
             self._ru_alphabet_upper |= self._vowels | self._consonants | self._j_sound_upper | self._signs_upper
         if LANG_EN in self.langs:
-            self._vowels |= _EN_VOWELS_UPPER
-            self._consonants |= _EN_CONSONANTS_UPPER
-            self._en_alphabet_upper |= _EN_VOWELS_UPPER | _EN_CONSONANTS_UPPER
+            self._vowels |= EN_VOWELS_UPPER
+            self._consonants |= EN_CONSONANTS_UPPER
+            self._en_alphabet_upper |= EN_VOWELS_UPPER | EN_CONSONANTS_UPPER
         # ... и для других языков, если они поддерживаются переносами
 
 
