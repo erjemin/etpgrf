@@ -408,7 +408,7 @@ STRINGS_FOR_ENCODE = [
     ("║ │ ╬ ╫ ╪ ┼ ╣ ╢ ╡ ┤", "&boxV; &boxv; &boxVH; &boxVh; &boxvH; &boxvh; &boxVL; &boxVl; &boxvL; &boxvl;"),
     ("╠ ╟ ╞ ├ ‵ ˘ ˘ ¦ ¦", "&boxVR; &boxVr; &boxvR; &boxvr; &bprime; &breve; &breve; &brvbar; &brvbar;"),
     ("ℬ 𝒷 ⁏ ∽ ⋍ \\ ⧅ ⟈ • •", "&Bscr; &bscr; &bsemi; &bsim; &bsime; \\ &bsolb; &bsolhsub; &bull; &bull;"),
-    # ("≎ ⪮ ≏ ≎ ≏ Ć ć ⋒ ∩", "&bump; &bumpE; &bumpe; &Bumpeq; &bumpeq; &Cacute; &cacute; &Cap; &cap;"),
+    ("≎ ⪮ ≏ ≎ ≏ Ć ć ⋒ ∩", "&bump; &bumpE; &bumpe; &bump; &bumpe; &Cacute; &cacute; &Cap; &cap;"),
     # ("⩄ ⩉ ⩋ ⩇ ⩀ ⅅ ⁁", "&capand; &capbrcup; &capcap; &capcup; &capdot; &CapitalDifferentialD; &caret;"),
     # ("ˇ ℭ ⩍ Č č Ç ç Ç", "&caron; &Cayleys; &ccaps; &Ccaron; &ccaron; &Ccedil; &ccedil; &Ccedil;"),
     # ("ç Ĉ ĉ ∰ ⩌ ⩐ Ċ ċ ¸", "&ccedil; &Ccirc; &ccirc; &Cconint; &ccups; &ccupssm; &Cdot; &cdot; &cedil;"),

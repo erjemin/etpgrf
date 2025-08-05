@@ -93,7 +93,7 @@ CUSTOM_ENCODE_MAP = {
     '\u3253': '&alefsym;',   # ℵ / &alefsym / &aleph;
     '&': '&amp;',            # & / &amp; / &AMP;
     '\u2220': '&ang;',       # ∠ / &ang; / &angle;
-    '\u2061': '&af;',        # &af; / &ApplyFunction;
+    '\u2061': '&af;',        #   / &af; / &ApplyFunction;
     '\u2248': '&asymp;',     # ≈ / &asymp; / &approx; / &ap; / &thickapprox; / &thkap; / &TildeTilde;
     '\u00c5': '&Aring;',     # Å / &Aring; / &angst; /
     '\u224a': '&ape;',       # ≊ / &ape; / &&approxeq;
@@ -102,12 +102,14 @@ CUSTOM_ENCODE_MAP = {
     '\u224c': '&bcong;',     # ≌ / &backcong; / &bcong;
     '\u03f6': '&bepsi;',     # ϶ / &bepsi; / &backepsilon;
     '\u212c': '&Bscr;',      # ℬ / &Bscr; / &Bernoullis; / &bernou;
-    '\u22a5': '&perp;',      # ⊥ / perp; / &bot; / &bottom; / UpTee
+    '\u22a5': '&perp;',      # ⊥ / &perp; / &bot; / &bottom; / &UpTee;
     '\u2035': '&bprime;',    # ‵ / &bprime; / &backprime;
     '\u02d8': '&breve;',     # ˘ / &breve; / &Breve;
     '\u223d': '&bsim;',      # ∽ / &bsim; / &backsim;
     '\u22cd': '&bsime;',     # ⋍ / &bsime; / &backsimeq;
     '\u2022': '&bull;',      # • / &bull; / &bullet;
+    '\u224e': '&bump;',      # ≎ / &bump; / &Bumpeq; / &HumpDownHumpl;
+    '\u224f': '&bumpe;',     # ≏ / &bumpe; / &bumpeq; / &HumpEqual;
 }
 
 # === Динамическая генерация карт преобразования ===
