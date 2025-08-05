@@ -110,6 +110,9 @@ CUSTOM_ENCODE_MAP = {
     '\u2022': '&bull;',      # • / &bull; / &bullet;
     '\u224e': '&bump;',      # ≎ / &bump; / &Bumpeq; / &HumpDownHumpl;
     '\u224f': '&bumpe;',     # ≏ / &bumpe; / &bumpeq; / &HumpEqual;
+    '\u00b8': '&cedil;',     # ¸ / &cedil; / &Cedilla;
+    '\u00b7': '&middot;',    # · / &middot; / &CenterDot; / &centerdot;
+    '\u212d': '&Cfr;',       # ℭ / &Cfr; / &Cayleys;
 }
 
 # === Динамическая генерация карт преобразования ===
