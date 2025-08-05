@@ -6,7 +6,8 @@
 
 import regex
 import logging
-from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN, KEY_NBSP, ALL_ENTITIES
+import html
+from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN  # , KEY_NBSP, ALL_ENTITIES
 from etpgrf.comutil import parse_and_validate_langs
 from etpgrf.defaults import etpgrf_settings
 
@@ -66,8 +67,8 @@ class Unbreakables:
     def __init__(self, langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None):
         self.langs = parse_and_validate_langs(langs)
 
-        # Так как внутри типографа кодировка html, то символ неразрывного пробела независим от режима
-        self._nbsp_char = ALL_ENTITIES[KEY_NBSP][0]
+        # Получаем символ неразрывного пробела напрямую из стандартной библиотеки
+        self._nbsp_char = chr(html.entities.name2codepoint['nbsp']) # <--- ИЗМЕНИТЬ
 
         # --- 1. Собираем наборы слов для обработки ---
         pre_words = set()
