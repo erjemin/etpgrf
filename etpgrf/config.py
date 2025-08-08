@@ -98,14 +98,17 @@ CUSTOM_ENCODE_MAP = {
     # '\u007d': '&rcub;',       # } / &rcub; / &rbrace;
     # '\u007c': '&vert;',       # | / &vert; / &verbar; / &VerticalLine;
     # '\u0026': '&amp;',          # & / &amp; / &AMP;
+    # '\u00A0': '&nbsp;',          #   / &nbsp; / &NonBreakingSpace;
     '\u0026': '&amp;',          # & / &amp; / &AMP;
     '\u003e': '&gt;',           # > / &gt; / &GT;
+    '\u003c': '&lt;',               # < / &LT; / &lt;
     '\u00ae': '&reg;',          # ® / &reg; / &REG; / &circledR;
     '\u00b7': '&middot;',       # · / &middot; / &centerdot; / &CenterDot;
     '\u0060': '&grave;',        # ` / grave / DiacriticalGrave
     '\u00a8': '&die;',          # ¨ / &die; / &Dot; / &DoubleDot;
-    '\u00b1': '&pm;',           # ± / pm / PlusMinus
-    '\u00bd': '&half;',      # ½ / &frac12; / &half;
+    '\u00b1': '&pm;',           # ± / &pm; / &PlusMinus;
+    '\u00bd': '&half;',         # ½ / &frac12; / &half;
+    '\u201a': '&sbquo;',        # ‚ / &sbquo; / &lsquor;
     '\u223e': '&ac;',		    # ∾ / &ac; / &mstpos;
     '\u2207': '&Del;',		    # ∇ / &Del; / &nabla;
     '\u2061': '&af;',		    #   / &af; / &ApplyFunction;
@@ -126,6 +129,7 @@ CUSTOM_ENCODE_MAP = {
     '\u23b5': '&bbrk;',		# ⎵ / bbrk / UnderBracket
     '\u2235': '&becaus;',		# ∵ / becaus / because / Because
     '\u212c': '&Bscr;',		# ℬ / Bscr / bernou / Bernoullis
+    '\u2264': '&le;',		    # ≤ / &le; / &leq;
     '\u226c': '&twixt;',		# ≬ / &twixt; / &between;
     '\u22c2': '&xcap;',		    # ⋂ / &xcap; / &bigcap; / &Intersection;
     '\u25ef': '&xcirc;',		# ◯ / &xcirc; / &bigcirc;
@@ -142,6 +146,7 @@ CUSTOM_ENCODE_MAP = {
     '\u22c0': '&Wedge;',		# ⋀ / Wedge / &xwedge; / $bigwedge;
     '\u290d': '&rbarr;',		# ⤍ / rbarr / bkarow
     '\u29eb': '&lozf;',		    # ⧫ / &lozf; / &blacklozenge;
+    '\u25ca': '&loz;',		    # ◊ / &loz; / &lozenge
     '\u25aa': '&squf;',		    # ▪ / &squf; / &squarf; / &blacksquare; / &FilledVerySmallSquare;
     '\u25b4': '&utrif;',		# ▴ / &utrif; / &blacktriangle;
     '\u25be': '&dtrif;',		# ▾ / &dtrif; / &blacktriangledown;
@@ -187,7 +192,7 @@ CUSTOM_ENCODE_MAP = {
     '\u22cf': '&cuwed;',		# ⋏ / cuwed / curlywedge
     '\u2010': '&dash;',		    # ‐ / &dash; / &hyphen;
     '\u2ae4': '&Dashv;',		# ⫤ / Dashv / DoubleLeftTee
-    '\u22a3': '&dashv;',		# ⊣ / dashv / LeftTee
+    '\u22a3': '&dashv;',		# ⊣ / &dashv; / &LeftTee;
     '\u290f': '&rBarr;',		# ⤏ / &rBarr; / &dbkarow;
     '\u02dd': '&dblac;',		# ˝ / dblac / DiacriticalDoubleAcute
     '\u2146': '&dd;',		# ⅆ / dd / DifferentialD
@@ -201,7 +206,7 @@ CUSTOM_ENCODE_MAP = {
     '\u03b5': '&epsi;',		    # ε / &epsi; / &epsilon;
     '\u03dd': '&gammad;',		# ϝ / gammad / digamma
     '\u22c7': '&divonx;',		# ⋇ / divonx / divideontimes
-    '\u231e': '&dlcorn;',		# ⌞ / dlcorn / llcorner
+    '\u231e': '&dlcorn;',		# ⌞ / &dlcorn; / &llcorner;
     '\u2250': '&esdot;',		# ≐ / esdot / doteq / DotEqual
     '\u2251': '&eDot;',		# ≑ / eDot / doteqdot
     '\u2238': '&minusd;',		# ∸ / minusd / dotminus
@@ -211,13 +216,14 @@ CUSTOM_ENCODE_MAP = {
     '\u21d0': '&lArr;',		    # ⇐ / &lArr; / &Leftarrow; / &DoubleLeftArrow;
     '\u21d4': '&iff;',		    # ⇔ / &iff; / &hArr; / &Leftrightarrow; / &DoubleLeftRightArrow;
     '\u27f8': '&xlArr;',		# ⟸ / xlArr / Longleftarrow / DoubleLongLeftArrow
-    '\u27fa': '&xhArr;',		# ⟺ / xhArr / Longleftrightarrow / DoubleLongLeftRightArrow
+    '\u27fa': '&xhArr;',		# ⟺ / &xhArr; / &Longleftrightarrow; / &DoubleLongLeftRightArrow;
     '\u27f9': '&xrArr;',		# ⟹ / xrArr / Longrightarrow / DoubleLongRightArrow
     '\u21d2': '&rArr;',		    # ⇒ / &rArr; / &Implies; / &Rightarrow; / &DoubleRightArrow;
     '\u22a8': '&vDash;',		# ⊨ / vDash / DoubleRightTee
     '\u21d1': '&uArr;',		    # ⇑ / &uArr; / &Uparrow; / &DoubleUpArrow;
+    '\u2202': '&part;',         # ∂ / &part; / &PartialD;
     '\u21d5': '&vArr;',		# ⇕ / vArr / Updownarrow / DoubleUpDownArrow
-    '\u2225': '&par;',		# ∥ / par / spar / parallel / shortparallel / DoubleVerticalBar
+    '\u2225': '&par;',		    # ∥ / &par; / &spar; / &parallel; / &shortparallel; / &DoubleVerticalBar;
     '\u2191': '&uarr;',		    # ↑ / &uarr; / &UpArrow; / &ShortUpArrow;
     '\u2193': '&darr;',	   	    # ↓ / &darr; / &downarrow; / &DownArrow; / &ShortDownArrow;
     '\u21f5': '&duarr;',		# ⇵ / &duarr; / &DownArrowUpArrow;
@@ -243,7 +249,7 @@ CUSTOM_ENCODE_MAP = {
     '\u21cc': '&rlhar;',		# ⇌ / &rlhar; / &Equilibrium; / &rightleftharpoons;
     '\u2253': '&erDot;',		# ≓ / erDot / risingdotseq
     '\u2130': '&Escr;',		    # ℰ / &Escr; / &expectation;
-    '\u22d4': '&fork;',		# ⋔ / fork / pitchfork
+    '\u22d4': '&fork;',		    # ⋔ / &fork; / &pitchfork;
     '\u2131': '&Fscr;',		    # ℱ / &Fscr; / &Fouriertrf;
     '\u2322': '&frown;',		# ⌢ / frown / sfrown
     '\u2a86': '&gap;',		    # ⪆ / &gap; / &gtrapprox;
@@ -257,14 +263,15 @@ CUSTOM_ENCODE_MAP = {
     '\u2277': '&gl;',		    # ≷ / &gl; / &gtrless; / &GreaterLess;
     '\u2a8a': '&gnap;',		    # ⪊ / &gnap; / &gnapprox;
     '\u2269': '&gnE;',		    # ≩ / &gnE; / &gneqq;
+    '\u2260': '&ne;',		    # ≠ / &ne; / &NotEqual;
     '\u2a88': '&gne;',		    # ⪈ / &gne; / &gneq;
     '\u2273': '&gsim;',		    # ≳ / &gsim; / &gtrsim; / &GreaterTilde;
     '\u22d7': '&gtdot;',		# ⋗ / &gtdot; / &gtrdot;
     '\u200a': '&hairsp;',		#   / &hairsp; / &VeryThinSpace;
     '\u210b': '&Hscr;',		    # ℋ / &Hscr; / &hamilt; / &HilbertSpace;
-    '\u21ad': '&harrw;',		# ↭ / harrw / leftrightsquigarrow
+    '\u21ad': '&harrw;',		# ↭ / &harrw; / &leftrightsquigarrow;
     '\u210f': '&hbar;',		    # ℏ / &hbar; / &planck; / &hslash; / &plankv;
-    '\u210c': '&Hfr;',		# ℌ / Hfr / Poincareplane
+    '\u210c': '&Hfr;',		    # ℌ / &Hfr; / &Poincareplane;
     '\u2925': '&searhk;',		# ⤥ / &searhk; / &hksearow;
     '\u2926': '&swarhk;',		# ⤦ / &swarhk; / &hkswarow;
     '\u21a9': '&larrhk;',		# ↩ / &larrhk; / &hookleftarrow;
@@ -282,107 +289,110 @@ CUSTOM_ENCODE_MAP = {
     '\u2a3c': '&iprod;',		# ⨼ / &iprod; / &intprod;
     '\u2062': '&it;',		    # ⁢ / &it; / &InvisibleTimes;
     '\u03f0': '&kappav;',		# ϰ / kappav / varkappa
-    '\u21da': '&lAarr;',		# ⇚ / lAarr / Lleftarrow
+    '\u21da': '&lAarr;',		# ⇚ / &lAarr; / &Lleftarrow;
     '\u2112': '&Lscr;',		    # ℒ / &Lscr; / &lagran; / &Laplacetrf;
     '\u27e8': '&lang;',		    # ⟨ / &lang; / &langle; / &LeftAngleBracket;
-    '\u2a85': '&lap;',		# ⪅ / lap / lessapprox
+    '\u2a85': '&lap;',		    # ⪅ / &lap; / &lessapprox;
     '\u219e': '&Larr;',		# ↞ / Larr / twoheadleftarrow
     '\u21e4': '&larrb;',		# ⇤ / &larrb; / &LeftArrowBar;
-    '\u21ab': '&larrlp;',		# ↫ / larrlp / looparrowleft
+    '\u21ab': '&larrlp;',		# ↫ / &larrlp; / &looparrowleft;
     '\u21a2': '&larrtl;',		# ↢ / &larrtl; / &leftarrowtail;
-    '\u2266': '&lE;',		# ≦ / lE / leqq / LessFullEqual
+    '\u2266': '&lE;',		    # ≦ / &lE; / &leqq; / &LessFullEqual;
     '\u2190': '&larr;',		    # ← / &larr; / &slarr; / &LeftArrow; / &leftarrow; / &ShortLeftArrow;
     '\u21c6': '&lrarr;',		# ⇆ / &lrarr; / &leftrightarrows; / &LeftArrowRightArrow;
     '\u27e6': '&lobrk;',		# ⟦ / &lobrk; / &LeftDoubleBracket;
     '\u21bc': '&lharu;',		# ↼ / &lharu; / &LeftVector; / &leftharpoonup;
     '\u21c7': '&llarr;',		# ⇇ / &llarr; / &leftleftarrows;
     '\u2194': '&harr;',		    # ↔ / &harr; / &leftrightarrow; / &LeftRightArrow;
-    '\u21cb': '&lrhar;',		# ⇋ / lrhar / leftrightharpoons / ReverseEquilibrium
-    '\u21a4': '&mapstoleft;',		# ↤ / mapstoleft / LeftTeeArrow
-    '\u22cb': '&lthree;',		# ⋋ / lthree / leftthreetimes
-    '\u22b2': '&vltri;',		# ⊲ / vltri / LeftTriangle / vartriangleleft
-    '\u22b4': '&ltrie;',		# ⊴ / ltrie / trianglelefteq / LeftTriangleEqual
-    '\u21bf': '&uharl;',		# ↿ / uharl / LeftUpVector / upharpoonleft
+    '\u21cb': '&lrhar;',		# ⇋ / &lrhar; / &leftrightharpoons; / &ReverseEquilibrium;
+    '\u21a4': '&mapstoleft;',	# ↤ / &mapstoleft; / &LeftTeeArrow;
+    '\u22cb': '&lthree;',		# ⋋ / &lthree; / &leftthreetimes;
+    '\u22b2': '&vltri;',		# ⊲ / &vltri; / &LeftTriangle; / &vartriangleleft;
+    '\u22b4': '&ltrie;',		# ⊴ / &ltrie; / &trianglelefteq; / &LeftTriangleEqual;
+    '\u21bf': '&uharl;',		# ↿ / &uharl; / &LeftUpVector; / &upharpoonleft;
     '\u2308': '&lceil;',        # ⌈ / &lceil; / &LeftCeiling;
     '\u230a': '&lfloor;',       # ⌊ / &lfloor; / &LeftFloor;
-    '\u2a8b': '&lEg;',		# ⪋ / lEg / lesseqqgtr
-    '\u22da': '&leg;',		# ⋚ / leg / lesseqgtr / LessEqualGreater
-    '\u2a7d': '&les;',		# ⩽ / les / leqslant / LessSlantEqual
-    '\u22d6': '&ltdot;',		# ⋖ / ltdot / lessdot
-    '\u2276': '&lg;',		# ≶ / lg / lessgtr / LessGreater
-    '\u2272': '&lsim;',		# ≲ / lsim / lesssim / LessTilde
-    '\u226a': '&ll;',		# ≪ / ll / Lt / NestedLessLess
-    '\u23b0': '&lmoust;',		# ⎰ / lmoust / lmoustache
-    '\u2a89': '&lnap;',		# ⪉ / lnap / lnapprox
-    '\u2268': '&lnE;',		# ≨ / lnE / lneqq
-    '\u2a87': '&lne;',		# ⪇ / lne / lneq
-    '\u27f5': '&xlarr;',		# ⟵ / xlarr / longleftarrow / LongLeftArrow
-    '\u27f7': '&xharr;',		# ⟷ / xharr / longleftrightarrow / LongLeftRightArrow
-    '\u27fc': '&xmap;',		# ⟼ / xmap / longmapsto
-    '\u27f6': '&xrarr;',		# ⟶ / xrarr / LongRightArrow / longrightarrow
-    '\u21ac': '&rarrlp;',		# ↬ / rarrlp / looparrowright
+    '\u2a8b': '&lEg;',		    # ⪋ / &lEg; / &lesseqqgtr;
+    '\u22da': '&leg;',		    # ⋚ / &leg; / &lesseqgtr; / &LessEqualGreater;
+    '\u2a7d': '&les;',		    # ⩽ / &les; / &leqslant; / &LessSlantEqual;
+    '\u22d6': '&ltdot;',		# ⋖ / &ltdot; / &lessdot;
+    '\u2276': '&lg;',		    # ≶ / &lg; / &lessgtr; / &LessGreater;
+    '\u2272': '&lsim;',		    # ≲ / &lsim; / &lesssim; / &LessTilde;
+    '\u226a': '&ll;',		    # ≪ / &ll; / &Lt; / &NestedLessLess;
+    '\u23b0': '&lmoust;',		# ⎰ / &lmoust; / &lmoustache;
+    '\u2a89': '&lnap;',		    # ⪉ / &lnap; / &lnapprox;
+    '\u2268': '&lnE;',		    # ≨ / &lnE; / &lneqq;
+    '\u2a87': '&lne;',		    # ⪇ / &lne; / &lneq;
+    '\u27f5': '&xlarr;',		# ⟵ / &xlarr; / &longleftarrow; / &LongLeftArrow;
+    '\u27f7': '&xharr;',		# ⟷ / &xharr; / &longleftrightarrow; / &LongLeftRightArrow;
+    '\u27fc': '&xmap;',		    # ⟼ / &xmap; / &longmapsto;
+    '\u27f6': '&xrarr;',		# ⟶ / &xrarr; / &LongRightArrow; / &longrightarrow;
+    '\u21ac': '&rarrlp;',		# ↬ / &rarrlp; / &looparrowright;
     '\u201e': '&bdquo;',		# „ / &bdquo; / &ldquor;
-    '\u2199': '&swarr;',		# ↙ / swarr / swarrow / LowerLeftArrow
-    '\u2198': '&searr;',		# ↘ / searr / searrow / LowerRightArrow
-    '\u21b0': '&Lsh;',		# ↰ / Lsh / lsh
+    '\u2199': '&swarr;',		# ↙ / &swarr; / &swarrow; / &LowerLeftArrow;
+    '\u2198': '&searr;',		# ↘ / &searr; / &searrow; / &LowerRightArrow;
+    '\u21b0': '&lsh;',		# ↰ / Lsh / lsh
     '\u25c3': '&ltri;',		# ◃ / ltri / triangleleft
-    '\u2720': '&malt;',		# ✠ / malt / maltese
-    '\u21a6': '&map;',		# ↦ / map / mapsto / RightTeeArrow
+    '\u2720': '&malt;',		    # ✠ / &malt; / &maltese;
+    '\u21a6': '&map;',		    # ↦ / &map; / &mapsto; / &RightTeeArrow;
     '\u21a5': '&mapstoup;',		# ↥ / mapstoup / UpTeeArrow
-    '\u2133': '&Mscr;',		# ℳ / Mscr / phmmat / Mellintrf
+    '\u2133': '&Mscr;',		    # ℳ / &Mscr; / &phmmat; / &Mellintrf;
     '\u2223': '&mid;',		# ∣ / mid / smid / shortmid / VerticalBar
-    '\u2213': '&mp;',		# ∓ / mp / mnplus / MinusPlus
-    '\u22b8': '&mumap;',		# ⊸ / mumap / multimap
-    '\u2249': '&nap;',		# ≉ / nap / napprox / NotTildeTilde
-    '\u266e': '&natur;',		# ♮ / natur / natural
-    '\u2115': '&Nopf;',		# ℕ / Nopf / naturals
-    '\u2247': '&ncong;',		# ≇ / ncong / NotTildeFullEqual
-    '\u2197': '&nearr;',		# ↗ / nearr / nearrow / UpperRightArrow
-    '\u200b': '&ZeroWidthSpace;',		#   / ZeroWidthSpace / NegativeThinSpace / NegativeThickSpace / NegativeMediumSpace / NegativeVeryThinSpace
-    '\u2262': '&nequiv;',		# ≢ / nequiv / NotCongruent
-    '\u2928': '&toea;',		# ⤨ / toea / nesear
+    '\u2213': '&mp;',		    # ∓ / &mp; / &mnplus; / &MinusPlus;
+    '\u2026': '&mldr;',		    # … / &mldr; / &hellip;
+    '\u22b8': '&mumap;',		# ⊸ / &mumap; / &multimap;
+    '\u2249': '&nap;',		    # ≉ / &nap; / &napprox; / &NotTildeTilde;
+    '\u266e': '&natur;',		# ♮ / &natur; / &natural;
+    '\u2115': '&Nopf;',		    # ℕ / &Nopf; / &naturals;
+    '\u2247': '&ncong;',		# ≇ / &ncong; / &NotTildeFullEqual;
+    '\u2197': '&nearr;',		# ↗ / &nearr; / &nearrow; / &UpperRightArrow;
+    '\u200b': '&ZeroWidthSpace;',		#   / &ZeroWidthSpace; / &NegativeThinSpace; / &NegativeMediumSpace;
+                                        # &NegativeThickSpace; / &NegativeVeryThinSpace;
+    '\u2262': '&nequiv;',		# ≢ / &nequiv; / &NotCongruent;
+    '\u2928': '&toea;',		    # ⤨ / &toea; / &nesear;
     '\u2203': '&exist;',		# ∃ / &exist; / &Exists;
-    '\u2204': '&nexist;',		# ∄ / nexist / nexists / NotExists
-    '\u2271': '&nge;',		# ≱ / nge / ngeq / NotGreaterEqual
-    '\u2275': '&ngsim;',		# ≵ / ngsim / NotGreaterTilde
-    '\u226f': '&ngt;',		# ≯ / ngt / ngtr / NotGreater
-    '\u21ce': '&nhArr;',		# ⇎ / nhArr / nLeftrightarrow
-    '\u21ae': '&nharr;',		# ↮ / nharr / nleftrightarrow
+    '\u2204': '&nexist;',		# ∄ / &nexist; / &nexists; / &NotExists;
+    '\u2271': '&nge;',		    # ≱ / &nge; / &ngeq; / &NotGreaterEqual;
+    '\u2275': '&ngsim;',		# ≵ / &ngsim; / &NotGreaterTilde;
+    '\u226f': '&ngt;',		    # ≯ / &ngt; / &ngtr; / &NotGreater;
+    '\u21ce': '&nhArr;',		# ⇎ / &nhArr; / &nLeftrightarrow;
+    '\u21ae': '&nharr;',		# ↮ / &nharr; / &nleftrightarrow;
     '\u220b': '&ni;',		    # ∋ / &ni; / &niv; / &SuchThat; / &ReverseElement;
-    '\u21cd': '&nlArr;',		# ⇍ / nlArr / nLeftarrow
-    '\u219a': '&nlarr;',		# ↚ / nlarr / nleftarrow
-    '\u2270': '&nle;',		# ≰ / nle / nleq / NotLessEqual
-    '\u226e': '&nlt;',		# ≮ / nlt / nless / NotLess
-    '\u2274': '&nlsim;',		# ≴ / nlsim / NotLessTilde
-    '\u22ea': '&nltri;',		# ⋪ / nltri / ntriangleleft / NotLeftTriangle
-    '\u22ec': '&nltrie;',		# ⋬ / nltrie / ntrianglelefteq / NotLeftTriangleEqual
-    '\u2224': '&nmid;',		# ∤ / nmid / nsmid / nshortmid / NotVerticalBar
-    '\u2226': '&npar;',		# ∦ / npar / nspar / nparallel / nshortparallel / NotDoubleVerticalBar
+    '\u21cd': '&nlArr;',		# ⇍ / &nlArr; / &nLeftarrow;
+    '\u219a': '&nlarr;',		# ↚ / &nlarr; / &nleftarrow;
+    '\u2270': '&nle;',		    # ≰ / &nle; / &nleq; / &NotLessEqual;
+    '\u226e': '&nlt;',		    # ≮ / &nlt; / &nless; / &NotLess;
+    '\u2274': '&nlsim;',		# ≴ / &nlsim; / &NotLessTilde;
+    '\u22ea': '&nltri;',		# ⋪ / &nltri; / &ntriangleleft; / &NotLeftTriangle;
+    '\u22ec': '&nltrie;',		# ⋬ / &nltrie; / &ntrianglelefteq; / &NotLeftTriangleEqual;
+    '\u2224': '&nmid;',		    # ∤ / &nmid; / &nsmid; / &nshortmid; / &NotVerticalBar;
+    '\u2226': '&npar;',		    # ∦ / &npar; / &nspar; / &nparallel; / &nshortparallel; / &NotDoubleVerticalBar;
     '\u2209': '&notin;',		# ∉ / &notin; / &notinva; / &NotElement;
-    '\u2279': '&ntgl;',		# ≹ / ntgl / NotGreaterLess
-    '\u2278': '&ntlg;',		# ≸ / ntlg / NotLessGreater
-    '\u220c': '&notni;',		# ∌ / notni / notniva / NotReverseElement
-    '\u2280': '&npr;',		# ⊀ / npr / nprec / NotPrecedes
-    '\u22e0': '&nprcue;',		# ⋠ / nprcue / NotPrecedesSlantEqual
-    '\u22eb': '&nrtri;',		# ⋫ / nrtri / ntriangleright / NotRightTriangle
-    '\u22ed': '&nrtrie;',		# ⋭ / nrtrie / ntrianglerighteq / NotRightTriangleEqual
-    '\u22e2': '&nsqsube;',		# ⋢ / nsqsube / NotSquareSubsetEqual
-    '\u22e3': '&nsqsupe;',		# ⋣ / nsqsupe / NotSquareSupersetEqual
-    '\u2288': '&nsube;',		# ⊈ / nsube / nsubseteq / NotSubsetEqual
-    '\u2281': '&nsc;',		# ⊁ / nsc / nsucc / NotSucceeds
-    '\u22e1': '&nsccue;',		# ⋡ / nsccue / NotSucceedsSlantEqual
-    '\u2289': '&nsupe;',		# ⊉ / nsupe / nsupseteq / NotSupersetEqual
-    '\u2241': '&nsim;',		# ≁ / nsim / NotTilde
-    '\u2244': '&nsime;',		# ≄ / nsime / nsimeq / NotTildeEqual
-    '\u21cf': '&nrArr;',		# ⇏ / nrArr / nRightarrow
+    '\u2279': '&ntgl;',		    # ≹ / &ntgl; / &NotGreaterLess;
+    '\u2278': '&ntlg;',		    # ≸ / &ntlg; / &NotLessGreater;
+    '\u220c': '&notni;',		# ∌ / &notni; / &notniva; / &NotReverseElement;
+    '\u2280': '&npr;',		    # ⊀ / &npr; / &nprec; / &NotPrecedes;
+    '\u22e0': '&nprcue;',		# ⋠ / &nprcue; / &NotPrecedesSlantEqual;
+    '\u22eb': '&nrtri;',		# ⋫ / &nrtri; / &ntriangleright; / &NotRightTriangle;
+    '\u22ed': '&nrtrie;',		# ⋭ / &nrtrie; / &ntrianglerighteq; / &NotRightTriangleEqual;
+    '\u22e2': '&nsqsube;',		# ⋢ / &nsqsube; / &NotSquareSubsetEqual;
+    '\u22e3': '&nsqsupe;',		# ⋣ / &nsqsupe; / &NotSquareSupersetEqual;
+    '\u2288': '&nsube;',		# ⊈ / &nsube; / &nsubseteq; / &NotSubsetEqual;
+    '\u2281': '&nsc;',		    # ⊁ / &nsc; / &nsucc; / &NotSucceeds;
+    '\u22e1': '&nsccue;',		# ⋡ / &nsccue; / &NotSucceedsSlantEqual;
+    '\u2289': '&nsupe;',		# ⊉ / &nsupe; / &nsupseteq; / &NotSupersetEqual;
+    '\u2241': '&nsim;',		    # ≁ / &nsim; / &NotTilde;
+    '\u2244': '&nsime;',		# ≄ / &nsime; / &nsimeq; / &NotTildeEqual;
+    '\u21cf': '&nrArr;',		# ⇏ / &nrArr; / &nRightarrow;
     '\u219b': '&nrarr;',		# ↛ / nrarr / nrightarrow
-    '\u2196': '&nwarr;',		# ↖ / nwarr / nwarrow / UpperLeftArrow
-    '\u2134': '&oscr;',		# ℴ / oscr / order / orderof
-    '\u23b4': '&tbrk;',		# ⎴ / tbrk / OverBracket
+    '\u2196': '&nwarr;',		# ↖ / &nwarr; / &nwarrow; / &UpperLeftArrow;
+    '\u2134': '&oscr;',		    # ℴ / &oscr; / &order; / &orderof;
+    '\u203e': '&oline;',		#  ̄ / &oline; / &OverBar;
+    '\u23b4': '&tbrk;',		    # ⎴ / &tbrk; / &OverBracket;
     '\u03d5': '&phiv;',		# ϕ / phiv / varphi / straightphi
     '\u2665': '&hearts;',		# ♥ / &hearts; / &heartsuit; /
     '\u2119': '&Popf;',		# ℙ / Popf / primes
-    '\u227a': '&pr;',		# ≺ / pr / prec / Precedes
+    '\u227a': '&pr;',		    # ≺ / &pr; / &prec; / &Precedes;
     '\u2ab7': '&prap;',		# ⪷ / prap / precapprox
     '\u227c': '&prcue;',		# ≼ / prcue / preccurlyeq / PrecedesSlantEqual
     '\u2aaf': '&pre;',		# ⪯ / pre / preceq / PrecedesEqual
@@ -398,7 +408,7 @@ CUSTOM_ENCODE_MAP = {
     '\u21e5': '&rarrb;',		# ⇥ / rarrb / RightArrowBar
     '\u21a3': '&rarrtl;',		# ↣ / rarrtl / rightarrowtail
     '\u219d': '&rarrw;',		# ↝ / rarrw / rightsquigarrow
-
+    '\u03a9': '&ohm;',          # Ω / &ohm; / &Omega;
     '\u211c': '&Re;',		    # ℜ / &real; / &Re; / &Rfr; / &realpart;
     '\u211b': '&Rscr;',		# ℛ / Rscr / realine
     '\u211d': '&Ropf;',		# ℝ / Ropf / reals
@@ -414,6 +424,8 @@ CUSTOM_ENCODE_MAP = {
     '\u22b5': '&rtrie;',		# ⊵ / rtrie / trianglerighteq / RightTriangleEqual
     '\u21be': '&uharr;',		# ↾ / uharr / RightUpVector / upharpoonright
     '\u23b1': '&rmoust;',		# ⎱ / rmoust / rmoustache
+    '\u201c': '&ldquo;',        # “ / &ldquo; / &OpenCurlyDoubleQuote;
+    '\u2018': '&lsquo;',        # ‘ / &lsquo; / &OpenCurlyQuote;
     '\u21b1': '&rsh;',		# ↱ / rsh / Rsh
     '\u25b9': '&rtri;',		# ▹ / rtri / triangleright
     '\u227b': '&sc;',		# ≻ / sc / succ / Succeeds
