@@ -99,6 +99,7 @@ CUSTOM_ENCODE_MAP = {
     # '\u007c': '&vert;',       # | / &vert; / &verbar; / &VerticalLine;
     # '\u0026': '&amp;',          # & / &amp; / &AMP;
     # '\u00A0': '&nbsp;',          #   / &nbsp; / &NonBreakingSpace;
+    '\u0022': '&quot;',          # " / &quot; / &QUOT;
     '\u0026': '&amp;',          # & / &amp; / &AMP;
     '\u003e': '&gt;',           # > / &gt; / &GT;
     '\u003c': '&lt;',               # < / &LT; / &lt;
@@ -175,9 +176,9 @@ CUSTOM_ENCODE_MAP = {
     '\u24c8': '&oS;',		    # Ⓢ / &oS; / &circledS;
     '\u2296': '&ominus;',		# ⊖ / &ominus; / &CircleMinus;
     '\u2232': '&cwconint;',		# ∲ / cwconint / ClockwiseContourIntegral
-    '\u201d': '&rdquo;',		# ” /  &rdquo; / rdquor / CloseCurlyDoubleQuote
+    '\u201d': '&rdquo;',		# ” /  &rdquo; / &rdquor; / &CloseCurlyDoubleQuote;
     '\u2019': '&rsquo;',		# ’ / &rsquo; / rsquor / CloseCurlyQuote
-    '\u2237': '&Colon;',		# ∷ / Colon / Proportion
+    '\u2237': '&Colon;',		# ∷ / &Colon; / &Proportion;
     '\u2201': '&comp;',		# ∁ / comp / complement
     '\u2218': '&compfn;',		# ∘ / compfn / SmallCircle
     '\u2102': '&Copf;',		# ℂ / Copf / complexes
@@ -199,7 +200,7 @@ CUSTOM_ENCODE_MAP = {
     '\u21ca': '&ddarr;',		# ⇊ / ddarr / downdownarrows
     '\u2a77': '&eDDot;',		# ⩷ / eDDot / ddotseq
     '\u21c3': '&dharl;',		# ⇃ / &dharl; / &LeftDownVector; / &downharpoonleft;
-    '\u21c2': '&dharr;',		# ⇂ / dharr / RightDownVector / downharpoonright
+    '\u21c2': '&dharr;',		# ⇂ / &dharr; / &RightDownVector; / &downharpoonright;
     '\u02d9': '&dot;',		# ˙ / dot / DiacriticalDot
     '\u222b': '&int;',		    # ∫ / &int; / &Integral;
     '\u22c4': '&diam;',		# ⋄ / diam / diamond / Diamond
@@ -234,7 +235,7 @@ CUSTOM_ENCODE_MAP = {
     '\u2910': '&RBarr;',		# ⤐ / &RBarr; / &drbkarow;
     '\u231f': '&drcorn;',		# ⌟ / &drcorn; / &lrcorner;
     '\u25bf': '&dtri;',		    # ▿ / &dtri; / &triangledown;
-    '\u296f': '&duhar;',		# ⥯ / duhar / ReverseUpEquilibrium
+    '\u296f': '&duhar;',		# ⥯ / &duhar; / &ReverseUpEquilibrium;
     '\u2256': '&ecir;',		    # ≖ / &ecir; / &eqcirc;
     '\u2255': '&ecolon;',		# ≕ / ecolon / eqcolon
     '\u2147': '&ee;',		    # ⅇ / &ee; / &exponentiale; / &ExponentialE;
@@ -245,7 +246,7 @@ CUSTOM_ENCODE_MAP = {
     '\u2205': '&empty;',		# ∅ / &empty; / &emptyv; / &emptyset; / &varnothing;
     '\u03f5': '&epsiv;',		# ϵ / epsiv / varepsilon / straightepsilon
     '\u2242': '&esim;',		    # ≂ / &esim; / &eqsim; / &EqualTilde;
-    '\u225f': '&equest;',		# ≟ / equest / questeq
+    '\u225f': '&equest;',		# ≟ / &equest; / &questeq;
     '\u21cc': '&rlhar;',		# ⇌ / &rlhar; / &Equilibrium; / &rightleftharpoons;
     '\u2253': '&erDot;',		# ≓ / erDot / risingdotseq
     '\u2130': '&Escr;',		    # ℰ / &Escr; / &expectation;
@@ -276,7 +277,7 @@ CUSTOM_ENCODE_MAP = {
     '\u2926': '&swarhk;',		# ⤦ / &swarhk; / &hkswarow;
     '\u21a9': '&larrhk;',		# ↩ / &larrhk; / &hookleftarrow;
     '\u21aa': '&rarrhk;',		# ↪ / &rarrhk; / &hookrightarrow;
-    '\u210d': '&Hopf;',		# ℍ / Hopf / quaternions
+    '\u210d': '&Hopf;',		    # ℍ / &Hopf; / &quaternions;
     '\u2063': '&ic;',		    # ⁣ / &ic; / &InvisibleComma;
     '\u2111': '&Im;',		    # ℑ / &Im; / &Ifr; / &image; / &imagpart;
     '\u2148': '&ii;',		    # ⅈ / &ii; / &ImaginaryI;
@@ -391,38 +392,41 @@ CUSTOM_ENCODE_MAP = {
     '\u23b4': '&tbrk;',		    # ⎴ / &tbrk; / &OverBracket;
     '\u03d5': '&phiv;',		# ϕ / phiv / varphi / straightphi
     '\u2665': '&hearts;',		# ♥ / &hearts; / &heartsuit; /
-    '\u2119': '&Popf;',		# ℙ / Popf / primes
+    '\u2119': '&Popf;',		    # ℙ / &Popf; / &primes;
     '\u227a': '&pr;',		    # ≺ / &pr; / &prec; / &Precedes;
-    '\u2ab7': '&prap;',		# ⪷ / prap / precapprox
-    '\u227c': '&prcue;',		# ≼ / prcue / preccurlyeq / PrecedesSlantEqual
-    '\u2aaf': '&pre;',		# ⪯ / pre / preceq / PrecedesEqual
-    '\u227e': '&prsim;',		# ≾ / prsim / precsim / PrecedesTilde
-    '\u2ab9': '&prnap;',		# ⪹ / prnap / precnapprox
-    '\u2ab5': '&prnE;',		# ⪵ / prnE / precneqq
-    '\u22e8': '&prnsim;',		# ⋨ / prnsim / precnsim
+    '\u2ab7': '&prap;',		    # ⪷ / &prap; / &precapprox;
+    '\u227c': '&prcue;',		# ≼ / &prcue; / &preccurlyeq; / &PrecedesSlantEqual;
+    '\u2aaf': '&pre;',		    # ⪯ / &pre; / &preceq; / &PrecedesEqual;
+    '\u227e': '&prsim;',		# ≾ / &prsim; / &precsim; / &PrecedesTilde;
+    '\u2ab9': '&prnap;',		# ⪹ / &prnap; / &precnapprox;
+    '\u2ab5': '&prnE;',		    # ⪵ / &prnE; / &precneqq;
+    '\u22e8': '&prnsim;',		# ⋨ / &prnsim; / &precnsim;
+    '\u220f': '&prod;',         # ∏ / &prod; / &Product;
     '\u221d': '&prop;',		    # ∝ / &prop; / &vprop; / &propto; / &varpropto; / &Proportional;
-    '\u211a': '&Qopf;',		# ℚ / Qopf / rationals
+    '\u211a': '&Qopf;',		    # ℚ / &Qopf; / &rationals;
     '\u21db': '&rAarr;',		# ⇛ / rAarr / Rrightarrow
     '\u27e9': '&rang;',		    # ⟩ / &rang; / &rangle; / &RightAngleBracket;
     '\u21a0': '&Rarr;',		# ↠ / Rarr / twoheadrightarrow
-    '\u21e5': '&rarrb;',		# ⇥ / rarrb / RightArrowBar
-    '\u21a3': '&rarrtl;',		# ↣ / rarrtl / rightarrowtail
-    '\u219d': '&rarrw;',		# ↝ / rarrw / rightsquigarrow
+    '\u21e5': '&rarrb;',		# ⇥ / &rarrb; / &RightArrowBar;
+    '\u21a3': '&rarrtl;',		# ↣ / &rarrtl; / &rightarrowtail;
+    '\u2309': '&rceil;',        # ⌉ / &rceil; / &RightCeiling;
+    '\u219d': '&rarrw;',		# ↝ / &rarrw; / &rightsquigarrow;
     '\u03a9': '&ohm;',          # Ω / &ohm; / &Omega;
     '\u211c': '&Re;',		    # ℜ / &real; / &Re; / &Rfr; / &realpart;
-    '\u211b': '&Rscr;',		# ℛ / Rscr / realine
-    '\u211d': '&Ropf;',		# ℝ / Ropf / reals
-    '\u21c0': '&rharu;',		# ⇀ / rharu / RightVector / rightharpoonup
+    '\u211b': '&Rscr;',		    # ℛ / &Rscr; / &realine;
+    '\u211d': '&Ropf;',		    # ℝ / &Ropf; / &reals;
+    '\u21c0': '&rharu;',		# ⇀ / &rharu; / &RightVector; / &rightharpoonup;
     '\u03f1': '&rhov;',		# ϱ / rhov / varrho
     '\u2192': '&rarr;',		    # → / &rarr; / &srarr; / &rightarrow; / &RightArrow; / &ShortRightArrow;
-    '\u21c4': '&rlarr;',		# ⇄ / rlarr / rightleftarrows / RightArrowLeftArrow
-    '\u27e7': '&robrk;',		# ⟧ / robrk / RightDoubleBracket
-    '\u21c9': '&rrarr;',		# ⇉ / rrarr / rightrightarrows
-    '\u22a2': '&vdash;',		# ⊢ / vdash / RightTee
-    '\u22cc': '&rthree;',		# ⋌ / rthree / rightthreetimes
-    '\u22b3': '&vrtri;',		# ⊳ / vrtri / RightTriangle / vartriangleright
-    '\u22b5': '&rtrie;',		# ⊵ / rtrie / trianglerighteq / RightTriangleEqual
-    '\u21be': '&uharr;',		# ↾ / uharr / RightUpVector / upharpoonright
+    '\u21c4': '&rlarr;',		# ⇄ / &rlarr; / &rightleftarrows; / &RightArrowLeftArrow;
+    '\u27e7': '&robrk;',		# ⟧ / &robrk; / &RightDoubleBracket;
+    '\u230b': '&rfloor;',       # ⌋ / &rfloor; / &RightFloor;
+    '\u21c9': '&rrarr;',		# ⇉ / &rrarr; / &rightrightarrows;
+    '\u22a2': '&vdash;',		# ⊢ / &vdash; / &RightTee;
+    '\u22cc': '&rthree;',		# ⋌ / &rthree; / &rightthreetimes;
+    '\u22b3': '&vrtri;',		# ⊳ / &vrtri; / &RightTriangle; / &vartriangleright;
+    '\u22b5': '&rtrie;',		# ⊵ / &rtrie; / &trianglerighteq; / &RightTriangleEqual;
+    '\u21be': '&uharr;',		# ↾ / &uharr; / &RightUpVector; / &upharpoonright;
     '\u23b1': '&rmoust;',		# ⎱ / rmoust / rmoustache
     '\u201c': '&ldquo;',        # “ / &ldquo; / &OpenCurlyDoubleQuote;
     '\u2018': '&lsquo;',        # ‘ / &lsquo; / &OpenCurlyQuote;
@@ -474,7 +478,7 @@ CUSTOM_ENCODE_MAP = {
     '\u2016': '&Vert;',		# ‖ / Vert / Verbar
 
     '\u2240': '&wr;',		# ≀ / wr / wreath / VerticalTilde
-    '\u2128': '&Zfr;',		# ℨ / Zfr / zeetrf
+    '\u2128': '&Zfr;',		# ℨ / &Zfr; / &zeetrf;
 }
 
 # === Динамическая генерация карт преобразования ===
