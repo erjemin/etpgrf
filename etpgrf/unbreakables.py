@@ -9,6 +9,7 @@ import logging
 import html
 from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN  # , KEY_NBSP, ALL_ENTITIES
 from etpgrf.comutil import parse_and_validate_langs
+from etpgrf.config import NBSP_CHAR
 from etpgrf.defaults import etpgrf_settings
 
 # --- Наборы коротких слов для разных языков ---
@@ -67,9 +68,6 @@ class Unbreakables:
     def __init__(self, langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None):
         self.langs = parse_and_validate_langs(langs)
 
-        # Получаем символ неразрывного пробела напрямую из стандартной библиотеки
-        self._nbsp_char = chr(html.entities.name2codepoint['nbsp']) # <--- ИЗМЕНИТЬ
-
         # --- 1. Собираем наборы слов для обработки ---
         pre_words = set()
         post_words = set()
@@ -116,11 +114,11 @@ class Unbreakables:
 
         # 1. Обработка слов, ПОСЛЕ которых нужен неразрывный пробел ("в дом" -> "в&nbsp;дом")
         if self._pre_pattern:
-            processed_text = self._pre_pattern.sub(r"\g<1>" + self._nbsp_char, processed_text)
+            processed_text = self._pre_pattern.sub(r"\g<1>" + NBSP_CHAR, processed_text)
 
         # 2. Обработка частиц, ПЕРЕД которыми нужен неразрывный пробел ("сказал бы" -> "сказал&nbsp;бы")
         if self._post_pattern:
             # \g<1> - это пробел, \g<2> - это частица
-            processed_text = self._post_pattern.sub(self._nbsp_char + r"\g<2>", processed_text)
+            processed_text = self._post_pattern.sub(NBSP_CHAR + r"\g<2>", processed_text)
 
         return processed_text

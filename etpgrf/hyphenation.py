@@ -8,7 +8,7 @@ import regex
 import logging
 import html
 from etpgrf.config import (
-    LANG_RU, LANG_RU_OLD, LANG_EN,
+    SHY_CHAR, LANG_RU, LANG_RU_OLD, LANG_EN,
     RU_VOWELS_UPPER, RU_CONSONANTS_UPPER, RU_J_SOUND_UPPER, RU_SIGNS_UPPER, # RU_ALPHABET_UPPER,
     EN_VOWELS_UPPER, EN_CONSONANTS_UPPER # , EN_ALPHABET_UPPER
 )
@@ -67,10 +67,6 @@ class Hyphenator:
         self._en_alphabet_upper: frozenset = frozenset()
         # Загружает наборы символов на основе self.langs
         self._load_language_resources_for_hyphenation()
-        # Так как внутри типографа кодировка html, то символ переноса независим от режима
-        # self._split_code: str = ALL_ENTITIES[KEY_SHY][0]
-        # Получаем символ неразрывного пробела напрямую из стандартной библиотеки
-        self._split_code = chr(html.entities.name2codepoint['shy']) # <--- ИЗМЕНИТЬ
 
         # ...
         logger.debug(f"Hyphenator `__init__`. Langs: {self.langs},"
@@ -218,7 +214,7 @@ class Hyphenator:
                 left_part = word_to_split[:hyphen_idx]
                 right_part = word_to_split[hyphen_idx:]
                 # Рекурсивно делим левую и правую части и соединяем их через символ переноса
-                return split_word_ru(left_part) + self._split_code + split_word_ru(right_part)
+                return split_word_ru(left_part) + SHY_CHAR + split_word_ru(right_part)
 
             # Основная логика
             return split_word_ru(word)    # Рекурсивно делим слово на части с переносами
@@ -320,7 +316,7 @@ class Hyphenator:
 
                 # Рекурсивно обрабатываем обе части и объединяем их символом переноса
                 return (split_word_en(word_to_split[:hyphen_idx]) +
-                        self._split_code + split_word_en(word_to_split[hyphen_idx:]))
+                        SHY_CHAR + split_word_en(word_to_split[hyphen_idx:]))
 
             # --- Конец логики для английского языка ---
             return split_word_en(word)
