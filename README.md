@@ -84,11 +84,17 @@ etpgrf.defaults.etpgrf_settings.hyphenation.MIN_TAIL_LEN = 4
 # Определяем пользовательские правила переносов
 hyphen_settings = etpgrf.Hyphenator(langs='ru', max_unhyphenated_len=8)
 # Передаем их в типограф
-typo_hyp = etpgrf.Typographer(hyphenation=hyphen_settings)
+typo_hyp = etpgrf.Typographer(langs='ru', mode='mnemonic', hyphenation=hyphen_settings)
 # Обработка текста с переносами
-result = typo_hyp.process(text="Электрофоретическое исследование характеризуется квинтэссенциальной значимостью")
+result = typo_hyp.process(text="Электрофоретическое исследование характеризуется квинтэссенциальной значимостью!")
+```
+
+Результат обработки текста с переносами будет выглядеть так:
+```html
+Электрофо&shy;ретическое исследование характе&shy;ризуется квинтэс&shy;сенциальной значимостью!
 ```
 
 ### Предлоги, союзы и частицы
 
 ### Кавычки
+
