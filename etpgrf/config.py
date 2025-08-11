@@ -109,6 +109,8 @@ CUSTOM_ENCODE_MAP = {
     '\u00a8': '&die;',          # ¨ / &die; / &Dot; / &DoubleDot;
     '\u00b1': '&pm;',           # ± / &pm; / &PlusMinus;
     '\u00bd': '&half;',         # ½ / &frac12; / &half;
+    '\u00af': '&macr;',          # ¯ / &macr; / &strns;
+    '\u00a8': '&die;',          # ¨ / &die; / &uml;
     '\u201a': '&sbquo;',        # ‚ / &sbquo; / &lsquor;
     '\u223e': '&ac;',		    # ∾ / &ac; / &mstpos;
     '\u2207': '&Del;',		    # ∇ / &Del; / &nabla;
@@ -118,18 +120,18 @@ CUSTOM_ENCODE_MAP = {
     '\u224a': '&ape;',		    # ≊ / &ape; / &approxeq;
     '\u2254': '&Assign;',		# ≔ / &Assign; / &colone; / &coloneq;
     '\u224d': '&CupCap;',		# ≍ / &CupCap; / &asympeq;
-    '\u2233': '&awconint;',		# ∳ / awconint / CounterClockwiseContourIntegral
-    '\u224c': '&bcong;',		# ≌ / bcong / backcong
-    '\u03f6': '&bepsi;',		# ϶ / bepsi / backepsilon
-    '\u2035': '&bprime;',		# ‵ / bprime / backprime
-    '\u223d': '&bsim;',		# ∽ / bsim / backsim
-    '\u22cd': '&bsime;',		# ⋍ / bsime / backsimeq
+    '\u2233': '&awconint;',		# ∳ / &awconint; / &CounterClockwiseContourIntegral;
+    '\u224c': '&bcong;',		# ≌ / &bcong; / &backcong;
+    '\u03f6': '&bepsi;',		# ϶ / &bepsi; / &backepsilon;
+    '\u2035': '&bprime;',		# ‵ / &bprime; / &backprime;
+    '\u223d': '&bsim;',	    	# ∽ / &bsim; / &backsim;
+    '\u22cd': '&bsime;',		# ⋍ / &bsime; / &backsimeq;
     '\u2216': '&setmn;',		# ∖ / &setmn; / &ssetmn; / &setminus; / &Backslash; / &smallsetminus;
-    '\u2306': '&Barwed;',		# ⌆ / Barwed / doublebarwedge
-    '\u2305': '&barwed;',		# ⌅ / barwed / barwedge
-    '\u23b5': '&bbrk;',		# ⎵ / bbrk / UnderBracket
-    '\u2235': '&becaus;',		# ∵ / becaus / because / Because
-    '\u212c': '&Bscr;',		# ℬ / Bscr / bernou / Bernoullis
+    '\u2306': '&Barwed;',		# ⌆ / &Barwed; / &doublebarwedge;
+    '\u2305': '&barwed;',		# ⌅ / &barwed; / &barwedge;
+    '\u23b5': '&bbrk;',		    # ⎵ / &bbrk; / &UnderBracket;
+    '\u2235': '&becaus;',		# ∵ / &becaus; / &because; / &Because;
+    '\u212c': '&Bscr;',		    # ℬ / &Bscr; / &bernou; / &Bernoullis;
     '\u2264': '&le;',		    # ≤ / &le; / &leq;
     '\u226c': '&twixt;',		# ≬ / &twixt; / &between;
     '\u22c2': '&xcap;',		    # ⋂ / &xcap; / &bigcap; / &Intersection;
@@ -144,8 +146,9 @@ CUSTOM_ENCODE_MAP = {
     '\u25b3': '&xutri;',		# △ / &xutri; / &bigtriangleup;
     '\u2a04': '&xuplus;',		# ⨄ / &xuplus; / &biguplus;
     '\u22c1': '&Vee;',		    # ⋁ / &Vee; / &xvee; / &bigvee;
-    '\u22c0': '&Wedge;',		# ⋀ / Wedge / &xwedge; / $bigwedge;
-    '\u290d': '&rbarr;',		# ⤍ / rbarr / bkarow
+    '\u22c0': '&Wedge;',		# ⋀ / &Wedge; / &xwedge; / $bigwedge;
+    '\u2227': '&and;',		    # ∧ / &and; / &wedge;
+    '\u290d': '&rbarr;',		# ⤍ / &rbarr; / &bkarow;
     '\u29eb': '&lozf;',		    # ⧫ / &lozf; / &blacklozenge;
     '\u25ca': '&loz;',		    # ◊ / &loz; / &lozenge
     '\u25aa': '&squf;',		    # ▪ / &squf; / &squarf; / &blacksquare; / &FilledVerySmallSquare;
@@ -158,74 +161,73 @@ CUSTOM_ENCODE_MAP = {
     '\u229f': '&minusb;',		# ⊟ / &minusb; / &boxminus;
     '\u229e': '&plusb;',		# ⊞ / &plusb; / &boxplus;
     '\u22a0': '&timesb;',		# ⊠ / &timesb; / &boxtimes;
-    '\u02d8': '&breve;',		# ˘ / breve / Breve
+    '\u02d8': '&breve;',		# ˘ / &breve; / &Breve;
     '\u224e': '&bump;',		    # ≎ / &bump; / &Bumpeq; / &HumpDownHump;
     '\u224f': '&bumpe;',		# ≏ / &bumpe; / &bumpeq; / &HumpEqual;
     '\u2145': '&DD;',		    # ⅅ / &DD; / &CapitalDifferentialD;
     '\u02c7': '&caron;',		# ˇ / &Hacek; / &caron;
-    '\u212d': '&Cfr;',		# ℭ / Cfr / Cayleys
-    '\u2713': '&check;',		# ✓ / check / checkmark
-    '\u2257': '&cire;',		# ≗ / cire / circeq
-    '\u21ba': '&olarr;',		# ↺ / olarr / circlearrowleft
-    '\u21bb': '&orarr;',		# ↻ / orarr / circlearrowright
+    '\u212d': '&Cfr;',		    # ℭ / &Cfr; / &Cayleys;
+    '\u2713': '&check;',		# ✓ / &check; / &checkmark;
+    '\u2257': '&cire;',		    # ≗ / &cire; / &circeq;
+    '\u21ba': '&olarr;',		# ↺ / &olarr; / &circlearrowleft;
+    '\u21bb': '&orarr;',		# ↻ / &orarr; / &circlearrowright;
     '\u229b': '&oast;',		    # ⊛ / &oast; / &circledast;
     '\u229a': '&ocir;',		    # ⊚ / &ocir; / &circledcirc;
     '\u229d': '&odash;',		# ⊝ / &odash; / &circleddash;
-    '\u2299': '&odot;',		# ⊙ / odot / CircleDot
+    '\u2299': '&odot;',		    # ⊙ / &odot; / &CircleDot;
     '\u2200': '&forall;',		# ∀ / &forall; / &ForAll;
     '\u24c8': '&oS;',		    # Ⓢ / &oS; / &circledS;
     '\u2296': '&ominus;',		# ⊖ / &ominus; / &CircleMinus;
-    '\u2232': '&cwconint;',		# ∲ / cwconint / ClockwiseContourIntegral
+    '\u2232': '&cwconint;',		# ∲ / &cwconint; / &ClockwiseContourIntegral;
     '\u201d': '&rdquo;',		# ” /  &rdquo; / &rdquor; / &CloseCurlyDoubleQuote;
-    '\u2019': '&rsquo;',		# ’ / &rsquo; / rsquor / CloseCurlyQuote
+    '\u2019': '&rsquo;',		# ’ / &rsquo; / &rsquor; / &CloseCurlyQuote;
     '\u2237': '&Colon;',		# ∷ / &Colon; / &Proportion;
-    '\u2201': '&comp;',		# ∁ / comp / complement
-    '\u2218': '&compfn;',		# ∘ / compfn / SmallCircle
-    '\u2102': '&Copf;',		# ℂ / Copf / complexes
-    '\u222f': '&Conint;',		# ∯ / Conint / DoubleContourIntegral
-    '\u222e': '&oint;',		# ∮ / oint / conint / ContourIntegral
-    '\u2210': '&coprod;',		# ∐ / coprod / Coproduct
-    '\u22de': '&cuepr;',		# ⋞ / cuepr / curlyeqprec
-    '\u22df': '&cuesc;',		# ⋟ / cuesc / curlyeqsucc
-    '\u21b6': '&cularr;',		# ↶ / cularr / curvearrowleft
-    '\u21b7': '&curarr;',		# ↷ / curarr / curvearrowright
-    '\u22ce': '&cuvee;',		# ⋎ / cuvee / curlyvee
-    '\u22cf': '&cuwed;',		# ⋏ / cuwed / curlywedge
+    '\u2201': '&comp;',		    # ∁ / &comp; / &complement;
+    '\u2218': '&compfn;',		# ∘ / &compfn; / &SmallCircle;
+    '\u2102': '&Copf;',		    # ℂ / &Copf; / &complexes;
+    '\u222f': '&Conint;',		# ∯ / &Conint; / &DoubleContourIntegral;
+    '\u222e': '&oint;',		    # ∮ / &oint; / &conint; / &ContourIntegral;
+    '\u2210': '&coprod;',		# ∐ / &coprod; / &Coproduct;
+    '\u22de': '&cuepr;',		# ⋞ / &cuepr; / &curlyeqprec;
+    '\u22df': '&cuesc;',		# ⋟ / &cuesc; / &curlyeqsucc;
+    '\u21b6': '&cularr;',		# ↶ / &cularr; / &curvearrowleft;
+    '\u21b7': '&curarr;',		# ↷ / &curarr; / &curvearrowright;
+    '\u22ce': '&cuvee;',		# ⋎ / &cuvee; / &curlyvee;
+    '\u22cf': '&cuwed;',		# ⋏ / &cuwed; / &curlywedge;
     '\u2010': '&dash;',		    # ‐ / &dash; / &hyphen;
-    '\u2ae4': '&Dashv;',		# ⫤ / Dashv / DoubleLeftTee
+    '\u2ae4': '&Dashv;',		# ⫤ / &Dashv; / &DoubleLeftTee;
     '\u22a3': '&dashv;',		# ⊣ / &dashv; / &LeftTee;
     '\u290f': '&rBarr;',		# ⤏ / &rBarr; / &dbkarow;
-    '\u02dd': '&dblac;',		# ˝ / dblac / DiacriticalDoubleAcute
-    '\u2146': '&dd;',		# ⅆ / dd / DifferentialD
-    '\u21ca': '&ddarr;',		# ⇊ / ddarr / downdownarrows
-    '\u2a77': '&eDDot;',		# ⩷ / eDDot / ddotseq
+    '\u02dd': '&dblac;',		# ˝ / &dblac; / &DiacriticalDoubleAcute;
+    '\u2146': '&dd;',		    # ⅆ / &dd; / &DifferentialD;
+    '\u21ca': '&ddarr;',		# ⇊ / &ddarr; / &downdownarrows;
+    '\u2a77': '&eDDot;',		# ⩷ / &eDDot; / &ddotseq;
     '\u21c3': '&dharl;',		# ⇃ / &dharl; / &LeftDownVector; / &downharpoonleft;
     '\u21c2': '&dharr;',		# ⇂ / &dharr; / &RightDownVector; / &downharpoonright;
-    '\u02d9': '&dot;',		# ˙ / dot / DiacriticalDot
+    '\u02d9': '&dot;',		    # ˙ / &dot; / &DiacriticalDot;
     '\u222b': '&int;',		    # ∫ / &int; / &Integral;
-    '\u22c4': '&diam;',		# ⋄ / diam / diamond / Diamond
+    '\u22c4': '&diam;',		    # ⋄ / &diam; / &diamond; / &Diamond;
     '\u03b5': '&epsi;',		    # ε / &epsi; / &epsilon;
-    '\u03dd': '&gammad;',		# ϝ / gammad / digamma
-    '\u22c7': '&divonx;',		# ⋇ / divonx / divideontimes
+    '\u03dd': '&gammad;',		# ϝ / &gammad; / &digamma;
+    '\u22c7': '&divonx;',		# ⋇ / &divonx; / &divideontimes;
     '\u231e': '&dlcorn;',		# ⌞ / &dlcorn; / &llcorner;
-    '\u2250': '&esdot;',		# ≐ / esdot / doteq / DotEqual
-    '\u2251': '&eDot;',		# ≑ / eDot / doteqdot
-    '\u2238': '&minusd;',		# ∸ / minusd / dotminus
-    '\u2214': '&plusdo;',		# ∔ / plusdo / dotplus
-    '\u22a1': '&sdotb;',		# ⊡ / sdotb / dotsquare
+    '\u2250': '&esdot;',		# ≐ / &esdot; / &doteq; / &DotEqual;
+    '\u2251': '&eDot;',		    # ≑ / &eDot; / &doteqdot;
+    '\u2238': '&minusd;',		# ∸ / &minusd; / &dotminus;
+    '\u2214': '&plusdo;',		# ∔ / &plusdo; / &dotplus;
+    '\u22a1': '&sdotb;',		# ⊡ / &sdotb; / &dotsquare;
     '\u21d3': '&dArr;',		    # ⇓ / &dArr; / &Downarrow; / &DoubleDownArrow;
     '\u21d0': '&lArr;',		    # ⇐ / &lArr; / &Leftarrow; / &DoubleLeftArrow;
     '\u21d4': '&iff;',		    # ⇔ / &iff; / &hArr; / &Leftrightarrow; / &DoubleLeftRightArrow;
-    '\u27f8': '&xlArr;',		# ⟸ / xlArr / Longleftarrow / DoubleLongLeftArrow
+    '\u27f8': '&xlArr;',		# ⟸ / &xlArr; / &Longleftarrow; / &DoubleLongLeftArrow;
     '\u27fa': '&xhArr;',		# ⟺ / &xhArr; / &Longleftrightarrow; / &DoubleLongLeftRightArrow;
-    '\u27f9': '&xrArr;',		# ⟹ / xrArr / Longrightarrow / DoubleLongRightArrow
+    '\u27f9': '&xrArr;',		# ⟹ / &xrArr; / &Longrightarrow; / &DoubleLongRightArrow;
     '\u21d2': '&rArr;',		    # ⇒ / &rArr; / &Implies; / &Rightarrow; / &DoubleRightArrow;
-    '\u22a8': '&vDash;',		# ⊨ / vDash / DoubleRightTee
+    '\u22a8': '&vDash;',		# ⊨ / &vDash; / &DoubleRightTee;
     '\u21d1': '&uArr;',		    # ⇑ / &uArr; / &Uparrow; / &DoubleUpArrow;
     '\u2202': '&part;',         # ∂ / &part; / &PartialD;
-    '\u21d5': '&vArr;',		# ⇕ / vArr / Updownarrow / DoubleUpDownArrow
+    '\u21d5': '&vArr;',		    # ⇕ / &vArr; / &Updownarrow; / &DoubleUpDownArrow;
     '\u2225': '&par;',		    # ∥ / &par; / &spar; / &parallel; / &shortparallel; / &DoubleVerticalBar;
-    '\u2191': '&uarr;',		    # ↑ / &uarr; / &UpArrow; / &ShortUpArrow;
     '\u2193': '&darr;',	   	    # ↓ / &darr; / &downarrow; / &DownArrow; / &ShortDownArrow;
     '\u21f5': '&duarr;',		# ⇵ / &duarr; / &DownArrowUpArrow;
     '\u21bd': '&lhard;',		# ↽ / &lhard; /&DownLeftVector; / &leftharpoondown;
@@ -237,22 +239,22 @@ CUSTOM_ENCODE_MAP = {
     '\u25bf': '&dtri;',		    # ▿ / &dtri; / &triangledown;
     '\u296f': '&duhar;',		# ⥯ / &duhar; / &ReverseUpEquilibrium;
     '\u2256': '&ecir;',		    # ≖ / &ecir; / &eqcirc;
-    '\u2255': '&ecolon;',		# ≕ / ecolon / eqcolon
+    '\u2255': '&ecolon;',		# ≕ / &ecolon; / &eqcolon;
     '\u2147': '&ee;',		    # ⅇ / &ee; / &exponentiale; / &ExponentialE;
     '\u2252': '&efDot;',		# ≒ / &efDot; / &fallingdotseq;
     '\u2a96': '&egs;',		    # ⪖ / &egs; / &eqslantgtr;
     '\u2208': '&in;',		    # ∈ / &in; / &isin; / &isinv; / &Element;
     '\u2a95': '&els;',		    # ⪕ / &els; / &eqslantless;
     '\u2205': '&empty;',		# ∅ / &empty; / &emptyv; / &emptyset; / &varnothing;
-    '\u03f5': '&epsiv;',		# ϵ / epsiv / varepsilon / straightepsilon
+    '\u03f5': '&epsiv;',		# ϵ / &epsiv; / &varepsilon; / &straightepsilon;
     '\u2242': '&esim;',		    # ≂ / &esim; / &eqsim; / &EqualTilde;
     '\u225f': '&equest;',		# ≟ / &equest; / &questeq;
     '\u21cc': '&rlhar;',		# ⇌ / &rlhar; / &Equilibrium; / &rightleftharpoons;
-    '\u2253': '&erDot;',		# ≓ / erDot / risingdotseq
+    '\u2253': '&erDot;',		# ≓ / &erDot; / &risingdotseq;
     '\u2130': '&Escr;',		    # ℰ / &Escr; / &expectation;
     '\u22d4': '&fork;',		    # ⋔ / &fork; / &pitchfork;
     '\u2131': '&Fscr;',		    # ℱ / &Fscr; / &Fouriertrf;
-    '\u2322': '&frown;',		# ⌢ / frown / sfrown
+    '\u2322': '&frown;',		# ⌢ / &frown; / &sfrown;
     '\u2a86': '&gap;',		    # ⪆ / &gap; / &gtrapprox;
     '\u2267': '&gE;',		    # ≧ / &gE; / &geqq; / &GreaterFullEqual;
     '\u2a8c': '&gEl;',	  	    # ⪌ / &gEl; / &gtreqqless;
@@ -289,12 +291,12 @@ CUSTOM_ENCODE_MAP = {
     '\u2124': '&Zopf;',		    # ℤ / &Zopf; / &integers;
     '\u2a3c': '&iprod;',		# ⨼ / &iprod; / &intprod;
     '\u2062': '&it;',		    # ⁢ / &it; / &InvisibleTimes;
-    '\u03f0': '&kappav;',		# ϰ / kappav / varkappa
+    '\u03f0': '&kappav;',		# ϰ / &kappav; / &varkappa;
     '\u21da': '&lAarr;',		# ⇚ / &lAarr; / &Lleftarrow;
     '\u2112': '&Lscr;',		    # ℒ / &Lscr; / &lagran; / &Laplacetrf;
     '\u27e8': '&lang;',		    # ⟨ / &lang; / &langle; / &LeftAngleBracket;
     '\u2a85': '&lap;',		    # ⪅ / &lap; / &lessapprox;
-    '\u219e': '&Larr;',		# ↞ / Larr / twoheadleftarrow
+    '\u219e': '&Larr;',		    # ↞ / &Larr; / &twoheadleftarrow;
     '\u21e4': '&larrb;',		# ⇤ / &larrb; / &LeftArrowBar;
     '\u21ab': '&larrlp;',		# ↫ / &larrlp; / &looparrowleft;
     '\u21a2': '&larrtl;',		# ↢ / &larrtl; / &leftarrowtail;
@@ -332,13 +334,13 @@ CUSTOM_ENCODE_MAP = {
     '\u201e': '&bdquo;',		# „ / &bdquo; / &ldquor;
     '\u2199': '&swarr;',		# ↙ / &swarr; / &swarrow; / &LowerLeftArrow;
     '\u2198': '&searr;',		# ↘ / &searr; / &searrow; / &LowerRightArrow;
-    '\u21b0': '&lsh;',		# ↰ / Lsh / lsh
-    '\u25c3': '&ltri;',		# ◃ / ltri / triangleleft
+    '\u21b0': '&lsh;',		    # ↰ / &Lsh; / &lsh;
+    '\u25c3': '&ltri;',		    # ◃ / &ltri; / &triangleleft;
     '\u2720': '&malt;',		    # ✠ / &malt; / &maltese;
     '\u21a6': '&map;',		    # ↦ / &map; / &mapsto; / &RightTeeArrow;
-    '\u21a5': '&mapstoup;',		# ↥ / mapstoup / UpTeeArrow
+    '\u21a5': '&mapstoup;',		# ↥ / &mapstoup; / &UpTeeArrow;
     '\u2133': '&Mscr;',		    # ℳ / &Mscr; / &phmmat; / &Mellintrf;
-    '\u2223': '&mid;',		# ∣ / mid / smid / shortmid / VerticalBar
+    '\u2223': '&mid;',		    # ∣ / &mid; / &smid; / &shortmid; / &VerticalBar;
     '\u2213': '&mp;',		    # ∓ / &mp; / &mnplus; / &MinusPlus;
     '\u2026': '&mldr;',		    # … / &mldr; / &hellip;
     '\u22b8': '&mumap;',		# ⊸ / &mumap; / &multimap;
@@ -385,12 +387,13 @@ CUSTOM_ENCODE_MAP = {
     '\u2241': '&nsim;',		    # ≁ / &nsim; / &NotTilde;
     '\u2244': '&nsime;',		# ≄ / &nsime; / &nsimeq; / &NotTildeEqual;
     '\u21cf': '&nrArr;',		# ⇏ / &nrArr; / &nRightarrow;
-    '\u219b': '&nrarr;',		# ↛ / nrarr / nrightarrow
+    '\u219b': '&nrarr;',		# ↛ / &nrarr; / &nrightarrow;
     '\u2196': '&nwarr;',		# ↖ / &nwarr; / &nwarrow; / &UpperLeftArrow;
     '\u2134': '&oscr;',		    # ℴ / &oscr; / &order; / &orderof;
     '\u203e': '&oline;',		#  ̄ / &oline; / &OverBar;
     '\u23b4': '&tbrk;',		    # ⎴ / &tbrk; / &OverBracket;
-    '\u03d5': '&phiv;',		# ϕ / phiv / varphi / straightphi
+    '\u03d6': '&piv;',          # ϖ / &piv; / &varpi;
+    '\u03d5': '&phiv;',		    # ϕ / &phiv; / &varphi; / &straightphi;
     '\u2665': '&hearts;',		# ♥ / &hearts; / &heartsuit; /
     '\u2119': '&Popf;',		    # ℙ / &Popf; / &primes;
     '\u227a': '&pr;',		    # ≺ / &pr; / &prec; / &Precedes;
@@ -404,9 +407,9 @@ CUSTOM_ENCODE_MAP = {
     '\u220f': '&prod;',         # ∏ / &prod; / &Product;
     '\u221d': '&prop;',		    # ∝ / &prop; / &vprop; / &propto; / &varpropto; / &Proportional;
     '\u211a': '&Qopf;',		    # ℚ / &Qopf; / &rationals;
-    '\u21db': '&rAarr;',		# ⇛ / rAarr / Rrightarrow
+    '\u21db': '&rAarr;',		# ⇛ / &rAarr; / &Rrightarrow;
     '\u27e9': '&rang;',		    # ⟩ / &rang; / &rangle; / &RightAngleBracket;
-    '\u21a0': '&Rarr;',		# ↠ / Rarr / twoheadrightarrow
+    '\u21a0': '&Rarr;',		    # ↠ / &Rarr; / &twoheadrightarrow;
     '\u21e5': '&rarrb;',		# ⇥ / &rarrb; / &RightArrowBar;
     '\u21a3': '&rarrtl;',		# ↣ / &rarrtl; / &rightarrowtail;
     '\u2309': '&rceil;',        # ⌉ / &rceil; / &RightCeiling;
@@ -416,7 +419,7 @@ CUSTOM_ENCODE_MAP = {
     '\u211b': '&Rscr;',		    # ℛ / &Rscr; / &realine;
     '\u211d': '&Ropf;',		    # ℝ / &Ropf; / &reals;
     '\u21c0': '&rharu;',		# ⇀ / &rharu; / &RightVector; / &rightharpoonup;
-    '\u03f1': '&rhov;',		# ϱ / rhov / varrho
+    '\u03f1': '&rhov;',		    # ϱ / &rhov; / &varrho;
     '\u2192': '&rarr;',		    # → / &rarr; / &srarr; / &rightarrow; / &RightArrow; / &ShortRightArrow;
     '\u21c4': '&rlarr;',		# ⇄ / &rlarr; / &rightleftarrows; / &RightArrowLeftArrow;
     '\u27e7': '&robrk;',		# ⟧ / &robrk; / &RightDoubleBracket;
@@ -427,58 +430,70 @@ CUSTOM_ENCODE_MAP = {
     '\u22b3': '&vrtri;',		# ⊳ / &vrtri; / &RightTriangle; / &vartriangleright;
     '\u22b5': '&rtrie;',		# ⊵ / &rtrie; / &trianglerighteq; / &RightTriangleEqual;
     '\u21be': '&uharr;',		# ↾ / &uharr; / &RightUpVector; / &upharpoonright;
-    '\u23b1': '&rmoust;',		# ⎱ / rmoust / rmoustache
+    '\u23b1': '&rmoust;',		# ⎱ / &rmoust; / &rmoustache;
     '\u201c': '&ldquo;',        # “ / &ldquo; / &OpenCurlyDoubleQuote;
     '\u2018': '&lsquo;',        # ‘ / &lsquo; / &OpenCurlyQuote;
-    '\u21b1': '&rsh;',		# ↱ / rsh / Rsh
-    '\u25b9': '&rtri;',		# ▹ / rtri / triangleright
-    '\u227b': '&sc;',		# ≻ / sc / succ / Succeeds
-    '\u2ab8': '&scap;',		# ⪸ / scap / succapprox
-    '\u227d': '&sccue;',		# ≽ / sccue / succcurlyeq / SucceedsSlantEqual
-    '\u2ab0': '&sce;',		# ⪰ / sce / succeq / SucceedsEqual
-    '\u2aba': '&scnap;',		# ⪺ / scnap / succnapprox
-    '\u2ab6': '&scnE;',		# ⪶ / scnE / succneqq
-    '\u22e9': '&scnsim;',		# ⋩ / scnsim / succnsim
-    '\u227f': '&scsim;',		# ≿ / scsim / succsim / SucceedsTilde
-    '\u2929': '&tosa;',		# ⤩ / tosa / seswar
+    '\u21b1': '&rsh;',		    # ↱ / &rsh; / &Rsh;
+    '\u25b9': '&rtri;',		    # ▹ / &rtri; / &triangleright;
+    '\u227b': '&sc;',		    # ≻ / &sc; / &succ; / &Succeeds;
+    '\u2ab8': '&scap;',		    # ⪸ / &scap; / &succapprox;
+    '\u227d': '&sccue;',		# ≽ / &sccue; / &succcurlyeq; / &SucceedsSlantEqual;
+    '\u2ab0': '&sce;',		    # ⪰ / &sce; / &succeq; / &SucceedsEqual;
+    '\u2aba': '&scnap;',		# ⪺ / &scnap; / &succnapprox;
+    '\u2ab6': '&scnE;',		    # ⪶ / &scnE; / &succneqq;
+    '\u22e9': '&scnsim;',		# ⋩ / &scnsim; / &succnsim;
+    '\u227f': '&scsim;',		# ≿ / &scsim; / &succsim; / &SucceedsTilde;
+    '\u2929': '&tosa;',		    # ⤩ / &tosa; / &seswar;
     '\u03c2': '&sigmaf;',		# ς / &sigmaf; / &sigmav; / &varsigma;
-    '\u2243': '&sime;',		# ≃ / sime / simeq / TildeEqual
-    '\u2323': '&smile;',		# ⌣ / smile / ssmile
-    '\u2293': '&sqcap;',		# ⊓ / sqcap / SquareIntersection
-    '\u2294': '&sqcup;',		# ⊔ / sqcup / SquareUnion
-    '\u228f': '&sqsub;',		# ⊏ / sqsub / sqsubset / SquareSubset
-    '\u2291': '&sqsube;',		# ⊑ / sqsube / sqsubseteq / SquareSubsetEqual
-    '\u2290': '&sqsup;',		# ⊐ / sqsup / sqsupset / SquareSuperset
-    '\u2292': '&sqsupe;',		# ⊒ / sqsupe / sqsupseteq / SquareSupersetEqual
-    '\u25a1': '&squ;',		# □ / squ / Square / square
-    '\u22c6': '&Star;',		# ⋆ / Star / sstarf
-    '\u22d0': '&Sub;',		# ⋐ / Sub / Subset
-    '\u2ac5': '&subE;',		# ⫅ / subE / subseteqq
-    '\u2acb': '&subnE;',		# ⫋ / subnE / subsetneqq
-    '\u228a': '&subne;',		# ⊊ / subne / subsetneq
+    '\u2243': '&sime;',		    # ≃ / &sime; / &simeq; / &TildeEqual;
+    '\u2323': '&smile;',		# ⌣ / &smile; / &ssmile;
+    '\u2660': '&spades;',		# ♠ / &spades; / &spadesuit; /
+    '\u2293': '&sqcap;',		# ⊓ / &sqcap; / &SquareIntersection;
+    '\u2294': '&sqcup;',		# ⊔ / &sqcup; / &SquareUnion;
+    '\u221a': '&Sqrt;',		    # √ / &Sqrt; / &radic;
+    '\u228f': '&sqsub;',		# ⊏ / &sqsub; / &sqsubset; / &SquareSubset;
+    '\u2291': '&sqsube;',		# ⊑ / &sqsube; / &sqsubseteq; / &SquareSubsetEqual;
+    '\u2290': '&sqsup;',		# ⊐ / &sqsup; / &sqsupset; / &SquareSuperset;
+    '\u2292': '&sqsupe;',		# ⊒ / &sqsupe; / &sqsupseteq; / &SquareSupersetEqual;
+    '\u25a1': '&squ;',		    # □ / &squ; / &Square; / &square;
+    '\u22c6': '&Star;',		    # ⋆ / &Star; / &sstarf;
+    '\u22d0': '&Sub;',		    # ⋐ / &Sub; / &Subset;
+    '\u2282': '&sub;',		    # ⊂ / &sub; / &subset;
+    '\u2ac5': '&subE;',		    # ⫅ / &subE; / &subseteqq;
+    '\u2acb': '&subnE;',		# ⫋ / &subnE; / &subsetneqq;
+    '\u228a': '&subne;',		# ⊊ / &subne; / &subsetneq;
     '\u2286': '&sube;',		    # ⊆ / &sube; / &subseteq; / &SubsetEqual;
-    '\u22d1': '&Sup;',		# ⋑ / Sup / Supset
-    '\u2ac6': '&supE;',		# ⫆ / supE / supseteqq
+    '\u2211': '&sum;',		    # ∑ / &sum; / &Sum;
+    '\u22d1': '&Sup;',		    # ⋑ / &Sup; / &Supset;
+    '\u2ac6': '&supE;',		    # ⫆ / &supE; / &supseteqq;
     '\u2283': '&sup;',		    # ⊃ / &sup; / &supset; / &Superset;
     '\u2287': '&supe;', 		# ⊇ / &supe; / &supseteq; / &SupersetEqual;
-    '\u2acc': '&supnE;',		# ⫌ / supnE / supsetneqq
-    '\u228b': '&supne;',		# ⊋ / supne / supsetneq
-    '\u20db': '&tdot;',		# ⃛ / tdot / TripleDot
+    '\u2acc': '&supnE;',		# ⫌ / &supnE; / &supsetneqq;
+    '\u228b': '&supne;',		# ⊋ / &supne; / &supsetneq;
+    '\u223c': '&sim;',          # ∼ / &sim; / &Tilde; / &thksim; / &thicksim;
+    '\u2245': '&cong;',         # ≅ / &cong; / &TildeFullEqual;
+    '\u20db': '&tdot;',		    # ⃛ / &tdot; / &TripleDot;
     '\u2234': '&there4;',		# ∴ / &there4; / &Therefore; / &therefore;
     '\u03d1': '&thetav;',		# ϑ / &thetav; / &vartheta; / &thetasym;
-    '\u25b5': '&utri;',		# ▵ / utri / triangle
-    '\u225c': '&trie;',		# ≜ / trie / triangleq
-    '\u21c5': '&udarr;',		# ⇅ / udarr / UpArrowDownArrow
-    '\u296e': '&udhar;',		# ⥮ / udhar / UpEquilibrium
-    '\u231c': '&ulcorn;',		# ⌜ / ulcorn / ulcorner
-    '\u228e': '&uplus;',		# ⊎ / uplus / UnionPlus
-    '\u2195': '&varr;',		# ↕ / varr / updownarrow / UpDownArrow
-    '\u21c8': '&uuarr;',		# ⇈ / uuarr / upuparrows
-    '\u231d': '&urcorn;',		# ⌝ / urcorn / urcorner
-    '\u2016': '&Vert;',		# ‖ / Vert / Verbar
-
-    '\u2240': '&wr;',		# ≀ / wr / wreath / VerticalTilde
-    '\u2128': '&Zfr;',		# ℨ / &Zfr; / &zeetrf;
+    '\u2122': '&trade;',		# ™ / &trade; / &TRADE;
+    '\u25b5': '&utri;',		    # ▵ / &utri; / &triangle;
+    '\u225c': '&trie;',		    # ≜ / &trie; / &triangleq;
+    '\u21c5': '&udarr;',		# ⇅ / &udarr; / &UpArrowDownArrow;
+    '\u296e': '&udhar;',		# ⥮ / &udhar; / &UpEquilibrium;
+    '\u231c': '&ulcorn;',		# ⌜ / &ulcorn; / &ulcorner;
+    '\u03d2': '&Upsi;',         # ϒ / &Upsi; / &upsih;
+    '\u03c5': '&upsi;',		    # υ / &upsi; / &upsilon;
+    '\u228e': '&uplus;',		# ⊎ / &uplus; / &UnionPlus;
+    '\u2195': '&varr;',		    # ↕ / &varr; / &updownarrow; / &UpDownArrow;
+    '\u2191': '&uarr;',         # ↑ / &uarr; / &uparrow; / &UpArrow; / &ShortUpArrow;
+    '\u21c8': '&uuarr;',		# ⇈ / &uuarr; / &upuparrows;
+    '\u231d': '&urcorn;',		# ⌝ / &urcorn; / &urcorner;
+    '\u2016': '&Vert;',		    # ‖ / &Vert; / &Verbar;
+    '\u2228': '&or;',		    # ∨ / &or; / &vee;
+    '\u2009': '&thinsp;',		#   / &thinsp; / &ThinSpace;
+    '\u2240': '&wr;',		    # ≀ / &wr; / &wreath; / &VerticalTilde;
+    '\u2128': '&Zfr;',		    # ℨ / &Zfr; / &zeetrf;
+    '\u2118': '&wp;',           # ℘ / &wp; / &weierp;
 }
 
 # === Динамическая генерация карт преобразования ===
