@@ -34,6 +34,10 @@ EN_ALPHABET_UPPER = EN_VOWELS_UPPER | EN_CONSONANTS_UPPER
 EN_ALPHABET_LOWER = frozenset([char.lower() for char in EN_ALPHABET_UPPER])
 EN_ALPHABET_FULL = EN_ALPHABET_UPPER | EN_ALPHABET_LOWER
 
+# --- Специальные символы ---
+NBSP_CHAR = '\u00A0'  # Неразрывный пробел (&nbsp;)
+SHY_CHAR = '\u00AD'  # Мягкий перенос (&shy;)
+
 # === КОНСТАНТЫ ДЛЯ КОДИРОВАНИЯ HTML-МНЕМНОИКОВ ===
 # --- ЧЕРНЫЙ СПИСОК: Символы, которые НИКОГДА не нужно кодировать в мнемоники ---
 NEVER_ENCODE_CHARS = (frozenset(['!', '#', '%', '(', ')', '*', ',', '.', '/', ':', ';', '=', '?', '@',
@@ -97,20 +101,19 @@ CUSTOM_ENCODE_MAP = {
     # '\u007b': '&lcub;',       # { / &lcub; / &lbrace;
     # '\u007d': '&rcub;',       # } / &rcub; / &rbrace;
     # '\u007c': '&vert;',       # | / &vert; / &verbar; / &VerticalLine;
-    # '\u0026': '&amp;',          # & / &amp; / &AMP;
-    # '\u00A0': '&nbsp;',          #   / &nbsp; / &NonBreakingSpace;
-    '\u0022': '&quot;',          # " / &quot; / &QUOT;
+    # '\u0026': '&amp;',        # & / &amp; / &AMP;
+    # '\u00A0': '&nbsp;',       #   / &nbsp; / &NonBreakingSpace;
+    '\u0022': '&quot;',         # " / &quot; / &QUOT;
     '\u0026': '&amp;',          # & / &amp; / &AMP;
     '\u003e': '&gt;',           # > / &gt; / &GT;
-    '\u003c': '&lt;',               # < / &LT; / &lt;
+    '\u003c': '&lt;',           # < / &LT; / &lt;
     '\u00ae': '&reg;',          # ® / &reg; / &REG; / &circledR;
     '\u00b7': '&middot;',       # · / &middot; / &centerdot; / &CenterDot;
     '\u0060': '&grave;',        # ` / grave / DiacriticalGrave
-    '\u00a8': '&die;',          # ¨ / &die; / &Dot; / &DoubleDot;
+    '\u00a8': '&die;',          # ¨ / &die; / &Dot; / &uml; / &DoubleDot;
     '\u00b1': '&pm;',           # ± / &pm; / &PlusMinus;
     '\u00bd': '&half;',         # ½ / &frac12; / &half;
-    '\u00af': '&macr;',          # ¯ / &macr; / &strns;
-    '\u00a8': '&die;',          # ¨ / &die; / &uml;
+    '\u00af': '&macr;',         # ¯ / &macr; / &strns;
     '\u201a': '&sbquo;',        # ‚ / &sbquo; / &lsquor;
     '\u223e': '&ac;',		    # ∾ / &ac; / &mstpos;
     '\u2207': '&Del;',		    # ∇ / &Del; / &nabla;

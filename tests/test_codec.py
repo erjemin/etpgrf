@@ -332,15 +332,15 @@ STRINGS_FOR_DECODE = [
     ("&zeta; &Zfr; &zfr; &ZHcy; &zhcy; &zigrarr; &Zopf; &zopf; &Zscr; &zscr; &zwj;", "ζ ℨ 𝔷 Ж ж ⇝ ℤ 𝕫 𝒵 𝓏 \u200d"),
 ]
 
-@pytest.mark.parametrize("input_string, expected_output", STRINGS_FOR_DECODE)
-def test_html_mnemo_to_utf(input_string, expected_output):
+@pytest.mark.parametrize("mnemonic_string, unicode_output", STRINGS_FOR_DECODE)
+def test_html_mnemo_to_utf(mnemonic_string, unicode_output):
     """
     Проверяет ПОВЕДЕНИЕ: декодирование HTML-мнемоников в Unicode-строки.
     """
     # Act (действие) - тестируем
-    actual_output = codec.decode_to_unicode(input_string)
+    actual_output = codec.decode_to_unicode(mnemonic_string)
     # Assert (проверка)
-    assert actual_output == expected_output
+    assert actual_output == unicode_output
 
 
 STRINGS_FOR_ENCODE = [
@@ -641,23 +641,23 @@ STRINGS_FOR_ENCODE = [
     ("\u200b Ζ ζ ℨ 𝔷 Ж ж ⇝ ℤ", "&ZeroWidthSpace; &Zeta; &zeta; &Zfr; &zfr; Ж ж &zigrarr; &Zopf;"),
 ]
 
-@pytest.mark.parametrize("input_string, expected_output", STRINGS_FOR_ENCODE)
-def test_utf_to_html_mnemo(input_string, expected_output):
+@pytest.mark.parametrize("unicode_string, mnemonic_string", STRINGS_FOR_ENCODE)
+def test_utf_to_html_mnemo(unicode_string, mnemonic_string):
     """
     Проверяет ПОВЕДЕНИЕ: кодирование Unicode-строк в HTML-мнемоники.
     """
     # Act (действие) - тестируем
-    actual_output = codec.encode_from_unicode(input_string, mode="mnemonic")
+    actual_output = codec.encode_from_unicode(unicode_string, mode="mnemonic")
     # Assert (проверка)
-    assert actual_output == expected_output
+    assert actual_output == mnemonic_string
 
 
-@pytest.mark.parametrize("expected_output, input_string", STRINGS_FOR_ENCODE)
-def test_html_mnemo_to_utf_back(expected_output, input_string):
+@pytest.mark.parametrize("mnemonic_string, unicode_string", STRINGS_FOR_ENCODE)
+def test_html_mnemo_to_utf_back(mnemonic_string, unicode_string):
     """
     Проверяет ОБРАТНОЕ ПОВЕДЕНИЕ: из HTML-мнемоники после encode_from_unicode() в Unicode-строки.
     """
     # Act (действие) - тестируем
-    actual_output = codec.decode_to_unicode(input_string)
+    actual_output = codec.decode_to_unicode(unicode_string)
     # Assert (проверка)
-    assert actual_output == expected_output
+    assert actual_output == mnemonic_string
