@@ -7,6 +7,7 @@ except ImportError:
 from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 from etpgrf.hyphenation import Hyphenator
 from etpgrf.unbreakables import Unbreakables
+from etpgrf.quotes import QuotesProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
 
 
@@ -22,6 +23,7 @@ class Typographer:
                  process_html: bool = False,        # Флаг обработки HTML-тегов
                  hyphenation: Hyphenator | bool | None = True,  # Перенос слов и параметры расстановки переносов
                  unbreakables: Unbreakables | bool | None = True, # Правила для предотвращения разрыва коротких слов
+                 quotes: QuotesProcessor | bool | None = True,  # Правила для обработки кавычек
                  # ... другие модули правил ...
                  ):
 
@@ -56,12 +58,20 @@ class Typographer:
             # D2. Если unbreakables - это объект Unbreakables, то просто сохраняем его (и используем его langs и mode)
             self.unbreakables = unbreakables
 
-        # F. --- Конфигурация других правил---
+        # F. --- Конфигурация правил обработки кавычек ---
+        self.quotes: QuotesProcessor | None = None
+        if quotes is True or quotes is None:
+            self.quotes = QuotesProcessor(langs=self.langs)
+        elif isinstance(quotes, QuotesProcessor):
+            self.quotes = quotes
+
+        # G. --- Конфигурация других правил---
 
         # Z. --- Логирование инициализации ---
         logger.debug(f"Typographer `__init__`: langs: {self.langs}, mode: {self.mode}, "
                      f"hyphenation: {self.hyphenation is not None}, "
-                     f"unbreakables: {self.unbreakables is not None}"
+                     f"unbreakables: {self.unbreakables is not None}, "
+                     f"quotes: {self.quotes is not None}, "
                      f"process_html: {self.process_html}")
 
 
@@ -75,6 +85,8 @@ class Typographer:
         # processed_text = text  # ВРЕМЕННО: используем текст как есть
 
         # Шаг 2: Применяем правила к чистому Unicode-тексту
+        if self.quotes is not None:
+            processed_text = self.quotes.process(processed_text)
         if self.unbreakables is not None:
             processed_text = self.unbreakables.process(processed_text)
         if self.hyphenation is not None:
