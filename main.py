@@ -11,7 +11,7 @@ if __name__ == '__main__':
     etpgrf.logger.update_etpgrf_log_level_from_settings()  # Обновляем уровень логирования из настроек
 
     # Меняем настройки по умолчанию для переносов
-    etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 8
+    etpgrf.defaults.etpgrf_settings.hyphenation.MAX_UNHYPHENATED_LEN = 6
 
     # Определяем пользовательские правила переносов
     hyphen_settings = etpgrf.Hyphenator(langs='ru', max_unhyphenated_len=8)
@@ -30,8 +30,8 @@ if __name__ == '__main__':
     print(result, "\n\n")
 
     # Определяем пользовательские правила типографа
-    typo_ru = etpgrf.Typographer(langs='ru', mode='unicode', hyphenation=hyphen_settings)
-    result = typo_ru.process(text="Какой-то длинный текст для проверки переносов. Перпердикюляция!")
+    typo_ru = etpgrf.Typographer(langs='ru', mode='mnemonic', hyphenation=hyphen_settings)
+    result = typo_ru.process(text="Электрофоретическое исследование характеризуется квинтэссенциальной значимостью")
     print(result, "\n\n")
 
     # Проверяем переносы в смешанном тексте (русский + английский)
