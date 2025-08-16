@@ -1,5 +1,6 @@
+# etpgrf/comutil.py
 # Общие функции для типографа etpgrf
-from etpgrf.config import MODE_UNICODE, MODE_MNEMONIC, MODE_MIXED, SUPPORTED_LANGS
+from etpgrf.config import MODE_UNICODE, MODE_MNEMONIC, MODE_MIXED, SUPPORTED_LANGS, DEFAULT_LANGS
 from etpgrf.defaults import etpgrf_settings
 import os
 import regex
@@ -37,7 +38,7 @@ def parse_and_validate_mode(
 
 def parse_and_validate_langs(
     langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
-) -> frozenset[str]:
+) -> list[str]:
     """
     Обрабатывает и валидирует входной параметр языков.
     Если langs_input не предоставлен (None), используются языки по умолчанию
@@ -57,11 +58,9 @@ def parse_and_validate_langs(
         if env_default_langs:
             # Нашли язык для библиотеки в переменных окружения
             _langs = env_default_langs
-            # print(f"Using ETPGRF_DEFAULT_LANGS from environment: {env_default_langs}") # Для отладки
         else:
-            # Если в переменной окружения нет, используем то что есть в конфиге `etpgrf/config.py`
-            _langs = etpgrf_settings.DEFAULT_LANGS
-            # print(f"Using library internal default langs: {DEFAULT_LANGS}") # Для отладки
+            # Если в переменной окружения нет, используем то, что есть в конфиге `etpgrf/config.py`
+            _langs = DEFAULT_LANGS
 
     if isinstance(_langs, str):
         # Разделяем строку по любым небуквенным символам, приводим к нижнему регистру
@@ -80,20 +79,22 @@ def parse_and_validate_langs(
             "etpgrf: параметр 'langs' не может быть пустым или приводить к пустому списку языков после обработки."
         )
 
-    validated_langs_set = set()
+    # Валидируем языки, сохраняя порядок и удаляя дубликаты
+    validated_langs = []
+    seen_langs = set()
     for code in parsed_lang_codes_list:
         if code not in SUPPORTED_LANGS:
             raise ValueError(
                 f"etpgrf: код языка '{code}' не поддерживается. Поддерживаемые языки: {list(SUPPORTED_LANGS)}"
             )
-        validated_langs_set.add(code)
+        if code not in seen_langs:
+            validated_langs.append(code)
+            seen_langs.add(code)
 
-    # Эта проверка на случай если parsed_lang_codes_list был не пуст, но все коды оказались невалидными
-    # (хотя предыдущее исключение должно было сработать раньше для каждого невалидного кода).
-    if not validated_langs_set:
+    if not validated_langs:
         raise ValueError("etpgrf: не предоставлено ни одного валидного кода языка.")
 
-    return frozenset(validated_langs_set)
+    return validated_langs
 
 
 def is_inside_unbreakable_segment(
@@ -137,4 +138,3 @@ def is_inside_unbreakable_segment(
                 # Нашли 'unbreakable', и split_index находится внутри него.
                 return True
     return False
-
