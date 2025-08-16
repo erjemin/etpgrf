@@ -13,7 +13,7 @@ LANG_RU = 'ru'  # Русский
 LANG_RU_OLD = 'ruold'  # Русская дореволюционная орфография
 LANG_EN = 'en'  # Английский
 SUPPORTED_LANGS = frozenset([LANG_RU, LANG_RU_OLD, LANG_EN])
-
+DEFAULT_LANGS = (LANG_RU, LANG_EN)  # Языки по умолчанию
 
 # === ИСТОЧНИК ПРАВДЫ ===
 # --- Базовые алфавиты: Эти константы используются как для правил переноса, так и для правил кодирования ---
@@ -37,6 +37,14 @@ EN_ALPHABET_FULL = EN_ALPHABET_UPPER | EN_ALPHABET_LOWER
 # --- Специальные символы ---
 NBSP_CHAR = '\u00A0'  # Неразрывный пробел (&nbsp;)
 SHY_CHAR = '\u00AD'  # Мягкий перенос (&shy;)
+RU_QUOT1_OPEN = '«'
+RU_QUOT1_CLOSE = '»'
+RU_QUOT2_OPEN = '„'
+RU_QUOT2_CLOSE = '“'
+EN_QUOT1_OPEN = '“'
+EN_QUOT1_CLOSE = '”'
+EN_QUOT2_OPEN = '‘'
+EN_QUOT2_CLOSE = '’'
 
 # === КОНСТАНТЫ ДЛЯ КОДИРОВАНИЯ HTML-МНЕМНОИКОВ ===
 # --- ЧЕРНЫЙ СПИСОК: Символы, которые НИКОГДА не нужно кодировать в мнемоники ---
@@ -49,20 +57,20 @@ NEVER_ENCODE_CHARS = (frozenset(['!', '#', '%', '(', ')', '*', ',', '.', '/', ':
 #    которые не видны, на глаз и не отличимы друг от друга в обычном тексте, или очень специфичные
 SAFE_MODE_CHARS_TO_MNEMONIC = frozenset([
     '<', '>', '&', '"', '\'',
-    '\u00AD',  # Мягкий перенос (Soft Hyphen) -- &shy;
-    '\u00A0',  # Неразрывный пробел (Non-Breaking Space) -- &nbsp;
+    SHY_CHAR,  # Мягкий перенос (Soft Hyphen) -- &shy;
+    NBSP_CHAR, # Неразрывный пробел (Non-Breaking Space) -- &nbsp;
     '\u2002',  # Полужирный пробел (En Space) -- &ensp;
     '\u2003',  # Широкий пробел (Em Space) -- &emsp;
-    '\u2007',  # Цифровой пробел -- &numsp;)
+    '\u2007',  # Цифровой пробел -- &numsp;
     '\u2008',  # Пунктуационный пробел -- &puncsp;
-    '\u2009',  # Междусимвольный пробел -- &thinsp;'
+    '\u2009',  # Межсимвольный пробел -- &thinsp;'
     '\u200A',  # Толщина волоса (Hair Space) -- &hairsp;
     '\u200B',  # Негативный пробел (Negative Space) -- &NegativeThinSpace;
     '\u200C',  # Нулевая ширина (без объединения) (Zero Width Non-Joiner) -- &zwj;
     '\u200D',  # Нулевая ширина (с объединением) (Zero Width Joiner) -- &zwnj;
     '\u200E',  # Изменить направление текста на слева-направо (Left-to-Right Mark /LRE) -- &lrm;
     '\u200F',  # Изменить направление текста направо-налево (Right-to-Left Mark /RLM) -- &rlm;
-    '\u2010',  # &dash; -- дефис (Hyphen)
+    '\u2010',  # Дефис (Hyphen) -- &dash;
     '\u205F',  # Средний пробел (Medium Mathematical Space) -- &MediumSpace;
     '\u2060',  # &NoBreak;
     '\u2062',  # &InvisibleTimes; -- для семантической разметки математических выражений
@@ -102,14 +110,14 @@ CUSTOM_ENCODE_MAP = {
     # '\u007d': '&rcub;',       # } / &rcub; / &rbrace;
     # '\u007c': '&vert;',       # | / &vert; / &verbar; / &VerticalLine;
     # '\u0026': '&amp;',        # & / &amp; / &AMP;
-    # '\u00A0': '&nbsp;',       #   / &nbsp; / &NonBreakingSpace;
+    # NBSP_CHAR: '&nbsp;',      #   / &nbsp; / &NonBreakingSpace;
     '\u0022': '&quot;',         # " / &quot; / &QUOT;
     '\u0026': '&amp;',          # & / &amp; / &AMP;
     '\u003e': '&gt;',           # > / &gt; / &GT;
     '\u003c': '&lt;',           # < / &LT; / &lt;
     '\u00ae': '&reg;',          # ® / &reg; / &REG; / &circledR;
     '\u00b7': '&middot;',       # · / &middot; / &centerdot; / &CenterDot;
-    '\u0060': '&grave;',        # ` / grave / DiacriticalGrave
+    '\u0060': '&grave;',        # ` / &grave; / &DiacriticalGrave;
     '\u00a8': '&die;',          # ¨ / &die; / &Dot; / &uml; / &DoubleDot;
     '\u00b1': '&pm;',           # ± / &pm; / &PlusMinus;
     '\u00bd': '&half;',         # ½ / &frac12; / &half;
