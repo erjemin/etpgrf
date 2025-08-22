@@ -8,7 +8,7 @@ import regex
 import logging
 import html
 from etpgrf.config import (
-    SHY_CHAR, LANG_RU, LANG_RU_OLD, LANG_EN,
+    CHAR_SHY, LANG_RU, LANG_RU_OLD, LANG_EN,
     RU_VOWELS_UPPER, RU_CONSONANTS_UPPER, RU_J_SOUND_UPPER, RU_SIGNS_UPPER, # RU_ALPHABET_UPPER,
     EN_VOWELS_UPPER, EN_CONSONANTS_UPPER # , EN_ALPHABET_UPPER
 )
@@ -214,7 +214,7 @@ class Hyphenator:
                 left_part = word_to_split[:hyphen_idx]
                 right_part = word_to_split[hyphen_idx:]
                 # Рекурсивно делим левую и правую части и соединяем их через символ переноса
-                return split_word_ru(left_part) + SHY_CHAR + split_word_ru(right_part)
+                return split_word_ru(left_part) + CHAR_SHY + split_word_ru(right_part)
 
             # Основная логика
             return split_word_ru(word)    # Рекурсивно делим слово на части с переносами
@@ -316,7 +316,7 @@ class Hyphenator:
 
                 # Рекурсивно обрабатываем обе части и объединяем их символом переноса
                 return (split_word_en(word_to_split[:hyphen_idx]) +
-                        SHY_CHAR + split_word_en(word_to_split[hyphen_idx:]))
+                        CHAR_SHY + split_word_en(word_to_split[hyphen_idx:]))
 
             # --- Конец логики для английского языка ---
             return split_word_en(word)

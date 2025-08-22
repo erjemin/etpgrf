@@ -3,8 +3,9 @@
 
 import regex
 import logging
-from .config import LANG_RU, LANG_EN, RU_QUOT1_OPEN, RU_QUOT1_CLOSE, EN_QUOT1_OPEN, EN_QUOT1_CLOSE, \
-    RU_QUOT2_OPEN, RU_QUOT2_CLOSE, EN_QUOT2_OPEN, EN_QUOT2_CLOSE
+from .config import (LANG_RU, LANG_EN, CHAR_RU_QUOT1_OPEN, CHAR_RU_QUOT1_CLOSE, CHAR_EN_QUOT1_OPEN,
+                     CHAR_EN_QUOT1_CLOSE, CHAR_RU_QUOT2_OPEN, CHAR_RU_QUOT2_CLOSE, CHAR_EN_QUOT2_OPEN,
+                     CHAR_EN_QUOT2_CLOSE)
 from .comutil import parse_and_validate_langs
 
 # --- Настройки логирования ---
@@ -13,8 +14,8 @@ logger = logging.getLogger(__name__)
 # Определяем стили кавычек для разных языков
 # Формат: (('открывающая_ур1', 'закрывающая_ур1'), ('открывающая_ур2', 'закрывающая_ур2'))
 _QUOTE_STYLES = {
-    LANG_RU: ((RU_QUOT1_OPEN, RU_QUOT1_CLOSE), (RU_QUOT2_OPEN, RU_QUOT2_CLOSE)),
-    LANG_EN: ((EN_QUOT1_OPEN, EN_QUOT1_CLOSE), (EN_QUOT2_OPEN, EN_QUOT2_CLOSE)),
+    LANG_RU: ((CHAR_RU_QUOT1_OPEN, CHAR_RU_QUOT1_CLOSE), (CHAR_RU_QUOT2_OPEN, CHAR_RU_QUOT2_CLOSE)),
+    LANG_EN: ((CHAR_EN_QUOT1_OPEN, CHAR_EN_QUOT1_CLOSE), (CHAR_EN_QUOT2_OPEN, CHAR_EN_QUOT2_CLOSE)),
 }
 
 

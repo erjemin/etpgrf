@@ -9,7 +9,7 @@ import logging
 import html
 from etpgrf.config import LANG_RU, LANG_RU_OLD, LANG_EN  # , KEY_NBSP, ALL_ENTITIES
 from etpgrf.comutil import parse_and_validate_langs
-from etpgrf.config import NBSP_CHAR
+from etpgrf.config import CHAR_NBSP
 from etpgrf.defaults import etpgrf_settings
 
 # --- Наборы коротких слов для разных языков ---
@@ -114,11 +114,11 @@ class Unbreakables:
 
         # 1. Обработка слов, ПОСЛЕ которых нужен неразрывный пробел ("в дом" -> "в&nbsp;дом")
         if self._pre_pattern:
-            processed_text = self._pre_pattern.sub(r"\g<1>" + NBSP_CHAR, processed_text)
+            processed_text = self._pre_pattern.sub(r"\g<1>" + CHAR_NBSP, processed_text)
 
         # 2. Обработка частиц, ПЕРЕД которыми нужен неразрывный пробел ("сказал бы" -> "сказал&nbsp;бы")
         if self._post_pattern:
             # \g<1> - это пробел, \g<2> - это частица
-            processed_text = self._post_pattern.sub(NBSP_CHAR + r"\g<2>", processed_text)
+            processed_text = self._post_pattern.sub(CHAR_NBSP + r"\g<2>", processed_text)
 
         return processed_text

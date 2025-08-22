@@ -35,16 +35,61 @@ EN_ALPHABET_LOWER = frozenset([char.lower() for char in EN_ALPHABET_UPPER])
 EN_ALPHABET_FULL = EN_ALPHABET_UPPER | EN_ALPHABET_LOWER
 
 # --- Специальные символы ---
-NBSP_CHAR = '\u00A0'  # Неразрывный пробел (&nbsp;)
-SHY_CHAR = '\u00AD'  # Мягкий перенос (&shy;)
-RU_QUOT1_OPEN = '«'
-RU_QUOT1_CLOSE = '»'
-RU_QUOT2_OPEN = '„'
-RU_QUOT2_CLOSE = '“'
-EN_QUOT1_OPEN = '“'
-EN_QUOT1_CLOSE = '”'
-EN_QUOT2_OPEN = '‘'
-EN_QUOT2_CLOSE = '’'
+CHAR_NBSP = '\u00a0'      # Неразрывный пробел (&nbsp;)
+CHAR_SHY = '\u00ad'       # Мягкий перенос (&shy;)
+CHAR_NDASH = '\u2013'     # Cреднее тире (– / &ndash;)
+CHAR_MDASH = '\u2014'     # Длинное тире (—  / &mdash;)
+CHAR_HELLIP = '\u2026'    # Многоточие (… / &hellip;)
+CHAR_RU_QUOT1_OPEN = '«'  # Русские кавычки открывающие (« / &laquo;)
+CHAR_RU_QUOT1_CLOSE = '»'
+CHAR_RU_QUOT2_OPEN = '„'
+CHAR_RU_QUOT2_CLOSE = '“'
+CHAR_EN_QUOT1_OPEN = '“'
+CHAR_EN_QUOT1_CLOSE = '”'
+CHAR_EN_QUOT2_OPEN = '‘'
+CHAR_EN_QUOT2_CLOSE = '’'
+CHAR_COPY = '\u00a9'  # Символ авторского права / © / &copy;
+CHAR_REG = '\u00ae'   # Зарегистрированная торговая марка / ® / &reg;
+CHAR_COPYP = '\u2117' # Знак звуковой записи / ℗ / &copyp;
+CHAR_TRADE = '\u2122' # Знак торговой марки / ™ / &trade;
+CHAR_ARROW_LR_DOUBLE = '\u21d4' # Двойная двунаправленная стрелка / ⇔ / &hArr;
+CHAR_ARROW_L_DOUBLE = '\u21d0'  # Двойная стрелка влево / ⇐ / &lArr;
+CHAR_ARROW_R_DOUBLE = '\u21d2'  # Двойная стрелка вправо / ⇒ / &rArr;
+CHAR_AP = '\u2248'         # Приблизительно равно / ≈ / &ap;
+CHAR_ARROW_L = '\u27f5'    # Стрелка влево / ← / &larr;
+CHAR_ARROW_R = '\u27f6'    # Стрелка вправо / → / &rarr;
+CHAR_ARROW_LR = '\u27f7'   # Длинная двунаправленная стрелка ↔ / &harr;
+CHAR_ARROW_L_LONG_DOUBLE = '\u27f8'  # Длинная двойная стрелка влево
+CHAR_ARROW_R_LONG_DOUBLE = '\u27f9'  # Длинная двойная стрелка вправо
+CHAR_ARROW_LR_LONG_DOUBLE = '\u27fa' # Длинная двойная двунаправленная стрелка
+
+# === КОНСТАНТЫ ПСЕВДОГРАФИКИ ===
+# Для простых замен "строка -> символ" используем список кортежей.
+# Порядок важен: более длинные последовательности должны идти раньше более коротких, которые
+#                могут быть их частью (например, '<---' до '---', а та, в свою очередь, до '--').
+STR_TO_SYMBOL_REPLACEMENTS = [
+    # 5-символьные последовательности
+    ('<===>', CHAR_ARROW_LR_LONG_DOUBLE),  # Длинная двойная двунаправленная стрелка
+    # 4-символьные последовательности
+    ('<===', CHAR_ARROW_L_LONG_DOUBLE),  # Длинная двойная стрелка влево
+    ('===>', CHAR_ARROW_R_LONG_DOUBLE),  # Длинная двойная стрелка вправо
+    ('<==>', CHAR_ARROW_LR_DOUBLE),  # Двойная двунаправленная стрелка
+    ('(tm)', CHAR_TRADE), ('(TM)', CHAR_TRADE), # Знак торговой марки (нижний и верхний регистр)
+    ('<-->', CHAR_ARROW_LR),  # Длинная двунаправленная стрелка
+    # 3-символьные последовательности
+    ('<--', CHAR_ARROW_L),  # Стрелка влево
+    ('-->', CHAR_ARROW_R),  # Стрелка вправо
+    ('==>', CHAR_ARROW_R_DOUBLE),  # Двойная стрелка вправо
+    ('<==', CHAR_ARROW_L_DOUBLE),  # Двойная стрелка влево
+    ('---', CHAR_MDASH), # Длинное тире
+    ('...', CHAR_HELLIP),  # Многоточие
+    ('(c)', CHAR_COPY), ('(C)', CHAR_COPY), # Знак авторского права (нижний и верхний регистр)
+    ('(r)', CHAR_REG), ('(R)', CHAR_REG), # Знак зарегистрированной торговой марки (нижний и верхний регистр)
+    ('(p)', CHAR_COPYP), ('(P)', CHAR_COPYP), # Знак права на звукозапись (нижний и верхний регистр)
+    # 2-символьные последовательности
+    ('--', CHAR_NDASH), # Среднее тире (дефисные соединения и диапазоны)
+    ('~=', CHAR_AP),  # Приблизительно равно (≈)
+]
 
 # === КОНСТАНТЫ ДЛЯ КОДИРОВАНИЯ HTML-МНЕМНОИКОВ ===
 # --- ЧЕРНЫЙ СПИСОК: Символы, которые НИКОГДА не нужно кодировать в мнемоники ---
@@ -57,8 +102,8 @@ NEVER_ENCODE_CHARS = (frozenset(['!', '#', '%', '(', ')', '*', ',', '.', '/', ':
 #    которые не видны, на глаз и не отличимы друг от друга в обычном тексте, или очень специфичные
 SAFE_MODE_CHARS_TO_MNEMONIC = frozenset([
     '<', '>', '&', '"', '\'',
-    SHY_CHAR,  # Мягкий перенос (Soft Hyphen) -- &shy;
-    NBSP_CHAR, # Неразрывный пробел (Non-Breaking Space) -- &nbsp;
+    CHAR_SHY,  # Мягкий перенос (Soft Hyphen) -- &shy;
+    CHAR_NBSP, # Неразрывный пробел (Non-Breaking Space) -- &nbsp;
     '\u2002',  # Полужирный пробел (En Space) -- &ensp;
     '\u2003',  # Широкий пробел (Em Space) -- &emsp;
     '\u2007',  # Цифровой пробел -- &numsp;
@@ -109,13 +154,13 @@ CUSTOM_ENCODE_MAP = {
     # '\u007b': '&lcub;',       # { / &lcub; / &lbrace;
     # '\u007d': '&rcub;',       # } / &rcub; / &rbrace;
     # '\u007c': '&vert;',       # | / &vert; / &verbar; / &VerticalLine;
-    # '\u0026': '&amp;',        # & / &amp; / &AMP;
-    # NBSP_CHAR: '&nbsp;',      #   / &nbsp; / &NonBreakingSpace;
+    CHAR_NBSP: '&nbsp;',      #   / &nbsp; / &NonBreakingSpace;
+    CHAR_REG: '&reg;',  # ® / &reg; / &REG; / &circledR;
+    CHAR_COPY: '&copy;',  # © / &copy; / &COPY;
     '\u0022': '&quot;',         # " / &quot; / &QUOT;
     '\u0026': '&amp;',          # & / &amp; / &AMP;
     '\u003e': '&gt;',           # > / &gt; / &GT;
-    '\u003c': '&lt;',           # < / &LT; / &lt;
-    '\u00ae': '&reg;',          # ® / &reg; / &REG; / &circledR;
+    '\u003c': '&lt;',           # < / &lt; / &LT;
     '\u00b7': '&middot;',       # · / &middot; / &centerdot; / &CenterDot;
     '\u0060': '&grave;',        # ` / &grave; / &DiacriticalGrave;
     '\u00a8': '&die;',          # ¨ / &die; / &Dot; / &uml; / &DoubleDot;
@@ -127,7 +172,7 @@ CUSTOM_ENCODE_MAP = {
     '\u2207': '&Del;',		    # ∇ / &Del; / &nabla;
     '\u2061': '&af;',		    #   / &af; / &ApplyFunction;
     '\u2221': '&angmsd;',		# ∡ / &angmsd; / &measuredangle;
-    '\u2248': '&ap;',		    # ≈ / &ap; / &thkap; / &approx; / &TildeTilde; / &thickapprox;
+    CHAR_AP: '&ap;',		    # ≈ / &ap; / &thkap; / &approx; / &TildeTilde; / &thickapprox;
     '\u224a': '&ape;',		    # ≊ / &ape; / &approxeq;
     '\u2254': '&Assign;',		# ≔ / &Assign; / &colone; / &coloneq;
     '\u224d': '&CupCap;',		# ≍ / &CupCap; / &asympeq;
@@ -228,12 +273,12 @@ CUSTOM_ENCODE_MAP = {
     '\u2214': '&plusdo;',		# ∔ / &plusdo; / &dotplus;
     '\u22a1': '&sdotb;',		# ⊡ / &sdotb; / &dotsquare;
     '\u21d3': '&dArr;',		    # ⇓ / &dArr; / &Downarrow; / &DoubleDownArrow;
-    '\u21d0': '&lArr;',		    # ⇐ / &lArr; / &Leftarrow; / &DoubleLeftArrow;
-    '\u21d4': '&iff;',		    # ⇔ / &iff; / &hArr; / &Leftrightarrow; / &DoubleLeftRightArrow;
-    '\u27f8': '&xlArr;',		# ⟸ / &xlArr; / &Longleftarrow; / &DoubleLongLeftArrow;
-    '\u27fa': '&xhArr;',		# ⟺ / &xhArr; / &Longleftrightarrow; / &DoubleLongLeftRightArrow;
-    '\u27f9': '&xrArr;',		# ⟹ / &xrArr; / &Longrightarrow; / &DoubleLongRightArrow;
-    '\u21d2': '&rArr;',		    # ⇒ / &rArr; / &Implies; / &Rightarrow; / &DoubleRightArrow;
+    CHAR_ARROW_R_DOUBLE: '&rArr;',  # ⇒ / &rArr; / &Implies; / &Rightarrow; / &DoubleRightArrow;
+    CHAR_ARROW_L_DOUBLE: '&lArr;',   # ⇐ / &lArr; / &Leftarrow; / &DoubleLeftArrow;
+    CHAR_ARROW_LR_DOUBLE: '&iff;',   # ⇔ / &iff; / &hArr; / &Leftrightarrow; / &DoubleLeftRightArrow;
+    CHAR_ARROW_L_LONG_DOUBLE: '&xlArr;',		# ⟸ / &xlArr; / &Longleftarrow; / &DoubleLongLeftArrow;
+    CHAR_ARROW_R_LONG_DOUBLE: '&xrArr;',  # ⟹ / &xrArr; / &Longrightarrow; / &DoubleLongRightArrow;
+    CHAR_ARROW_LR_LONG_DOUBLE: '&xhArr;',		# ⟺ / &xhArr; / &Longleftrightarrow; / &DoubleLongLeftRightArrow;
     '\u22a8': '&vDash;',		# ⊨ / &vDash; / &DoubleRightTee;
     '\u21d1': '&uArr;',		    # ⇑ / &uArr; / &Uparrow; / &DoubleUpArrow;
     '\u2202': '&part;',         # ∂ / &part; / &PartialD;
@@ -337,10 +382,10 @@ CUSTOM_ENCODE_MAP = {
     '\u2a89': '&lnap;',		    # ⪉ / &lnap; / &lnapprox;
     '\u2268': '&lnE;',		    # ≨ / &lnE; / &lneqq;
     '\u2a87': '&lne;',		    # ⪇ / &lne; / &lneq;
-    '\u27f5': '&xlarr;',		# ⟵ / &xlarr; / &longleftarrow; / &LongLeftArrow;
-    '\u27f7': '&xharr;',		# ⟷ / &xharr; / &longleftrightarrow; / &LongLeftRightArrow;
+    CHAR_ARROW_L: '&xlarr;',		# ⟵ / &xlarr; / &longleftarrow; / &LongLeftArrow;
+    CHAR_ARROW_R: '&xrarr;',  # ⟶ / &xrarr; / &LongRightArrow; / &longrightarrow;
+    CHAR_ARROW_LR: '&xharr;',		# ⟷ / &xharr; / &longleftrightarrow; / &LongLeftRightArrow;
     '\u27fc': '&xmap;',		    # ⟼ / &xmap; / &longmapsto;
-    '\u27f6': '&xrarr;',		# ⟶ / &xrarr; / &LongRightArrow; / &longrightarrow;
     '\u21ac': '&rarrlp;',		# ↬ / &rarrlp; / &looparrowright;
     '\u201e': '&bdquo;',		# „ / &bdquo; / &ldquor;
     '\u2199': '&swarr;',		# ↙ / &swarr; / &swarrow; / &LowerLeftArrow;
@@ -353,7 +398,7 @@ CUSTOM_ENCODE_MAP = {
     '\u2133': '&Mscr;',		    # ℳ / &Mscr; / &phmmat; / &Mellintrf;
     '\u2223': '&mid;',		    # ∣ / &mid; / &smid; / &shortmid; / &VerticalBar;
     '\u2213': '&mp;',		    # ∓ / &mp; / &mnplus; / &MinusPlus;
-    '\u2026': '&mldr;',		    # … / &mldr; / &hellip;
+    CHAR_HELLIP: '&mldr;',	    # … / &mldr; / &hellip;
     '\u22b8': '&mumap;',		# ⊸ / &mumap; / &multimap;
     '\u2249': '&nap;',		    # ≉ / &nap; / &napprox; / &NotTildeTilde;
     '\u266e': '&natur;',		# ♮ / &natur; / &natural;
@@ -486,7 +531,7 @@ CUSTOM_ENCODE_MAP = {
     '\u20db': '&tdot;',		    # ⃛ / &tdot; / &TripleDot;
     '\u2234': '&there4;',		# ∴ / &there4; / &Therefore; / &therefore;
     '\u03d1': '&thetav;',		# ϑ / &thetav; / &vartheta; / &thetasym;
-    '\u2122': '&trade;',		# ™ / &trade; / &TRADE;
+    CHAR_TRADE: '&trade;',		# ™ / &trade; / &TRADE;
     '\u25b5': '&utri;',		    # ▵ / &utri; / &triangle;
     '\u225c': '&trie;',		    # ≜ / &trie; / &triangleq;
     '\u21c5': '&udarr;',		# ⇅ / &udarr; / &UpArrowDownArrow;

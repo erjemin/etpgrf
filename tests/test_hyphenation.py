@@ -1,35 +1,35 @@
 # tests/test_hyphenation.py
 import pytest
 from etpgrf import Hyphenator
-from tests.test_unbreakables import ENGLISH_PREPOSITIONS_TO_TEST
+from etpgrf.config import CHAR_SHY
 
 # --- Тестовые данные для русского языка ---
 # Формат: (входное_слово, ожидаемый_результат_с_переносами)
-# Используем \u00AD - это Unicode-представление мягкого переноса (&shy;)
+# Используем {CHAR_SHY} - это Unicode-представление мягкого переноса (&shy;)
 RUSSIAN_HYPHENATION_CASES = [
     ("дом", "дом"),  # Сочень короткое (короче max_unhyphenated_len) не должно меняться
-    ("проверка", "про\u00ADверка"),
-    ("тестирование", "тести\u00ADрова\u00ADние"),
-    ("благотворительностью", "бла\u00ADготво\u00ADритель\u00ADностью"), # Слово с переносом на мягкий знак
-    ("фотоаппаратура", "фотоап\u00ADпара\u00ADтура"), # проверка слова со сдвоенной согласной
-    ("программирование", "про\u00ADграм\u00ADмиро\u00ADвание"),  # слова со сдвоенной согласной
-    ("сверхзвуковой", "сверх\u00ADзву\u00ADковой"),
-    ("автомобиль", "авто\u00ADмобиль"),
-    ("интернационализация", "инте\u00ADрнаци\u00ADонали\u00ADзация"),
-    ("электронный", "элек\u00ADтрон\u00ADный"),
-    ("информационный", "инфо\u00ADрма\u00ADцион\u00ADный"),
-    ("автоматизация", "автома\u00ADтиза\u00ADция"),
-    ("многоклеточный", "мно\u00ADгокле\u00ADточный"),
-    ("многофункциональный", "мно\u00ADгофун\u00ADкцио\u00ADналь\u00ADный"),
-    ("непрерывность", "непре\u00ADрывно\u00ADсть"),
-    ("сверхпроводимость", "сверх\u00ADпрово\u00ADдимо\u00ADсть"),
-    ("многообразие", "мно\u00ADгоо\u00ADбра\u00ADзие"),
-    ("противоречивость", "про\u00ADтиво\u00ADречи\u00ADвость"),
-    ("непревзойденный", "непре\u00ADвзой\u00ADден\u00ADный"),
-    ("многослойный", "мно\u00ADгослой\u00ADный"),
-    ("суперкомпьютер", "супе\u00ADрко\u00ADмпью\u00ADтер"), # Неправильный перенос (нужен словарь "приставок/корней/суффиксов")
-    ("сверхчувствительный", "свер\u00ADхчув\u00ADстви\u00ADтель\u00ADный"),  # Неправильный перенос
-    ("гиперподъездной", "гипе\u00ADрпо\u00ADдъез\u00ADдной"),  # Неправильный перенос
+    ("проверка", f"про{CHAR_SHY}верка"),
+    ("тестирование", f"тести{CHAR_SHY}рова{CHAR_SHY}ние"),
+    ("благотворительностью", f"бла{CHAR_SHY}готво{CHAR_SHY}ритель{CHAR_SHY}ностью"), # Слово с переносом на мягкий знак
+    ("фотоаппаратура", f"фотоап{CHAR_SHY}пара{CHAR_SHY}тура"), # проверка слова со сдвоенной согласной
+    ("программирование", f"про{CHAR_SHY}грам{CHAR_SHY}миро{CHAR_SHY}вание"),  # слова со сдвоенной согласной
+    ("сверхзвуковой", f"сверх{CHAR_SHY}зву{CHAR_SHY}ковой"),
+    ("автомобиль", f"авто{CHAR_SHY}мобиль"),
+    ("интернационализация", f"инте{CHAR_SHY}рнаци{CHAR_SHY}онали{CHAR_SHY}зация"),
+    ("электронный", f"элек{CHAR_SHY}трон{CHAR_SHY}ный"),
+    ("информационный", f"инфо{CHAR_SHY}рма{CHAR_SHY}цион{CHAR_SHY}ный"),
+    ("автоматизация", f"автома{CHAR_SHY}тиза{CHAR_SHY}ция"),
+    ("многоклеточный", f"мно{CHAR_SHY}гокле{CHAR_SHY}точный"),
+    ("многофункциональный", f"мно{CHAR_SHY}гофун{CHAR_SHY}кцио{CHAR_SHY}наль{CHAR_SHY}ный"),
+    ("непрерывность", f"непре{CHAR_SHY}рывно{CHAR_SHY}сть"),
+    ("сверхпроводимость", f"сверх{CHAR_SHY}прово{CHAR_SHY}димо{CHAR_SHY}сть"),
+    ("многообразие", f"мно{CHAR_SHY}гоо{CHAR_SHY}бра{CHAR_SHY}зие"),
+    ("противоречивость", f"про{CHAR_SHY}тиво{CHAR_SHY}речи{CHAR_SHY}вость"),
+    ("непревзойденный", f"непре{CHAR_SHY}взой{CHAR_SHY}ден{CHAR_SHY}ный"),
+    ("многослойный", f"мно{CHAR_SHY}гослой{CHAR_SHY}ный"),
+    ("суперкомпьютер", f"супе{CHAR_SHY}рко{CHAR_SHY}мпью{CHAR_SHY}тер"), # Неправильный перенос (нужен словарь "приставок/корней/суффиксов")
+    ("сверхчувствительный", f"свер{CHAR_SHY}хчув{CHAR_SHY}стви{CHAR_SHY}тель{CHAR_SHY}ный"),  # Неправильный перенос
+    ("гиперподъездной", f"гипе{CHAR_SHY}рпо{CHAR_SHY}дъез{CHAR_SHY}дной"),  # Неправильный перенос
 ]
 
 
@@ -49,17 +49,17 @@ def test_russian_word_hyphenation(input_word, expected_output):
 ENGLISH_HYPHENATION_CASES = [
     ("color", "color"),  # Короткое слово, не должно меняться
     ("throughout", "throughout"),  # Длинное слово, но из-за икс-графа "ough" не будет переноситься
-    ("ambrella", "amb\u00ADrella"),
-    ("unbelievable", "unbel\u00ADiev\u00ADable"),  # Проверка переноса перед суффиксом "able"
-    ("acknowledgment", "ack\u00ADnow\u00ADledg\u00ADment"),  # Проверка переноса перед суффиксом "ment"
-    ("friendship", "frien\u00ADdship"),  # Проверка переноса перед суффиксом "ship"
-    ("thoughtful", "though\u00ADtful"),  #
-    ("psychology", "psy\u00ADcho\u00ADlogy"),  # Проверка переноса после "psy"
-    ("extraordinary", "ext\u00ADraor\u00ADdin\u00ADary"),  # Проверка сложного слова
-    ("unbreakable", "unb\u00ADrea\u00ADkable"),  # Проверка переноса перед "able"
-    ("acknowledgement", "ack\u00ADnow\u00ADledge\u00ADment"),  # Проверка икс-графа "dge"
-    ("misunderstanding", "mis\u00ADunder\u00ADstan\u00ADding"),  # Проверка сложного слова
-    ("floccinaucinihilipilification", "floc\u00ADcin\u00ADauc\u00ADinih\u00ADili\u00ADpili\u00ADfica\u00ADtion"),
+    ("ambrella", f"amb{CHAR_SHY}rella"),
+    ("unbelievable", f"unbel{CHAR_SHY}iev{CHAR_SHY}able"),  # Проверка переноса перед суффиксом "able"
+    ("acknowledgment", f"ack{CHAR_SHY}now{CHAR_SHY}ledg{CHAR_SHY}ment"),  # Проверка переноса перед суффиксом "ment"
+    ("friendship", f"frien{CHAR_SHY}dship"),  # Проверка переноса перед суффиксом "ship"
+    ("thoughtful", f"though{CHAR_SHY}tful"),  #
+    ("psychology", f"psy{CHAR_SHY}cho{CHAR_SHY}logy"),  # Проверка переноса после "psy"
+    ("extraordinary", f"ext{CHAR_SHY}raor{CHAR_SHY}din{CHAR_SHY}ary"),  # Проверка сложного слова
+    ("unbreakable", f"unb{CHAR_SHY}rea{CHAR_SHY}kable"),  # Проверка переноса перед "able"
+    ("acknowledgement", f"ack{CHAR_SHY}now{CHAR_SHY}ledge{CHAR_SHY}ment"),  # Проверка икс-графа "dge"
+    ("misunderstanding", f"mis{CHAR_SHY}under{CHAR_SHY}stan{CHAR_SHY}ding"),  # Проверка сложного слова
+    ("floccinaucinihilipilification", f"floc{CHAR_SHY}cin{CHAR_SHY}auc{CHAR_SHY}inih{CHAR_SHY}ili{CHAR_SHY}pili{CHAR_SHY}fica{CHAR_SHY}tion"),
 ]
 
 @pytest.mark.parametrize("input_word, expected_output", ENGLISH_HYPHENATION_CASES)
