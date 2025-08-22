@@ -8,6 +8,8 @@ from etpgrf.comutil import parse_and_validate_mode, parse_and_validate_langs
 from etpgrf.hyphenation import Hyphenator
 from etpgrf.unbreakables import Unbreakables
 from etpgrf.quotes import QuotesProcessor
+from etpgrf.layout import LayoutProcessor
+from etpgrf.symbols import SymbolsProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
 
 
@@ -24,6 +26,8 @@ class Typographer:
                  hyphenation: Hyphenator | bool | None = True,  # Перенос слов и параметры расстановки переносов
                  unbreakables: Unbreakables | bool | None = True, # Правила для предотвращения разрыва коротких слов
                  quotes: QuotesProcessor | bool | None = True,  # Правила для обработки кавычек
+                 layout: LayoutProcessor | bool | None = True,  # Правила для тире и спецсимволов
+                 symbols: SymbolsProcessor | bool | None = True, # Правила для псевдографики
                  # ... другие модули правил ...
                  ):
 
@@ -38,7 +42,14 @@ class Typographer:
                            "HTML не будет обработан. Установите ее: `pip install beautifulsoup4`")
             self.process_html = False
 
-        # D. --- Инициализация правила переноса ---
+        # D. --- Конфигурация правил для псевдографики ---
+        self.symbols: SymbolsProcessor | None = None
+        if symbols is True or symbols is None:
+            self.symbols = SymbolsProcessor()
+        elif isinstance(symbols, SymbolsProcessor):
+            self.symbols = symbols
+
+        # E. --- Инициализация правила переноса ---
         #    Предпосылка: если вызвали типограф, значит, мы хотим обрабатывать текст и переносы тоже нужно расставлять.
         #    А для специальных случаев, когда переносы не нужны, пусть не ленятся и делают `hyphenation=False`.
         self.hyphenation: Hyphenator | None = None
@@ -49,7 +60,7 @@ class Typographer:
             # C2. Если hyphenation - это объект Hyphenator, то просто сохраняем его (и используем его langs и mode)
             self.hyphenation = hyphenation
 
-        # E. --- Конфигурация правил неразрывных слов ---
+        # F. --- Конфигурация правил неразрывных слов ---
         self.unbreakables: Unbreakables | None = None
         if unbreakables is True or unbreakables is None:
             # D1. Создаем новый объект Unbreakables с заданными языками и режимом, а все остальное по умолчанию
@@ -58,20 +69,29 @@ class Typographer:
             # D2. Если unbreakables - это объект Unbreakables, то просто сохраняем его (и используем его langs и mode)
             self.unbreakables = unbreakables
 
-        # F. --- Конфигурация правил обработки кавычек ---
+        # G. --- Конфигурация правил обработки кавычек ---
         self.quotes: QuotesProcessor | None = None
         if quotes is True or quotes is None:
             self.quotes = QuotesProcessor(langs=self.langs)
         elif isinstance(quotes, QuotesProcessor):
             self.quotes = quotes
 
-        # G. --- Конфигурация других правил---
+        # H. --- Конфигурация правил для тире и спецсимволов ---
+        self.layout: LayoutProcessor | None = None
+        if layout is True or layout is None:
+            self.layout = LayoutProcessor(langs=self.langs)
+        elif isinstance(layout, LayoutProcessor):
+            self.layout = layout
+
+        # I. --- Конфигурация других правил---
 
         # Z. --- Логирование инициализации ---
         logger.debug(f"Typographer `__init__`: langs: {self.langs}, mode: {self.mode}, "
                      f"hyphenation: {self.hyphenation is not None}, "
                      f"unbreakables: {self.unbreakables is not None}, "
                      f"quotes: {self.quotes is not None}, "
+                     f"layout: {self.layout is not None}, "
+                     f"symbols: {self.symbols is not None}, "
                      f"process_html: {self.process_html}")
 
 
@@ -85,8 +105,12 @@ class Typographer:
         # processed_text = text  # ВРЕМЕННО: используем текст как есть
 
         # Шаг 2: Применяем правила к чистому Unicode-тексту
+        if self.symbols is not None:
+            processed_text = self.symbols.process(processed_text)
         if self.quotes is not None:
             processed_text = self.quotes.process(processed_text)
+        if self.layout is not None:
+            processed_text = self.layout.process(processed_text)
         if self.unbreakables is not None:
             processed_text = self.unbreakables.process(processed_text)
         if self.hyphenation is not None:
@@ -135,4 +159,3 @@ class Typographer:
             processed = self._process_text_node(text)
         # Возвращаем
         return encode_from_unicode(processed, self.mode)
-

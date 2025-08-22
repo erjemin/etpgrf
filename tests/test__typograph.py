@@ -3,7 +3,28 @@
 
 import pytest
 from etpgrf.typograph import Typographer
-from etpgrf.config import SHY_CHAR, NBSP_CHAR
+from etpgrf.config import CHAR_SHY, CHAR_NBSP, CHAR_COPY, CHAR_MDASH, CHAR_ARROW_L
+
+
+def test_typographer_disables_symbols_processor():
+    """
+    Проверяет, что при symbols=False модуль обработки символов отключается.
+    """
+    # Arrange
+    input_string = "Текст --- с символами (c) и стрелками A --> B."
+    typo = Typographer(langs='ru-en', symbols=False)
+
+    # Act
+    output_string = typo.process(input_string)
+
+    # Assert
+    # 1. Проверяем внутреннее состояние: модуль действительно отключен
+    assert typo.symbols is None
+    # 2. Проверяем результат: символы НЕ появились в тексте.
+    #    Это главная и самая надежная проверка.
+    assert CHAR_MDASH not in output_string  # длинное тире
+    assert CHAR_COPY not in output_string  # символ копирайта
+    assert CHAR_ARROW_L not in output_string  # стрелка
 
 
 def test_typographer_disables_quotes_processor():
@@ -42,7 +63,7 @@ def test_typographer_disables_hyphenation():
     # 1. Проверяем внутреннее состояние
     assert typo.hyphenation is None
     # 2. Проверяем результат: в тексте не появилось символов мягкого переноса
-    assert SHY_CHAR not in output_string
+    assert CHAR_SHY not in output_string
 
 
 def test_typographer_disables_unbreakables():
@@ -60,4 +81,4 @@ def test_typographer_disables_unbreakables():
     # 1. Проверяем внутреннее состояние
     assert typo.unbreakables is None
     # 2. Проверяем результат: в тексте не появилось неразрывных пробелов
-    assert NBSP_CHAR not in output_string
+    assert CHAR_NBSP not in output_string
