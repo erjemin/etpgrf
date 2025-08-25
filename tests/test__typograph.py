@@ -26,6 +26,24 @@ def test_typographer_disables_symbols_processor():
     assert CHAR_COPY not in output_string  # символ копирайта
     assert CHAR_ARROW_L not in output_string  # стрелка
 
+    def test_typographer_disable_layout_processor():
+        """
+        Проверяет, что при layout=False модуль обработки компоновки отключается.
+        """
+        # Arrange
+        input_string = "Текст — с тире, которое не должно измениться."
+        typo = Typographer(langs='ru', layout=False)
+
+        # Act
+        output_string = typo.process(input_string)
+
+        # Assert
+        # 1. Проверяем внутреннее состояние: модуль действительно отключен
+        assert typo.layout is None
+        # 2. Проверяем результат: пробелы вокруг тире НЕ появились в тексте.
+        #    Это главная и самая надежная проверка.
+        assert CHAR_NBSP in output_string
+
 
 def test_typographer_disables_quotes_processor():
     """
