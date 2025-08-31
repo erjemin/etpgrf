@@ -3,7 +3,7 @@
 
 import regex
 import logging
-from etpgrf.config import LANG_RU, LANG_EN, CHAR_NBSP, CHAR_NDASH, CHAR_MDASH, CHAR_HELLIP
+from etpgrf.config import LANG_RU, LANG_EN, CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH, CHAR_HELLIP
 from etpgrf.comutil import parse_and_validate_langs
 
 # --
@@ -23,10 +23,10 @@ class LayoutProcessor:
 
     def __init__(self,
                  langs: str | list[str] | tuple[str, ...] | frozenset[str] | None = None,
-                 process_initials: bool = True):
+                 process_initials_and_acronyms: bool = True):
         self.langs = parse_and_validate_langs(langs)
         self.main_lang = self.langs[0] if self.langs else LANG_RU
-        self.process_initials = process_initials
+        self.process_initials_and_acronyms = process_initials_and_acronyms
 
         # 1. Паттерн для длинного (—) или среднего (–) тире, окруженного пробелами.
         # (?<=\S) и (?=\S) гарантируют, что тире находится между словами, а не в начале/конце строки.
@@ -46,18 +46,23 @@ class LayoutProcessor:
         #           в выражениях типа "10 - 5".
         self._negative_number_pattern = regex.compile(r'(?<!\d)\s+-(\d+)')
 
-        # 4. Паттерны для обработки инициалов.
+        # 4. Паттерны для обработки инициалов и акронимов.
         # \p{Lu} - любая заглавная буква в Unicode.
-        # Этот паттерн находит пробел между фамилией и следующим за ней инициалом.
-        self._surname_initial_pattern = regex.compile(r'(\p{Lu}\p{L}{1,})\s+(?=\p{Lu}\.)')
-        # Этот паттерн находит пробел между инициалом и следующим за ним инициалом или фамилией.
-        # (?=\p{Lu}[\p{L}.]) - просмотр вперед на заглавную букву, за которой идет или буква (фамилия), или точка (инициал).
-        self._initial_pattern = regex.compile(r'(\p{Lu}\.)\s+(?=\p{Lu}[\p{L}.])')
+
+        # Правила для случаев, когда пробел УЖЕ ЕСТЬ (заменяем на неразрывный)
+        # Используем ` +` (пробел) вместо `\s+`, чтобы не заменять уже вставленные тонкие пробелы.
+        self._initial_to_initial_ws_pattern = regex.compile(r'(\p{Lu}\.) +(?=\p{Lu}\.)')
+        self._initial_to_surname_ws_pattern = regex.compile(r'(\p{Lu}\.) +(?=\p{Lu}\p{L}{1,})')
+        self._surname_to_initial_ws_pattern = regex.compile(r'(\p{Lu}\p{L}{2,}) +(?=\p{Lu}\.)')
+
+        # Правила для случаев, когда пробела НЕТ (вставляем тонкий пробел)
+        self._initial_to_initial_ns_pattern = regex.compile(r'(\p{Lu}\.)(?=\p{Lu}\.)')
+        self._initial_to_surname_ns_pattern = regex.compile(r'(\p{Lu}\.)(?=\p{Lu}\p{L}{1,})')
 
         logger.debug(f"LayoutProcessor `__init__`. "
                      f"Langs: {self.langs}, "
                      f"Main lang: {self.main_lang}, "
-                     f"Process initials: {self.process_initials}")
+                     f"Process initials and acronyms: {self.process_initials_and_acronyms}")
 
 
     def _replace_dash_spacing(self, match: regex.Match) -> str:
@@ -85,10 +90,14 @@ class LayoutProcessor:
          processed_text = self._negative_number_pattern.sub(f'{CHAR_NBSP}-\\1', processed_text)
 
          # 4. Обработка инициалов (если включено).
-         if self.process_initials:
-             # Сначала связываем фамилию с первым инициалом (Пушкин А. -> Пушкин{NBSP}А.)
-             processed_text = self._surname_initial_pattern.sub(f'\\1{CHAR_NBSP}', processed_text)
-             # Затем связываем инициалы между собой и с фамилией (А. С. Пушкин -> А.{NBSP}С.{NBSP}Пушкин)
-             processed_text = self._initial_pattern.sub(f'\\1{CHAR_NBSP}', processed_text)
+         if self.process_initials_and_acronyms:
+             # Сначала вставляем тонкие пробелы там, где пробелов не было.
+             processed_text = self._initial_to_initial_ns_pattern.sub(f'\\1{CHAR_THIN_SP}', processed_text)
+             processed_text = self._initial_to_surname_ns_pattern.sub(f'\\1{CHAR_THIN_SP}', processed_text)
+
+             # Затем заменяем существующие пробелы на неразрывные.
+             processed_text = self._initial_to_initial_ws_pattern.sub(f'\\1{CHAR_NBSP}', processed_text)
+             processed_text = self._initial_to_surname_ws_pattern.sub(f'\\1{CHAR_NBSP}', processed_text)
+             processed_text = self._surname_to_initial_ws_pattern.sub(f'\\1{CHAR_NBSP}', processed_text)
 
          return processed_text

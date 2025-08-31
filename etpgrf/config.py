@@ -37,6 +37,7 @@ EN_ALPHABET_FULL = EN_ALPHABET_UPPER | EN_ALPHABET_LOWER
 # --- Специальные символы ---
 CHAR_NBSP = '\u00a0'      # Неразрывный пробел (&nbsp;)
 CHAR_SHY = '\u00ad'       # Мягкий перенос (&shy;)
+CHAR_THIN_SP = '\u2009'   # Тонкий пробел (шпация, &thinsp;)
 CHAR_NDASH = '\u2013'     # Cреднее тире (– / &ndash;)
 CHAR_MDASH = '\u2014'     # Длинное тире (—  / &mdash;)
 CHAR_HELLIP = '\u2026'    # Многоточие (… / &hellip;)
@@ -108,7 +109,7 @@ SAFE_MODE_CHARS_TO_MNEMONIC = frozenset([
     '\u2003',  # Широкий пробел (Em Space) -- &emsp;
     '\u2007',  # Цифровой пробел -- &numsp;
     '\u2008',  # Пунктуационный пробел -- &puncsp;
-    '\u2009',  # Межсимвольный пробел -- &thinsp;'
+    CHAR_THIN_SP,  # Межсимвольный пробел, тонкий пробел, шпация -- &thinsp;'
     '\u200A',  # Толщина волоса (Hair Space) -- &hairsp;
     '\u200B',  # Негативный пробел (Negative Space) -- &NegativeThinSpace;
     '\u200C',  # Нулевая ширина (без объединения) (Zero Width Non-Joiner) -- &zwj;
@@ -546,7 +547,7 @@ CUSTOM_ENCODE_MAP = {
     '\u231d': '&urcorn;',		# ⌝ / &urcorn; / &urcorner;
     '\u2016': '&Vert;',		    # ‖ / &Vert; / &Verbar;
     '\u2228': '&or;',		    # ∨ / &or; / &vee;
-    '\u2009': '&thinsp;',		#   / &thinsp; / &ThinSpace;
+    CHAR_THIN_SP: '&thinsp;',	#   / &thinsp; / &ThinSpace;
     '\u2240': '&wr;',		    # ≀ / &wr; / &wreath; / &VerticalTilde;
     '\u2128': '&Zfr;',		    # ℨ / &Zfr; / &zeetrf;
     '\u2118': '&wp;',           # ℘ / &wp; / &weierp;

@@ -2,8 +2,8 @@
 # Тестирует модуль LayoutProcessor. Проверяет обработку тире и специальных символов в тексте.
 
 import pytest
-from etpgrf.layout import LayoutProcessor
-from etpgrf.config import CHAR_NBSP, CHAR_HELLIP
+from etpgrf.layout import LayoutProcessor, CHAR_THIN_SP
+from etpgrf.config import CHAR_NBSP, CHAR_HELLIP, CHAR_THIN_SP
 
 LAYOUT_TEST_CASES = [
     # --- Длинное тире (—) для русского языка ---
@@ -71,25 +71,38 @@ LAYOUT_TEST_CASES = [
     ('ru', "1-2-3-4-5, я иду тебя искать", "1-2-3-4-5, я иду тебя искать"), # Дефис, а не минус
 
     # --- Инициалы (должны обрабатываться по умолчанию) ---
+    # Разные комбинации пробелов
     ('ru', "А. С. Пушкин", f"А.{CHAR_NBSP}С.{CHAR_NBSP}Пушкин"),
-    ('ru', "А.С. Пушкин", f"А.С.{CHAR_NBSP}Пушкин"),
-    ('ru', "Пушкин А. С.", f"Пушкин{CHAR_NBSP}А.{CHAR_NBSP}С."),
-    ('ru', "Пушкин А.С.", f"Пушкин{CHAR_NBSP}А.С."),
+    ('ru', "А.С. Пушкин", f"А.{CHAR_THIN_SP}С.{CHAR_NBSP}Пушкин"),
+    ('ru', "А.С.Пушкин", f"А.{CHAR_THIN_SP}С.{CHAR_THIN_SP}Пушкин"),
     ('en', "J. R. R. Tolkien", f"J.{CHAR_NBSP}R.{CHAR_NBSP}R.{CHAR_NBSP}Tolkien"),
-    ('en', "J.R.R. Tolkien", f"J.R.R.{CHAR_NBSP}Tolkien"),
+    ('en', "J.R.R. Tolkien", f"J.{CHAR_THIN_SP}R.{CHAR_THIN_SP}R.{CHAR_NBSP}Tolkien"),
+    ('ru', "Пушкин А. С.", f"Пушкин{CHAR_NBSP}А.{CHAR_NBSP}С."),
+    ('ru', "Пушкин А.С.", f"Пушкин{CHAR_NBSP}А.{CHAR_THIN_SP}С."),
     ('en', "Tolkien J. R. R.", f"Tolkien{CHAR_NBSP}J.{CHAR_NBSP}R.{CHAR_NBSP}R."),
-    ('en', "Tolkien J.R.R.", f"Tolkien{CHAR_NBSP}J.R.R."),
+    ('en', "Tolkien J.R.R.", f"Tolkien{CHAR_NBSP}J.{CHAR_THIN_SP}R.{CHAR_THIN_SP}R."),
+    # Один инициал
     ('ru', "Это был В. Высоцкий.", f"Это был В.{CHAR_NBSP}Высоцкий."),
-    ('ru', "Высоцкий В. С. был гением.", f"Высоцкий{CHAR_NBSP}В.{CHAR_NBSP}С. был гением."),
+    ('ru', "Высоцкий В. был гением.", f"Высоцкий{CHAR_NBSP}В. был гением."),
+    # Акронимы (бонус)
+    ('ru', "Сделано в С.Ш.А.", f"Сделано в С.{CHAR_THIN_SP}Ш.{CHAR_THIN_SP}А."),
+    ('ru', "Сделано в С. Ш. А.", f"Сделано в С.{CHAR_NBSP}Ш.{CHAR_NBSP}А."),
+    ('en', "На замке стояло клеймо «Made in U.S.A.»", f"На замке стояло клеймо «Made in U.{CHAR_THIN_SP}S.{CHAR_THIN_SP}A.»"),
+    ('en', "На замке стояло клеймо «Made in U. S. A.»",  f"На замке стояло клеймо «Made in U.{CHAR_NBSP}S.{CHAR_NBSP}A.»"),
+    # Никаких изменений, если пробелы другого типа
+    ('ru', "А.\u200DС.\u200AПушкин", "А.\u200DС.\u200AПушкин"),
+    ('ru', "Пушкин А.\u200AС.", f"Пушкин{CHAR_NBSP}А.\u200AС."),
+    ('en', "J.\u200DR.\u200DR.\u200ATolkien", "J.\u200DR.\u200DR.\u200ATolkien"),
+    ('en', "Tolkien J.\u200AR.\u200AR.", f"Tolkien{CHAR_NBSP}J.\u200AR.\u200AR."),
 
     # --- Инициалы (проверка отключения опции) ---
     # ('ru', "А. С. Пушкин", "А. С. Пушкин", False),
-    # ('ru', "Пушкин А. С.", "Пушкин А. С.", False),
+    # ('ru', "Пушкин А.С.", "Пушкин А.С.", False),
 
     # --- Комбинированные случаи ---
     ('ru', f"Да — это так{CHAR_HELLIP} а может и нет. Счёт -10.",
      f"Да{CHAR_NBSP}— это так{CHAR_HELLIP}{CHAR_NBSP}а может и нет. Счёт{CHAR_NBSP}-10."),
-    ('ru', f"По мнению А. С. Пушкина — это...", f"По мнению А.{CHAR_NBSP}С.{CHAR_NBSP}Пушкина{CHAR_NBSP}— это..."),
+    ('ru', f"По мнению А.С.Пушкина — это...", f"По мнению А.{CHAR_THIN_SP}С.{CHAR_THIN_SP}Пушкина{CHAR_NBSP}— это..."),
 
 ]
 
