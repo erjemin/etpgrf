@@ -1,6 +1,7 @@
 # tests/test_unbreakables.py
 import pytest
 from etpgrf import Unbreakables
+from etpgrf.config import CHAR_NBSP, CHAR_THIN_SP
 
 
 # Список русских слов, которые должны "приклеиваться" к следующему слову.
@@ -26,7 +27,7 @@ def test_russian_prepositions_are_unbreakable(word):
     # Arrange (подготовка)
     unbreakables_ru = Unbreakables(langs='ru')
     input_text = f"Проверка {word} тестирование."
-    expected_text = f"Проверка {word}\u00A0тестирование."
+    expected_text = f"Проверка {word}{CHAR_NBSP}тестирование."
     # Act (действие, которое выполняем)
     actual_text = unbreakables_ru.process(input_text)
     # Assert (утверждение, что результат соответствует ожиданиям)
@@ -48,7 +49,7 @@ def test_english_prepositions_are_unbreakable(word):
     # Arrange (подготовка)
     unbreakables_en = Unbreakables(langs='en')
     input_text = f"Training {word} test."
-    expected_text = f"Training {word}\u00A0test."
+    expected_text = f"Training {word}{CHAR_NBSP}test."
     # Act (действие, которое выполняем)
     actual_text = unbreakables_en.process(input_text)
     # Assert (утверждение, что результат соответствует ожиданиям)
@@ -63,7 +64,7 @@ def test_mix_prepositions_are_unbreakable():
     # Arrange (подготовка)
     unbreakables_mix = Unbreakables(langs='ru+en')
     input_text = f"Для the Guardian он написал блестящую статью."
-    expected_text = f"Для\u00A0the\u00A0Guardian он\u00A0написал блестящую статью."
+    expected_text = f"Для{CHAR_NBSP}the{CHAR_NBSP}Guardian он{CHAR_NBSP}написал блестящую статью."
     # Act (действие, которое выполняем)
     actual_text = unbreakables_mix.process(input_text)
     # Assert (утверждение, что результат соответствует ожиданиям)
@@ -83,8 +84,22 @@ def test_russian_postpositive_particle(word):
     # Arrange
     unbreakables_ru = Unbreakables(langs='ru')
     input_text = f"Отчего {word} не поспать?"
-    expected_text = f"Отчего\u00A0{word} не\u00A0поспать?"
+    expected_text = f"Отчего{CHAR_NBSP}{word} не{CHAR_NBSP}поспать?"
     # Act
     actual_text = unbreakables_ru.process(input_text)
     # Assert
     assert actual_text == expected_text
+
+
+# Тесты для проверки особых случаев в Unbreakables
+UNBREAKABLES_SPECIAL_TEST_CASES = [
+    ('ru', "до н.э.", f"до{CHAR_NBSP}н.э."),
+]
+
+
+@pytest.mark.parametrize("lang, input_string, expected_output", UNBREAKABLES_SPECIAL_TEST_CASES)
+def test_layout_processor_with_options(lang, input_string, expected_output):
+    """Проверяет работу Unbreakables с особыми случаями. """
+    processor = Unbreakables(langs=lang)
+    actual_output = processor.process(input_string)
+    assert actual_output == expected_output

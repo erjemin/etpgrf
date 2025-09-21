@@ -47,7 +47,7 @@ _RU_OLD_POSTPOSITIVE_PARTICLES = frozenset([
 ])
 
 _EN_UNBREAKABLE_WORDS = frozenset([
-    # 1-2 letter words
+    # 1-2 letter words (I - as pronoun)
     'a', 'an', 'as', 'at', 'by', 'in', 'is', 'it', 'of', 'on', 'or', 'so', 'to', 'if',
     # 3-4 letter words
     'for', 'from', 'into', 'that', 'then', 'they', 'this', 'was', 'were', 'what', 'when', 'with',
