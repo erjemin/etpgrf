@@ -69,6 +69,7 @@ LAYOUT_TEST_CASES = [
     ('ru', "10 - 5 = 5", "10 - 5 = 5"),  # Бинарный минус не трогаем
     ('ru', "слово-10", "слово-10"), # Дефис, а не минус
     ('ru', "1-2-3-4-5, я иду тебя искать", "1-2-3-4-5, я иду тебя искать"), # Дефис, а не минус
+    ('ru', "в диапазоне (-10, 10)", f"в диапазоне (-10, 10)"),  # Без пробела после скобки
 
     # --- Инициалы (должны обрабатываться по умолчанию) ---
     # Разные комбинации пробелов
@@ -87,7 +88,6 @@ LAYOUT_TEST_CASES = [
     # Акронимы (бонус)
     ('ru', "Сделано в С.Ш.А.", f"Сделано в С.{CHAR_THIN_SP}Ш.{CHAR_THIN_SP}А."),
     ('ru', "Сделано в С. Ш. А.", f"Сделано в С.{CHAR_NBSP}Ш.{CHAR_NBSP}А."),
-    ('en', "На замке стояло клеймо «Made in U.S.A.»", f"На замке стояло клеймо «Made in U.{CHAR_THIN_SP}S.{CHAR_THIN_SP}A.»"),
     ('en', "На замке стояло клеймо «Made in U. S. A.»",  f"На замке стояло клеймо «Made in U.{CHAR_NBSP}S.{CHAR_NBSP}A.»"),
     # Никаких изменений, если пробелы другого типа
     ('ru', "А.\u200DС.\u200AПушкин", "А.\u200DС.\u200AПушкин"),
@@ -95,21 +95,69 @@ LAYOUT_TEST_CASES = [
     ('en', "J.\u200DR.\u200DR.\u200ATolkien", "J.\u200DR.\u200DR.\u200ATolkien"),
     ('en', "Tolkien J.\u200AR.\u200AR.", f"Tolkien{CHAR_NBSP}J.\u200AR.\u200AR."),
 
-    # --- Инициалы (проверка отключения опции) ---
-    # ('ru', "А. С. Пушкин", "А. С. Пушкин", False),
-    # ('ru', "Пушкин А.С.", "Пушкин А.С.", False),
+    # --- Единицы измерения (по умолчанию) ---
+    ('ru', "Радиус Солнца — около 696.340 км", f"Радиус Солнца{CHAR_NBSP}— около 696.340{CHAR_NBSP}км"),
+    ('ru', "5 кг.", f"5{CHAR_NBSP}кг."),
+    ('ru', "Доработки проекта стоили 100 тыс. руб.", f"Доработки проекта стоили 100{CHAR_NBSP}тыс.{CHAR_NBSP}руб."),
+    ('ru', "№ 5", f"№{CHAR_NBSP}5"),
+    ('ru', "Договор № 504/2025А", f"Договор №{CHAR_NBSP}504/2025А"),
+    ('ru+en', "Доплата за багаж $ 45.50", f"Доплата за багаж ${CHAR_NBSP}45.50"),
+    ('ru+en', "Инвестиции составили $2.5 млн.", f"Инвестиции составили $2.5{CHAR_NBSP}млн."),
+    # Сложные единицы (склеиваются тонкой шпацией, привязываются к числу неразрывным пробелом)
+    ('ru', "Дом 120 кв.м. / Участок 6 сот.", f"Дом 120{CHAR_NBSP}кв.м. / Участок 6{CHAR_NBSP}сот."),
+    ('ru', "Гробик кладут в ямку 2 кв. м.", f"Гробик кладут в ямку 2 кв. м."),
+    ('ru', "500 до н. э.", f"500 до н. э."),
+    ('ru+en', "Хаммурапи (1792 - 1750 до н. э.)", f"Хаммурапи (1792 - 1750 до н. э.)"),
 
     # --- Комбинированные случаи ---
     ('ru', f"Да — это так{CHAR_HELLIP} а может и нет. Счёт -10.",
-     f"Да{CHAR_NBSP}— это так{CHAR_HELLIP}{CHAR_NBSP}а может и нет. Счёт{CHAR_NBSP}-10."),
+           f"Да{CHAR_NBSP}— это так{CHAR_HELLIP}{CHAR_NBSP}а может и нет. Счёт{CHAR_NBSP}-10."),
     ('ru', f"По мнению А.С.Пушкина — это...", f"По мнению А.{CHAR_THIN_SP}С.{CHAR_THIN_SP}Пушкина{CHAR_NBSP}— это..."),
+    ('ru', f"К моменту смерти (1837 г.) А.С. Пушкин был должен 135.833 руб.: 92.500 руб. частным лицам и 43.333 руб."
+           f" царской казне.",
+           f"К моменту смерти (1837{CHAR_NBSP}г.) А.{CHAR_THIN_SP}С.{CHAR_NBSP}Пушкин был должен"
+           f" 135.833{CHAR_NBSP}руб.: 92.500{CHAR_NBSP}руб. частным лицам и 43.333{CHAR_NBSP}руб."
+           f" царской казне."),
 
 ]
 
 
-@pytest.mark.parametrize("lang, input_string, expected_output", LAYOUT_TEST_CASES)
-def test_layout_processor(lang, input_string, expected_output):
+@pytest.mark.parametrize("lang, input_string, expected_output", LAYOUT_TEST_CASES
+)
+def test_layout_processor_default(lang, input_string, expected_output):
     """Проверяет работу LayoutProcessor в изоляции."""
     processor = LayoutProcessor(langs=lang)
+    actual_output = processor.process(input_string)
+    assert actual_output == expected_output
+
+
+# Тесты для проверки работы с кастомными опциями
+LAYOUT_OPTIONS_TEST_CASES = [
+    # --- Отключение правил ---
+    # Отключение обработки единиц измерения
+    ('ru', "10 км", "10 км", {'process_units': False}),
+    ('ru', "№ 5", "№ 5", {'process_units': False}),
+    ('ru', "100 тыс. руб.", "100 тыс. руб.", {'process_units': False}),
+    # Отключение обработки инициалов
+    ('ru', "А. С. Пушкин", "А. С. Пушкин", {'process_initials_and_acronyms': False}),
+    ('ru', "Пушкин А.С.", "Пушкин А.С.", {'process_initials_and_acronyms': False}),
+
+    # --- Кастомные единицы измерения ---
+    # Кастомные единицы (список)
+    ('ru', "100 тонн", f"100{CHAR_NBSP}тонн", {'process_units': ['тонн']}),
+    # Кастомные единицы (строка)
+    ('ru', "50 штук", f"50{CHAR_NBSP}штук", {'process_units': 'штук кг'}),
+    # Стандартные единицы должны продолжать работать вместе с кастомными
+    ('ru', "100 тонн и 10 км", f"100{CHAR_NBSP}тонн и 10{CHAR_NBSP}км", {'process_units': ['тонн']}),
+    # Кастомные единицы не должны мешать другим правилам
+    ('ru', "А.С. Пушкин получил 10 бочек селёдки",
+           f"А.{CHAR_THIN_SP}С.{CHAR_NBSP}Пушкин получил 10{CHAR_NBSP}бочек селёдки", {'process_units': ['бочек']}),
+]
+
+
+@pytest.mark.parametrize("lang, input_string, expected_output, options", LAYOUT_OPTIONS_TEST_CASES)
+def test_layout_processor_with_options(lang, input_string, expected_output, options):
+    """Проверяет работу LayoutProcessor с кастомными настройками."""
+    processor = LayoutProcessor(langs=lang, **options)
     actual_output = processor.process(input_string)
     assert actual_output == expected_output
