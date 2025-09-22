@@ -71,30 +71,33 @@ class LayoutProcessor:
         self._math_unit_pattern = None
         if self.process_units:
             all_post_units = list(DEFAULT_POST_UNITS)
+            # Добавляем кастомные единицы, если они есть
             if isinstance(self.process_units, str):
                 all_post_units.extend(self.process_units.split())
             elif isinstance(self.process_units, (list, tuple, set)):
                 all_post_units.extend(self.process_units)
 
-            # Общий паттерн для всех остальных единиц
-            if all_post_units:
-                sorted_units = sorted(all_post_units, key=len, reverse=True)
-                # Создаем "чистый" паттерн без точек для универсальности
-                units_pattern_part_clean = '|'.join(map(regex.escape, [u.replace('.', '') for u in sorted_units]))
-                # Создаем паттерн, который включает единицы с точками, для простых замен
-                units_pattern_part_full = '|'.join(map(regex.escape, sorted_units))
+            # Единая проверка безопасности: удаляем все единицы, содержащие временный разделитель.
+            safe_units = [unit for unit in all_post_units if CHAR_UNIT_SEPARATOR not in unit]
+            if len(safe_units) != len(all_post_units):
+                logger.warning(f"One or more units contained the reserved separator ('{CHAR_UNIT_SEPARATOR}') and were ignored.")
 
-            if units_pattern_part_full:
-                 # Простые единицы: число + единица
-                 self._post_units_pattern = regex.compile(rf'({self._NUMBER_PATTERN})\s+({units_pattern_part_full})(?!\w)')
-                 # Паттерн для составных единиц: ищет пару "единица." + "единица", разделенную пробелами (или без них).
-                 # Обязательное наличие точки `\.` после первой единицы делает цикл обработки безопасным.
-                 # Используем "чистый" паттерн, чтобы правило работало независимо от того, как определена единица ('в' или 'в.')
-                 self._complex_unit_pattern = regex.compile(r'\b(' + units_pattern_part_clean + r')\.(\s*)(' + units_pattern_part_clean + r')(?!\w)')
-                 # Паттерн для математических операций между единицами
-                 math_ops_pattern = '|'.join(map(regex.escape, UNIT_MATH_OPERATORS))
-                 self._math_unit_pattern = regex.compile(
-                     r'\b(' + units_pattern_part_clean + r')\s*(' + math_ops_pattern + r')\s*(' + units_pattern_part_clean + r')(?!\w)')
+            # Создаем паттерны только из безопасных единиц
+            if safe_units:
+                sorted_units = sorted(safe_units, key=len, reverse=True)
+                units_pattern_part_full = '|'.join(map(regex.escape, sorted_units))
+                units_pattern_part_clean = '|'.join(map(regex.escape, [u.replace('.', '') for u in sorted_units]))
+
+                # Простые единицы: число + единица
+                self._post_units_pattern = regex.compile(rf'({self._NUMBER_PATTERN})\s+({units_pattern_part_full})(?!\w)')
+                # Составные единицы: ищет пару "единица." + "единица"
+                self._complex_unit_pattern = regex.compile(r'\b(' + units_pattern_part_clean + r')\.(\s*)('
+                                                           + units_pattern_part_clean + r')(?!\w)')
+                # Математические операции между единицами
+                math_ops_pattern = '|'.join(map(regex.escape, UNIT_MATH_OPERATORS))
+                self._math_unit_pattern = regex.compile(
+                    r'\b(' + units_pattern_part_clean + r')\s*(' + math_ops_pattern + r')\s*('
+                    + units_pattern_part_clean + r')(?!\w)')
 
             # Паттерн для пред-позиционных единиц
             self._pre_units_pattern = regex.compile(
