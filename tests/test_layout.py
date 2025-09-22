@@ -3,7 +3,7 @@
 
 import pytest
 from etpgrf.layout import LayoutProcessor, CHAR_THIN_SP
-from etpgrf.config import CHAR_NBSP, CHAR_HELLIP, CHAR_THIN_SP
+from etpgrf.config import CHAR_NBSP, CHAR_HELLIP, CHAR_THIN_SP, CHAR_UNIT_SEPARATOR
 
 LAYOUT_TEST_CASES = [
     # --- Длинное тире (—) для русского языка ---
@@ -175,6 +175,10 @@ LAYOUT_OPTIONS_TEST_CASES = [
     # Кастомные единицы не должны мешать другим правилам
     ('ru', "А.С. Пушкин получил 10 бочек селёдки",
            f"А.{CHAR_THIN_SP}С.{CHAR_NBSP}Пушкин получил 10{CHAR_NBSP}бочек селёдки", {'process_units': ['бочек']}),
+
+    # --- Проверка безопасности ---
+    # "Вредоносная" единица с сепаратором должна быть проигнорирована, а безопасная - обработана.
+    ('ru', "10 вредных и 20 полезных", f"10 вредных и 20{CHAR_NBSP}полезных", {'process_units': [f'вредных{CHAR_UNIT_SEPARATOR}', 'полезных']}),
 ]
 
 
