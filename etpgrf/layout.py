@@ -3,9 +3,13 @@
 
 import regex
 import logging
-from etpgrf.config import (LANG_RU, LANG_EN, CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH, CHAR_HELLIP, CHAR_UNIT_SEPARATOR,
-                           DEFAULT_POST_UNITS, DEFAULT_PRE_UNITS, UNIT_MATH_OPERATORS)
+from etpgrf.config import (LANG_RU, LANG_EN, CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH, CHAR_HELLIP,
+                           CHAR_UNIT_SEPARATOR, DEFAULT_POST_UNITS, DEFAULT_PRE_UNITS, UNIT_MATH_OPERATORS,
+                           ABBR_COMMON_FINAL)
+
 from etpgrf.comutil import parse_and_validate_langs
+
+
 
 # --
 
@@ -60,11 +64,13 @@ class LayoutProcessor:
         self._initial_to_initial_ns_pattern = regex.compile(r'(\p{Lu}\.)(?=\p{Lu}\.)')
         self._initial_to_surname_ns_pattern = regex.compile(r'(\p{Lu}\.)(?=\p{Lu}\p{L}{1,})')
 
-        # Паттерн, описывающий "число" - арабское (включая дроби) ИЛИ римское.
+        # Вся логика обработки финальных сокращений перенесена в метод process для надежной итеративной обработки
+
+        # 6. Паттерн, описывающий "число" - арабское (включая десятичные дроби через запятую или точку) ИЛИ римское.
         # Для римских цифр используется \b, чтобы не спутать 'I' с частью слова.
         self._NUMBER_PATTERN = r'(?:\d[\d.,]*|\b[IVXLCDM]+\b)'
 
-        # 5. Паттерны для единиц измерения (простые и составные).
+        # 7. Паттерны для единиц измерения (простые и составные).
         self._post_units_pattern = None
         self._pre_units_pattern = None
         self._complex_unit_pattern = None
@@ -133,7 +139,26 @@ class LayoutProcessor:
          # 3. Обработка пробела перед отрицательными числами/минусом.
          processed_text = self._negative_number_pattern.sub(f'{CHAR_NBSP}-\\1', processed_text)
 
-         # 4. Обработка инициалов (если включено).
+         # 4. Обработка финальных сокращений (т.д., т.п. и т.д.)
+         # Шаг 1: "Склеиваем" многосоставные сокращения временным разделителем.
+         temp_processed_text = processed_text
+         for abbr in ABBR_COMMON_FINAL:
+             if ' ' in abbr: # Обрабатываем только многосоставные
+                 pattern = regex.escape(abbr).replace(r'\ ', r'\s*')
+                 replacement = abbr.replace(' ', CHAR_UNIT_SEPARATOR)
+                 temp_processed_text = regex.sub(pattern, replacement, temp_processed_text, flags=regex.IGNORECASE)
+
+         # Шаг 2: Ставим неразрывный пробел перед всеми финальными сокращениями (уже "склеенными").
+         # Создаем паттерн из всех вариантов - и простых, и "склеенных".
+         glued_abbrs = [a.replace(' ', CHAR_UNIT_SEPARATOR) for a in ABBR_COMMON_FINAL]
+         all_final_abbrs_pattern = '|'.join(map(regex.escape, sorted(glued_abbrs, key=len, reverse=True)))
+         nbsp_pattern = regex.compile(r'(\s)(' + all_final_abbrs_pattern + r')(?=[.,!?]|\s|$)', flags=regex.IGNORECASE)
+         processed_text = nbsp_pattern.sub(fr'{CHAR_NBSP}\2', temp_processed_text)
+
+         # Шаг 3: Заменяем временный разделитель на правильную тонкую шпацию.
+         processed_text = processed_text.replace(CHAR_UNIT_SEPARATOR, CHAR_THIN_SP)
+
+         # 5. Обработка инициалов и акронимов (если включено).
          if self.process_initials_and_acronyms:
              # Сначала вставляем тонкие пробелы там, где пробелов не было.
              processed_text = self._initial_to_initial_ns_pattern.sub(f'\\1{CHAR_THIN_SP}', processed_text)
@@ -144,7 +169,7 @@ class LayoutProcessor:
              processed_text = self._initial_to_surname_ws_pattern.sub(f'\\1{CHAR_NBSP}', processed_text)
              processed_text = self._surname_to_initial_ws_pattern.sub(f'\\1{CHAR_NBSP}', processed_text)
 
-         # 5. Обработка единиц измерения (если включено).
+         # 6. Обработка единиц измерения (если включено).
          if self.process_units:
              if self._complex_unit_pattern:
                 # Шаг 1: "Склеиваем" все составные единицы с помощью временного разделителя.
