@@ -239,3 +239,27 @@ result = typo.process("Нужно 10 бочек.")       # -> "Нужно 10&nbs
 typo = etpgrf.Typographer(process_units=False)
 result = typo.process("100 км/ч")               # Останется без изменений
 ```
+
+
+## P.S.
+
+Если вам нравится этот проект и хотите поддержать его, можете отправить любую сумму на мой Т-банк
+[по ссылке](https://tbank.ru/cf/27hMw1BTFMs) или QR-коду.
+
+![Сбор средств](qr-code.png)
+
+Средства пойдут на улучшение моего настроения путем покупки виниловых пластинок. В списке желаний:
+
+| Bar-Code      | Artist                   | Album                                   | Format |                         |            | Label         | Цена    |   |
+|---------------|--------------------------|-----------------------------------------|--------|-------------------------|------------|---------------|---------|---|
+| 0711297924305 | SUZANNE VEGA             | Flying With Angels                      | LP     | Grey Smoke              | 02.05.2025 | Cooking Vinyl | ₽ 4099  | + |
+| 0602475914716 | CRANBERRIES              | No Need To Argue                        | 2LP    | 30th Ann, Deluxe        | 15.08.2025 | Island        | ₽ 5499  | + | 
+| ATL 40 022    | IRON BUTTERFLY           | In-A-Gadda-Da-Vida                      | LP     | NM/NM, Germany (винтаж) | 1973       | Atlantic      | ₽ 2499  | + |
+| 5400863145637 | EELS                     | So Good                                 | LP     | coloured                | 15.12.2023 |               | ₽ 4360  |
+| 5400863157845 | EELS                     | Time!                                   | LP     | coloured                | 07.06.2024 |               | ₽ 4940  |
+| 8719262034853 | NICK CAVE & WARREN ELLIS | Mars (Original Sound Track)             | LP     | coloured                | 12.07.2024 |               | ₽ 3440  |
+| 5021732526007 | GORILLAZ                 | Demon Days Live From The Apollo Theater | 2LP    | RSD2025, Red            | 12.04.2025 | Warner        | ₽ 5999  |
+| 5021732526007 | GORILLAZ                 | TOMORROW COMES TODAY                    | EP 12" | color (white & blue)    | 20.06.2025 |               | ₽ 3600  |
+
+
+
