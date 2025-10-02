@@ -5,7 +5,7 @@ import regex
 import logging
 from etpgrf.config import (LANG_RU, LANG_EN, CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH, CHAR_HELLIP,
                            CHAR_UNIT_SEPARATOR, DEFAULT_POST_UNITS, DEFAULT_PRE_UNITS, UNIT_MATH_OPERATORS,
-                           ABBR_COMMON_FINAL)
+                           ABBR_COMMON_FINAL, ABBR_COMMON_PREPOSITION)
 
 from etpgrf.comutil import parse_and_validate_langs
 
@@ -124,6 +124,39 @@ class LayoutProcessor:
         # По умолчанию (и для русского) — отбивка пробелами.
         return f'{CHAR_NBSP}{dash} '
 
+    def _process_abbreviations(self, text: str, abbreviations: list[str], mode: str) -> str:
+        """
+        Универсальный обработчик для разных типов сокращений.
+
+        :param text: Входной текст.
+        :param abbreviations: Список сокращений для обработки.
+        :param mode: 'final' (NBSP ставится перед) или 'prepositional' (NBSP ставится после).
+        :return: Обработанный текст.
+        """
+        processed_text = text
+
+        # Шаг 1: "Склеиваем" многосоставные сокращения временным разделителем CHAR_UNIT_SEPARATOR
+        for abbr in sorted(abbreviations, key=len, reverse=True):
+            if ' ' in abbr:
+                pattern = regex.escape(abbr).replace(r'\ ', r'\s*')
+                replacement = abbr.replace(' ', CHAR_UNIT_SEPARATOR)
+                processed_text = regex.sub(pattern, replacement, processed_text, flags=regex.IGNORECASE)
+
+        # Шаг 2: Ставим неразрывный пробел.
+        glued_abbrs = [a.replace(' ', CHAR_UNIT_SEPARATOR) for a in abbreviations]
+        all_abbrs_pattern = '|'.join(map(regex.escape, sorted(glued_abbrs, key=len, reverse=True)))
+
+        if mode == 'final':
+            # Ставим nbsp перед сокращением, если перед ним есть пробел
+            nbsp_pattern = regex.compile(r'(\s)(' + all_abbrs_pattern + r')(?=[.,!?]|\s|$)', flags=regex.IGNORECASE)
+            processed_text = nbsp_pattern.sub(fr'{CHAR_NBSP}\2', processed_text)
+        elif mode == 'prepositional':
+            # Ставим nbsp после сокращения, если после него есть пробел
+            nbsp_pattern = regex.compile(r'(' + all_abbrs_pattern + r')(\s)', flags=regex.IGNORECASE)
+            processed_text = nbsp_pattern.sub(fr'\1{CHAR_NBSP}', processed_text)
+
+        # Шаг 3: Заменяем временный разделитель на правильную тонкую шпацию
+        return processed_text.replace(CHAR_UNIT_SEPARATOR, CHAR_THIN_SP)
 
     def process(self, text: str) -> str:
          """Применяет правила компоновки к тексту."""
@@ -139,24 +172,9 @@ class LayoutProcessor:
          # 3. Обработка пробела перед отрицательными числами/минусом.
          processed_text = self._negative_number_pattern.sub(f'{CHAR_NBSP}-\\1', processed_text)
 
-         # 4. Обработка финальных сокращений (т.д., т.п. и т.д.)
-         # Шаг 1: "Склеиваем" многосоставные сокращения временным разделителем.
-         temp_processed_text = processed_text
-         for abbr in ABBR_COMMON_FINAL:
-             if ' ' in abbr: # Обрабатываем только многосоставные
-                 pattern = regex.escape(abbr).replace(r'\ ', r'\s*')
-                 replacement = abbr.replace(' ', CHAR_UNIT_SEPARATOR)
-                 temp_processed_text = regex.sub(pattern, replacement, temp_processed_text, flags=regex.IGNORECASE)
-
-         # Шаг 2: Ставим неразрывный пробел перед всеми финальными сокращениями (уже "склеенными").
-         # Создаем паттерн из всех вариантов - и простых, и "склеенных".
-         glued_abbrs = [a.replace(' ', CHAR_UNIT_SEPARATOR) for a in ABBR_COMMON_FINAL]
-         all_final_abbrs_pattern = '|'.join(map(regex.escape, sorted(glued_abbrs, key=len, reverse=True)))
-         nbsp_pattern = regex.compile(r'(\s)(' + all_final_abbrs_pattern + r')(?=[.,!?]|\s|$)', flags=regex.IGNORECASE)
-         processed_text = nbsp_pattern.sub(fr'{CHAR_NBSP}\2', temp_processed_text)
-
-         # Шаг 3: Заменяем временный разделитель на правильную тонкую шпацию.
-         processed_text = processed_text.replace(CHAR_UNIT_SEPARATOR, CHAR_THIN_SP)
+         # 4. Обработка сокращений.
+         processed_text = self._process_abbreviations(processed_text, ABBR_COMMON_FINAL, 'final')
+         processed_text = self._process_abbreviations(processed_text, ABBR_COMMON_PREPOSITION, 'prepositional')
 
          # 5. Обработка инициалов и акронимов (если включено).
          if self.process_initials_and_acronyms:
