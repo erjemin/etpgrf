@@ -32,7 +32,7 @@ TYPOGRAPHER_HTML_TEST_CASES = [
     ('mnemonic', '<p>Союз и <b>слово</b> и еще один союз а <span>текст</span>.</p>',
                  '<p>Союз и&nbsp;<b>слово</b> и&nbsp;еще один союз а&nbsp;<span>текст</span>.</p>'),
     ('mnemonic', '<p>Союз а <b>слово</b> а еще один союз а <span>текст</span>.</p>',
-     '<p>Союз а&nbsp;<b>слово</b> а&nbsp;еще один союз а&nbsp;<span>текст</span>.</p>'),
+                 '<p>Союз а&nbsp;<b>слово</b> а&nbsp;еще один союз а&nbsp;<span>текст</span>.</p>'),
 
 
 
