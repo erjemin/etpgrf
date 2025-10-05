@@ -112,10 +112,10 @@ class Typographer:
             processed_text = self.symbols.process(processed_text)
         if self.quotes is not None:
             processed_text = self.quotes.process(processed_text)
-        if self.layout is not None:
-            processed_text = self.layout.process(processed_text)
         if self.unbreakables is not None:
             processed_text = self.unbreakables.process(processed_text)
+        if self.layout is not None:
+            processed_text = self.layout.process(processed_text)
         if self.hyphenation is not None:
             processed_text = self.hyphenation.hyp_in_text(processed_text)
         # ... вызовы других активных модулей правил ...
