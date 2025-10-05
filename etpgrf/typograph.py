@@ -1,3 +1,6 @@
+# etpgrf/typograph.py
+# Основной класс Typographer, который объединяет все модули правил и предоставляет единый интерфейс.
+# Поддерживает обработку текста внутри HTML-тегов с помощью BeautifulSoup.
 import logging
 import html
 try:
@@ -117,12 +120,28 @@ class Typographer:
             processed_text = self.hyphenation.hyp_in_text(processed_text)
         # ... вызовы других активных модулей правил ...
 
-        return processed_text
+        # Финальный шаг: кодируем результат в соответствии с выбранным режимом
+        return encode_from_unicode(processed_text, self.mode)
 
+    def _walk_tree(self, node):
+        """
+        Рекурсивно обходит DOM-дерево, находя и обрабатывая все текстовые узлы.
+        """
+        # Список "детей" узла, который мы будем изменять.
+        # Копируем в список, так как будем изменять его во время итерации.
+        for child in list(node.children):
+            if isinstance(child, NavigableString):
+                # Если это текстовый узел, обрабатываем его
+                # Пропускаем пустые или состоящие из пробелов узлы
+                if not child.string.strip():
+                    continue
 
+                processed_node_text = self._process_text_node(child.string)
+                child.replace_with((processed_node_text))
+            elif child.name not in ['style', 'script', 'pre', 'code', 'kbd', 'samp', 'math']:
+                # Если это "безопасный" тег, рекурсивно заходим в него
+                self._walk_tree(child)
 
-
-    # Конвейер для обработки текста
     def process(self, text: str) -> str:
         """
         Обрабатывает текст, применяя все активные правила типографики.
@@ -134,28 +153,16 @@ class Typographer:
         if self.process_html:
             # Мы передаем 'html.parser', он быстрый и встроенный.
             soup = BeautifulSoup(markup=text, features='html.parser')
-            text_nodes = soup.find_all(string=True)
-            for node in text_nodes:
-                # Пропускаем пустые или состоящие из пробелов узлы и узлы внутри тегов, где не нужно обрабатывать текст
-                if not node.string.strip() or node.parent.name in ['style', 'script', 'pre', 'code']:
-                    continue
-                # К каждому текстовому узлу применяем "внутренний" процессор
-                processed_node_text: str = self._process_text_node(node.string)
-                # Отладочная печать, чтобы видеть, что происходит
-                if node.string != processed_node_text:
-                    logger.info(f"Processing node: '{node.string}' -> '{processed_node_text}'")
-                # Заменяем узел в дереве на обработанный текст.
-                # BeautifulSoup сама позаботится об экранировании, если нужно.
-                # Важно: мы не можем просто заменить строку, нужно создать новый объект NavigableString,
-                #        чтобы BeautifulSoup правильно обработал символы вроде '<' и '>'.
-                #        Однако, replace_with достаточно умен, чтобы справиться с этим.
-                node.replace_with(processed_node_text)
-
+            # Запускаем рекурсивный обход дерева, начиная с корневого элемента
+            self._walk_tree(soup)
             # Получаем измененный HTML. BeautifulSoup по умолчанию выводит без тегов <html><body>
             # если их не было в исходной строке.
-            processed = str(soup)
+            processed_html = str(soup)
+
+            # Финальный шаг: BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;).
+            # Но наш кодек encode_from_unicode() тоже это делает. Так что мы получаем двойное экранирование.
+            # Чтобы избежать этого, мы просто заменяем &amp; обратно на &.
+            return processed_html.replace('&amp;', '&')
         else:
             # Если HTML-режим выключен
-            processed = self._process_text_node(text)
-        # Возвращаем
-        return encode_from_unicode(processed, self.mode)
+            return self._process_text_node(text)
