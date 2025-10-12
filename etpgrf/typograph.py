@@ -14,6 +14,7 @@ from etpgrf.quotes import QuotesProcessor
 from etpgrf.layout import LayoutProcessor
 from etpgrf.symbols import SymbolsProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
+from etpgrf.config import PROTECTED_HTML_TAGS
 
 
 # --- Настройки логирования ---
@@ -107,13 +108,9 @@ class Typographer:
         processed_text = decode_to_unicode(text)
         # processed_text = text  # ВРЕМЕННО: используем текст как есть
 
-        # Шаг 2: Применяем правила к чистому Unicode-тексту
+        # Шаг 2: Применяем правила к чистому Unicode-тексту (только правила на уровне ноды)
         if self.symbols is not None:
             processed_text = self.symbols.process(processed_text)
-        if self.quotes is not None:
-            processed_text = self.quotes.process(processed_text)
-        if self.unbreakables is not None:
-            processed_text = self.unbreakables.process(processed_text)
         if self.layout is not None:
             processed_text = self.layout.process(processed_text)
         if self.hyphenation is not None:
@@ -138,8 +135,8 @@ class Typographer:
 
                 processed_node_text = self._process_text_node(child.string)
                 child.replace_with((processed_node_text))
-            elif child.name not in ['style', 'script', 'pre', 'code', 'kbd', 'samp', 'math']:
-                # Если это "безопасный" тег, рекурсивно заходим в него
+            elif child.name not in PROTECTED_HTML_TAGS:
+                # Если это "обычный" html-тег, рекурсивно заходим в него
                 self._walk_tree(child)
 
     def process(self, text: str) -> str:
@@ -151,18 +148,66 @@ class Typographer:
             return ""
         # Если включена обработка HTML и BeautifulSoup доступен
         if self.process_html:
-            # Мы передаем 'html.parser', он быстрый и встроенный.
-            soup = BeautifulSoup(markup=text, features='html.parser')
-            # Запускаем рекурсивный обход дерева, начиная с корневого элемента
-            self._walk_tree(soup)
-            # Получаем измененный HTML. BeautifulSoup по умолчанию выводит без тегов <html><body>
-            # если их не было в исходной строке.
-            processed_html = str(soup)
+            # --- ЭТАП 1: Токенизация и "умная склейка" ---
+            try:
+                soup = BeautifulSoup(text, 'lxml')
+            except Exception:
+                soup = BeautifulSoup(text, 'html.parser')
+            # 1.1. Создаем "токен-стрим" из текстовых узлов, которые мы будем обрабатывать.
+            # soup.descendants возвращает все дочерние узлы (теги и текст) в порядке их следования.
+            text_nodes = [node for node in soup.descendants
+                          if isinstance(node, NavigableString)
+                          # and node.strip()
+                          and node.parent.name not in PROTECTED_HTML_TAGS]
+            # 1.2. Создаем "супер-строку" и "карту длин"
+            super_string = ""
+            lengths_map = []
+            for node in text_nodes:
+                super_string += str(node)
+                lengths_map.append(len(str(node)))
 
-            # Финальный шаг: BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;).
-            # Но наш кодек encode_from_unicode() тоже это делает. Так что мы получаем двойное экранирование.
-            # Чтобы избежать этого, мы просто заменяем &amp; обратно на &.
+            # --- ЭТАП 2: Контекстная обработка (ПОКА ЧТО ПРОПУСКАЕМ) ---
+            processed_super_string = super_string
+            # Применяем правила, которым нужен полный контекст (вся супер-строка контекста, очищенная от html).
+            # Важно, чтобы эти правила не меняли длину строки!!!! Иначе карта длин слетит и восстановление не получится.
+            if self.quotes:
+                processed_super_string = self.quotes.process(processed_super_string)
+            if self.unbreakables:
+                processed_super_string = self.unbreakables.process(processed_super_string)
+
+            # --- ЭТАП 3: "Восстановление" ---
+            current_pos = 0
+            for i, node in enumerate(text_nodes):
+                length = lengths_map[i]
+                new_text_part = processed_super_string[current_pos : current_pos + length]
+                node.replace_with(new_text_part) # Заменяем содержимое узла на месте
+                current_pos += length
+
+            # --- ЭТАП 4: Локальная обработка (второй проход) ---
+            # Теперь, когда структура восстановлена, запускаем наш старый рекурсивный обход,
+            # который применит все остальные правила к каждому текстовому узлу.
+            self._walk_tree(soup)
+
+            # --- ЭТАП 5: Финальная сборка ---
+            processed_html = str(soup)
+            # BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;), которые мы сгенерировали
+            # в _process_text_node. Возвращаем их обратно.
             return processed_html.replace('&amp;', '&')
         else:
-            # Если HTML-режим выключен
-            return self._process_text_node(text)
+            # Если HTML-режим выключен, используем полный конвейер для простого текста.
+             # Шаг 0: Нормализация
+             processed_text = decode_to_unicode(text)
+             # Шаг 1: Применяем все правила последовательно
+             if self.quotes:
+                 processed_text = self.quotes.process(processed_text)
+             if self.unbreakables:
+                 processed_text = self.unbreakables.process(processed_text)
+             if self.symbols:
+                 processed_text = self.symbols.process(processed_text)
+             if self.layout:
+                 processed_text = self.layout.process(processed_text)
+             if self.hyphenation:
+                 processed_text = self.hyphenation.hyp_in_text(processed_text)
+             # Шаг 2: Финальное кодирование
+             return encode_from_unicode(processed_text, self.mode)
+

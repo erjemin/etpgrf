@@ -3,7 +3,7 @@
 
 import pytest
 from etpgrf import Typographer
-from etpgrf.config import CHAR_NBSP, CHAR_THIN_SP
+from etpgrf.config import CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH
 
 TYPOGRAPHER_HTML_TEST_CASES = [
     # --- Базовая обработка без HTML ---
@@ -32,37 +32,74 @@ TYPOGRAPHER_HTML_TEST_CASES = [
     ('mnemonic', '<p>Союз и <b>слово</b> и еще один союз а <span>текст</span>.</p>',
                  '<p>Союз и&nbsp;<b>слово</b> и&nbsp;еще один союз а&nbsp;<span>текст</span>.</p>'),
     ('mixed', '<p>Союз и <b>слово</b> и еще один союз а <span>текст</span>.</p>',
-                '<p>Союз и&nbsp;<b>слово</b> и&nbsp;еще один союз а&nbsp;<span>текст</span>.</p>'),
+              '<p>Союз и&nbsp;<b>слово</b> и&nbsp;еще один союз а&nbsp;<span>текст</span>.</p>'),
     ('unicode', '<p>Союз и <b>слово</b> и еще один союз а <span>текст</span>.</p>',
-                    f'<p>Союз и{CHAR_NBSP}<b>слово</b> и{CHAR_NBSP}еще один союз а{CHAR_NBSP}<span>текст</span>.</p>'),
+                f'<p>Союз и{CHAR_NBSP}<b>слово</b> и{CHAR_NBSP}еще один союз а{CHAR_NBSP}<span>текст</span>.</p>'),
+
+    # --- Проверка тегов <style>, <script>, <pre>, <code>, <kbd<, <samp> и <math> ---
+    ('mixed', '<p>Текст "до".</p><pre>  - 10</pre><code>"тоже не трогать"</code>',
+              '<p>Текст «до».</p><pre>  - 10</pre><code>"тоже не трогать"</code>'),
+    ('mixed', '<p>Текст "до".</p><style>body { font-family: "Arial"; }</style>',
+              '<p>Текст «до».</p><style>body { font-family: "Arial"; }</style>'),
+    ('mixed', '<p>Текст "до".</p><script>var text = "не трогать";</script>',
+                '<p>Текст «до».</p><script>var text = "не трогать";</script>'),
+    ('mixed', '<p>Текст "до".</p><kbd>Ctrl + C</kbd>',
+              '<p>Текст «до».</p><kbd>Ctrl + C</kbd>'),
+    ('mixed', '<p>Текст "до".</p><samp>Sample "text"</samp>',
+              '<p>Текст «до».</p><samp>Sample "text"</samp>'),
+    ('mixed', '<p>Текст "до".</p><math><mi>x</mi><mo>=</mo><mn>5</mn></math>',
+              '<p>Текст «до».</p><math><mi>x</mi><mo>=</mo><mn>5</mn></math>'),
+
+    # --- Проверка тегов с атрибутами ---
+    ('mixed', '<a href="/a-b" title="Текст в кавычках \'внутри\' атрибута">Текст "снаружи"</a>',
+              '<a href="/a-b" title="Текст в кавычках \'внутри\' атрибута">Текст «снаружи»</a>'),
+    ('mixed', '<a href="/a-b" title=\'Текст в кавычках \"внутри\" атрибута\'>Текст "снаружи"</a>',
+              '<a href="/a-b" title=\'Текст в кавычках \"внутри\" атрибута\'>Текст «снаружи»</a>'),
+    ('mixed', '<a href="/a-b" title="Текст в кавычках &laquo;внутри&raquo; атрибута">Текст "снаружи"</a>',
+              '<a href="/a-b" title="Текст в кавычках «внутри» атрибута">Текст «снаружи»</a>'),
+    ('mnemonic', '<a href="/a-b" title="Текст в кавычках &laquo;внутри&raquo; атрибута">Текст "снаружи"</a>',
+                 '<a href="/a-b" title="Текст в кавычках «внутри» атрибута">Текст &laquo;снаружи&raquo;</a>'),
+
+    # --- Комплексный интеграционный тест ---
+    ('mnemonic', '<p>Он сказал: "В 1941-1945 гг. -- было 100 тыс. руб. и т. д."</p>',
+                 '<p>Он&nbsp;сказал: &laquo;В&nbsp;1941&ndash;1945&nbsp;гг.&nbsp;&ndash; было 100&nbsp;тыс.&thinsp;руб.'
+                 ' и&nbsp;т.&thinsp;д.&raquo;</p>'),
+    ('mixed', '<p>Он сказал: "В 1941-1945 гг. -- было 100 тыс. руб. и т. д."</p>',
+              '<p>Он&nbsp;сказал: «В&nbsp;1941–1945&nbsp;гг.&nbsp;– было 100&nbsp;тыс.&thinsp;руб.'
+              ' и&nbsp;т.&thinsp;д.»</p>'),
+    ('unicode', '<p>Он сказал: "В 1941-1945 гг. -- было 100 тыс. руб. и т. д."</p>',
+                f'<p>Он{CHAR_NBSP}сказал: «В{CHAR_NBSP}1941{CHAR_NDASH}1945{CHAR_NBSP}гг.{CHAR_NBSP}{CHAR_NDASH} было'
+                f' 100{CHAR_NBSP}тыс.{CHAR_THIN_SP}руб. и{CHAR_NBSP}т.{CHAR_THIN_SP}д.»</p>'),
+    # --- Теги внутри кавычек ---
+    ('mnemonic', '<p>"<u>Почему</u>", "<u>зачем</u>" и "<u>кому это выгодно</u>" -- вопросы требующие ответа.</p>',
+                 '<p>&laquo;<u>Почему</u>&raquo;, &laquo;<u>зачем</u>&raquo; и&nbsp;&laquo;<u>кому это выгодно</u>'
+                 '&raquo;&nbsp;&ndash; вопросы требующие ответа.</p>'),
+    ('mixed', '<p>"<u>Почему</u>", "<u>зачем</u>" и "<u>кому это выгодно</u>" -- вопросы требующие ответа.</p>',
+                '<p>«<u>Почему</u>», «<u>зачем</u>» и&nbsp;«<u>кому это выгодно</u>»&nbsp;– вопросы требующие ответа.</p>'),
+    ('unicode', '<p>"<u>Почему</u>", "<u>зачем</u>" и "<u>кому это выгодно</u>" -- вопросы требующие ответа.</p>',
+                f'<p>«<u>Почему</u>», «<u>зачем</u>» и{CHAR_NBSP}«<u>кому это выгодно</u>»{CHAR_NBSP}{CHAR_NDASH} вопросы требующие ответа.</p>'),
+
+    # --- Проверка пустого текста и узлов с пробелами ---
+    ('mnemonic', '<p>  </p><div>\n\t</div><p>Слово</p>', '<p> </p><div>\n</div><p>Слово</p>'),
+    ('mixed', '<p>  </p><div>\n\t</div><p>Слово</p>', '<p> </p><div>\n</div><p>Слово</p>'),
+    ('unicode', '<p>  </p><div>\n\t</div><p>Слово</p>', '<p> </p><div>\n</div><p>Слово</p>'),
+
+    # --- Самозакрывающиеся теги и теги с атрибутами ---
+    #     ВАЖНО: порядок атрибутов в типографированном тексте может быть произвольным
+    ('mnemonic', '<p>Текст с картинкой <img src="image.jpg" alt="image" /> и текстом.</p>',
+                 '<p>Текст с&nbsp;картинкой <img alt="image" src="image.jpg"/> и&nbsp;текстом.</p>'),
+    ('mnemonic', '<p>Текст с <code>&lt;br&gt;</code><br>А это новая строка.</p>',
+                 '<p>Текст с&nbsp;<code>&lt;br&gt;</code><br/>А&nbsp;это новая строка.</p>'),
+    ('mixed', '<p>Текст с картинкой <img src="image.jpg" alt="image" /> и текстом.</p>',
+              '<p>Текст с&nbsp;картинкой <img alt="image" src="image.jpg"/> и&nbsp;текстом.</p>'),
+    ('mixed', '<p>Текст с <code>&lt;br&gt;</code><br>А это новая строка.</p>',
+              '<p>Текст с&nbsp;<code>&lt;br&gt;</code><br/>А&nbsp;это новая строка.</p>'),
+    ('unicode', '<p>Текст с картинкой <img src="image.jpg" alt="image" /> и текстом.</p>',
+                f'<p>Текст с{CHAR_NBSP}картинкой <img alt="image" src="image.jpg"/> и{CHAR_NBSP}текстом.</p>'),
+    ('unicode', '<p>Текст с <code>&lt;br&gt;</code><br>А это новая строка.</p>',
+                f'<p>Текст с{CHAR_NBSP}<code>&lt;br&gt;</code><br/>А{CHAR_NBSP}это новая строка.</p>'),
 
 
-
-
-    # # --- Проверка "небезопасных" тегов ---
-    # (
-    #     'Небезопасные теги не должны обрабатываться.',
-    #     '<p>Текст "до".</p><script>var text = "не трогать";</script><pre>  - 10</pre><code>"тоже не трогать"</code>',
-    #     '<p>Текст «до».</p><script>var text = "не трогать";</script><pre>  - 10</pre><code>"тоже не трогать"</code>'
-    # ),
-    # # --- Проверка атрибутов ---
-    # (
-    #     'Атрибуты тегов не должны обрабатываться.',
-    #     '<a href="/a-b" title="Текст в кавычках \'внутри\' атрибута">Текст "снаружи"</a>',
-    #     '<a href="/a-b" title="Текст в кавычках \'внутри\' атрибута">Текст «снаружи»</a>'
-    # ),
-    # # --- Комплексный интеграционный тест ---
-    # (
-    #     'Все правила вместе в HTML.',
-    #     '<p>Он сказал: "В 1941-1945 гг. -- было 100 тыс. руб. и т. д."</p>',
-    #     f'<p>Он сказал: «В 1941–1945{CHAR_NBSP}гг.{CHAR_NBSP}— было 100{CHAR_NBSP}тыс.{CHAR_THIN_SP}руб. и{CHAR_NBSP}т.{CHAR_THIN_SP}д.»</p>'
-    # ),
-    # # --- Проверка пустого текста и узлов с пробелами ---
-    # (
-    #     'Пустые и пробельные узлы.',
-    #     '<p>  </p><div>\n\t</div><p>Слово</p>',
-    #     '<p>  </p><div>\n\t</div><p>Слово</p>'
-    # ),
 ]
 
 
