@@ -11,7 +11,12 @@ etpgrf - библиотека для экранной типографики т�
 __version__ = "0.1.0"
 
 import etpgrf.defaults
-from etpgrf.typograph import Typographer
-from etpgrf.hyphenation import Hyphenator
-from etpgrf.unbreakables import Unbreakables
 import etpgrf.logger
+
+from etpgrf.hyphenation import Hyphenator
+from etpgrf.layout import LayoutProcessor
+from etpgrf.quotes import QuotesProcessor
+from etpgrf.sanitizer import SanitizerProcessor
+from etpgrf.symbols import SymbolsProcessor
+from etpgrf.typograph import Typographer
+from etpgrf.unbreakables import Unbreakables

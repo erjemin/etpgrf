@@ -15,6 +15,12 @@ LANG_EN = 'en'  # Английский
 SUPPORTED_LANGS = frozenset([LANG_RU, LANG_RU_OLD, LANG_EN])
 DEFAULT_LANGS = (LANG_RU, LANG_EN)  # Языки по умолчанию
 
+# Виды санитизации (очистки) входного текста
+SANITIZE_ALL_HTML = "html"        # Полная очистка от HTML-тегов
+SANITIZE_ETPGRF = "etp"           # Очистка от "span-оберток" символов висячей пунктуации (если она была расставлена
+                                  # при предыдущих проходах типографа)
+SANITIZE_NONE = None              # Без очистки (режим по умолчанию). False тоже можно использовать.
+
 # === ИСТОЧНИК ПРАВДЫ ===
 # --- Базовые алфавиты: Эти константы используются как для правил переноса, так и для правил кодирования ---
 
@@ -678,3 +684,39 @@ ABBR_COMMON_PREPOSITION = [
 
 # === КОНСТАНТЫ ДЛЯ HTML-ТЕГОВ, ВНУТРИ КОТОРЫХ НЕ НАДО ТИПОГРАФИРОВАТЬ ===
 PROTECTED_HTML_TAGS = ['style', 'script', 'pre', 'code', 'kbd', 'samp', 'math']
+
+# === КОНСТАНТЫ ДЛЯ ВИСЯЧЕЙ ТИПОГРАФИКИ ===
+
+# 1. Набор символов, которые могут "висеть" слева
+HANGING_PUNCTUATION_LEFT_CHARS = frozenset([
+    CHAR_RU_QUOT1_OPEN,   # «
+    CHAR_EN_QUOT1_OPEN,   # “
+    '(', '[', '{',
+])
+
+# 2. Набор символов, которые могут "висеть" справа
+HANGING_PUNCTUATION_RIGHT_CHARS = frozenset([
+    CHAR_RU_QUOT1_CLOSE,  # »
+    CHAR_EN_QUOT1_CLOSE,  # ”
+    ')', ']', '}',
+    '.', ',', ':',
+])
+
+# 3. Словарь, сопоставляющий символ с его CSS-классом
+HANGING_PUNCTUATION_CLASSES = {
+    # Левая пунктуация: все классы начинаются с 'etp-l'
+    CHAR_RU_QUOT1_OPEN: 'etp-laquo',
+    CHAR_EN_QUOT1_OPEN: 'etp-ldquo',
+    '(': 'etp-lpar',
+    '[': 'etp-lsqb',
+    '{': 'etp-lcub',
+    # Правая пунктуация: все классы начинаются с 'etp-r'
+    CHAR_RU_QUOT1_CLOSE: 'etp-raquo',
+    CHAR_EN_QUOT1_CLOSE: 'etp-rdquo',
+    ')': 'etp-rpar',
+    ']': 'etp-rsqb',
+    '}': 'etp-rcub',
+    '.': 'etp-r-dot',
+    ',': 'etp-r-comma',
+    ':': 'etp-r-colon',
+}
