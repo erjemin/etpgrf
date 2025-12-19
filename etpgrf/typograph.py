@@ -13,8 +13,9 @@ from etpgrf.unbreakables import Unbreakables
 from etpgrf.quotes import QuotesProcessor
 from etpgrf.layout import LayoutProcessor
 from etpgrf.symbols import SymbolsProcessor
+from etpgrf.sanitizer import SanitizerProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
-from etpgrf.config import PROTECTED_HTML_TAGS
+from etpgrf.config import PROTECTED_HTML_TAGS, SANITIZE_ALL_HTML
 
 
 # --- Настройки логирования ---
@@ -32,6 +33,7 @@ class Typographer:
                  quotes: QuotesProcessor | bool | None = True,  # Правила для обработки кавычек
                  layout: LayoutProcessor | bool | None = True,  # Правила для тире и спецсимволов
                  symbols: SymbolsProcessor | bool | None = True, # Правила для псевдографики
+                 sanitizer: SanitizerProcessor | str | bool | None = None, # Правила очистки
                  # ... другие модули правил ...
                  ):
 
@@ -87,7 +89,12 @@ class Typographer:
         elif isinstance(layout, LayoutProcessor):
             self.layout = layout
 
-        # I. --- Конфигурация других правил---
+        # I. --- Конфигурация санитайзера ---
+        self.sanitizer: SanitizerProcessor | None = None
+        if isinstance(sanitizer, SanitizerProcessor):
+            self.sanitizer = sanitizer
+        elif sanitizer: # Если передана строка режима или True
+             self.sanitizer = SanitizerProcessor(mode=sanitizer)
 
         # Z. --- Логирование инициализации ---
         logger.debug(f"Typographer `__init__`: langs: {self.langs}, mode: {self.mode}, "
@@ -96,6 +103,7 @@ class Typographer:
                      f"quotes: {self.quotes is not None}, "
                      f"layout: {self.layout is not None}, "
                      f"symbols: {self.symbols is not None}, "
+                     f"sanitizer: {self.sanitizer is not None}, "
                      f"process_html: {self.process_html}")
 
 
@@ -153,6 +161,26 @@ class Typographer:
                 soup = BeautifulSoup(text, 'lxml')
             except Exception:
                 soup = BeautifulSoup(text, 'html.parser')
+
+            # --- ЭТАП 0: Санитизация (Очистка) ---
+            if self.sanitizer:
+                result = self.sanitizer.process(soup)
+                # Если режим SANITIZE_ALL_HTML, то результат - это строка (чистый текст)
+                if isinstance(result, str):
+                    # Переключаемся на обработку обычного текста
+                    text = result
+                    # ВАЖНО: Мы выходим из ветки process_html и идем в ветку else,
+                    # но так как мы внутри if, нам нужно явно вызвать логику для текста.
+                    # Проще всего рекурсивно вызвать process с выключенным process_html,
+                    # но чтобы не менять состояние объекта, просто выполним логику "else" блока здесь.
+                    # Или, еще проще: присвоим text = result и пойдем в блок else? Нет, мы уже внутри if.
+                    
+                    # Решение: Выполняем логику обработки простого текста прямо здесь
+                    return self._process_plain_text(text)
+                
+                # Если результат - soup, продолжаем работу с ним
+                soup = result
+
             # 1.1. Создаем "токен-стрим" из текстовых узлов, которые мы будем обрабатывать.
             # soup.descendants возвращает все дочерние узлы (теги и текст) в порядке их следования.
             text_nodes = [node for node in soup.descendants
@@ -194,20 +222,24 @@ class Typographer:
             # в _process_text_node. Возвращаем их обратно.
             return processed_html.replace('&amp;', '&')
         else:
-            # Если HTML-режим выключен, используем полный конвейер для простого текста.
-             # Шаг 0: Нормализация
-             processed_text = decode_to_unicode(text)
-             # Шаг 1: Применяем все правила последовательно
-             if self.quotes:
-                 processed_text = self.quotes.process(processed_text)
-             if self.unbreakables:
-                 processed_text = self.unbreakables.process(processed_text)
-             if self.symbols:
-                 processed_text = self.symbols.process(processed_text)
-             if self.layout:
-                 processed_text = self.layout.process(processed_text)
-             if self.hyphenation:
-                 processed_text = self.hyphenation.hyp_in_text(processed_text)
-             # Шаг 2: Финальное кодирование
-             return encode_from_unicode(processed_text, self.mode)
+            return self._process_plain_text(text)
 
+    def _process_plain_text(self, text: str) -> str:
+        """
+        Логика обработки обычного текста (вынесена из process для переиспользования).
+        """
+        # Шаг 0: Нормализация
+        processed_text = decode_to_unicode(text)
+        # Шаг 1: Применяем все правила последовательно
+        if self.quotes:
+            processed_text = self.quotes.process(processed_text)
+        if self.unbreakables:
+            processed_text = self.unbreakables.process(processed_text)
+        if self.symbols:
+            processed_text = self.symbols.process(processed_text)
+        if self.layout:
+            processed_text = self.layout.process(processed_text)
+        if self.hyphenation:
+            processed_text = self.hyphenation.hyp_in_text(processed_text)
+        # Шаг 2: Финальное кодирование
+        return encode_from_unicode(processed_text, self.mode)

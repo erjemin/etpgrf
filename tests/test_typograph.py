@@ -3,7 +3,7 @@
 
 import pytest
 from etpgrf import Typographer
-from etpgrf.config import CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH
+from etpgrf.config import CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH, SANITIZE_ETPGRF, SANITIZE_ALL_HTML
 
 TYPOGRAPHER_HTML_TEST_CASES = [
     # --- Базовая обработка без HTML ---
@@ -124,4 +124,28 @@ def test_typographer_plain_text_processing():
     input_text = '<i>Текст "без" <b>HTML</b>, но с предлогом в доме.</i>'
     expected_text = '&lt;i&gt;Текст «без» &lt;b&gt;HTML&lt;/b&gt;, но&nbsp;с&nbsp;предлогом в&nbsp;доме.&lt;/i&gt;'
     actual_text = typo.process(input_text)
+    assert actual_text == expected_text
+
+
+def test_typographer_sanitizer_etpgrf_integration():
+    """
+    Интеграционный тест: проверяет, что Typographer вызывает Sanitizer для очистки ETP-разметки.
+    """
+    input_html = '<p>Текст со <span class="etp-laquo">"старой"</span> разметкой.</p>'
+    # Ожидаем, что "старая" разметка будет удалена, а "новая" (кавычки-елочки) будет добавлена.
+    expected_html = '<p>Текст со&nbsp;«старой» разметкой.</p>'
+    typo = Typographer(langs='ru', process_html=True, sanitizer=SANITIZE_ETPGRF, mode='mixed')
+    actual_html = typo.process(input_html)
+    assert actual_html == expected_html
+
+
+def test_typographer_sanitizer_all_html_integration():
+    """
+    Интеграционный тест: проверяет, что Typographer вызывает Sanitizer для полной очистки HTML.
+    """
+    input_html = '<p>Текст с "кавычками" и <b>жирным</b> текстом.</p>'
+    # Ожидаем, что все теги будут удалены, а к чистому тексту применится типографика.
+    expected_text = 'Текст с&nbsp;«кавычками» и&nbsp;жирным текстом.'
+    typo = Typographer(langs='ru', process_html=True, sanitizer=SANITIZE_ALL_HTML, mode='mixed')
+    actual_text = typo.process(input_html)
     assert actual_text == expected_text

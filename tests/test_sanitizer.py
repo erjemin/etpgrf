@@ -56,14 +56,19 @@ ETPGRF_SANITIZE_TEST_CASES = [
         '<p>Hello <span class="user-class">world</span></p>'
     ),
     (
+        "keep_user_span", "Не трогаем span'ы с пользовательскими etp-классами",
+        '<p>Hello <span class="etp-user-class">world</span></p>',
+        '<p>Hello <span class="etp-user-class">world</span></p>'
+    ),
+    (
         "keep_other_tags", "Не трогаем другие теги",
         '<div><b>Bold</b> and <i>italic</i></div>',
         '<div><b>Bold</b> and <i>italic</i></div>'
     ),
     (
         "complex_case", "Сложный случай с несколькими разными span'ами",
-        '<h1><span class="etp-laquo">«</span>Title<span class="etp-raquo">»</span></h1><p>And <span class="note">note</span>.</p>',
-        '<h1>«Title»</h1><p>And <span class="note">note</span>.</p>'
+        '<h1><span class="etp-laquo">«</span>Title<span class="etp-raquo">»</span></h1>\n<p>And <span class="note">note</span>.</p>',
+        '<h1>«Title»</h1>\n<p>And <span class="note">note</span>.</p>'
     ),
 ]
 
