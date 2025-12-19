@@ -2,7 +2,7 @@
 # Модуль для очистки и нормализации HTML-кода перед типографикой.
 
 import logging
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup
 from .config import (SANITIZE_ALL_HTML, SANITIZE_ETPGRF, SANITIZE_NONE,
                      HANGING_PUNCTUATION_CLASSES, PROTECTED_HTML_TAGS)
 
@@ -24,7 +24,16 @@ class SanitizerProcessor:
         if mode is False:
             mode = SANITIZE_NONE
         self.mode = mode
-        self._etp_classes_to_clean = frozenset(HANGING_PUNCTUATION_CLASSES.values())
+        
+        # Оптимизация: заранее готовим CSS-селектор для поиска висячей пунктуации
+        if self.mode == SANITIZE_ETPGRF:
+            # Собираем уникальные классы
+            unique_classes = sorted(list(frozenset(HANGING_PUNCTUATION_CLASSES.values())))
+            # Формируем селектор вида: span.class1, span.class2, ...
+            # Это позволяет использовать нативный парсер (lxml) для поиска, что намного быстрее python-лямбд.
+            self._etp_selector = ", ".join(f"span.{cls}" for cls in unique_classes)
+        else:
+            self._etp_selector = None
 
         logger.debug(f"SanitizerProcessor `__init__`. Mode: {self.mode}")
 
@@ -36,11 +45,11 @@ class SanitizerProcessor:
         :return: Обработанный объект BeautifulSoup или строка (в режиме 'html').
         """
         if self.mode == SANITIZE_ETPGRF:
-            # Находим все span'ы, у которых есть <span> с хотя бы одним из наших классов висячей пунктуации
-            spans_to_clean = soup.find_all(
-                name='span',
-                class_=lambda c: c and any(etp_class in c.split() for etp_class in self._etp_classes_to_clean)
-            )
+            if not self._etp_selector:
+                return soup
+
+            # Используем CSS-селектор для быстрого поиска всех нужных элементов
+            spans_to_clean = soup.select(self._etp_selector)
 
             # "Агрессивная" очистка: просто "разворачиваем" все найденные теги,
             # заменяя их своим содержимым.
@@ -50,13 +59,18 @@ class SanitizerProcessor:
             return soup
 
         elif self.mode == SANITIZE_ALL_HTML:
-            # Возвращаем только текст, удаляя все теги
-            # При этом уважаем защищенные теги, не извлекая текст из них.
-            text_parts = [
-                str(node) for node in soup.descendants
-                if isinstance(node, NavigableString) and node.parent.name not in PROTECTED_HTML_TAGS
-            ]
-            return "".join(text_parts)
+            # Оптимизированный подход:
+            # 1. Удаляем защищенные теги (script, style и т.д.) вместе с содержимым.
+            #    Используем select для поиска, так как это обычно быстрее.
+            if PROTECTED_HTML_TAGS:
+                # Формируем селектор: script, style, pre, ...
+                protected_selector = ", ".join(PROTECTED_HTML_TAGS)
+                for tag in soup.select(protected_selector):
+                    tag.decompose() # Полное удаление тега из дерева
+
+            # 2. Извлекаем чистый текст из оставшегося дерева.
+            #    get_text() работает на уровне C (в lxml) и намного быстрее ручного обхода.
+            return soup.get_text()
 
         # Если режим не задан, ничего не делаем
         return soup
