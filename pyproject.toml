@@ -32,6 +32,8 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/erjemin/etpgrf"
 "Bug Tracker" = "https://github.com/erjemin/etpgrf/issues"
+"Mirror (GitVerse)" = "https://gitverse.ru/erjemin/etpgrf"
+"Selfhosted (Gitea)" = "https://gitverse.ru/erjemin/etpgrf"
 
 [tool.setuptools.packages.find]
 where = ["."]  # Искать пакеты в корне (найдет папку etpgrf)
