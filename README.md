@@ -14,7 +14,7 @@
 
 Исходный код доступен на нескольких площадках:
 *   [Gitea](https://git.cube2.ru/erjemin/2025-etpgrf) (Основной self-hosted)
-*   [GitHub](https://github.com/erjemin/etpgrf) (Главное зеркало)
+*   [GitHub](https://github.com/erjemin/etpgrf) (Главное зеркало & homepage/issues)
 *   [GitVerse](https://gitverse.ru/erjemin/etpgrf) (Зеркало на GitVerse)
 
 ## Установка
