@@ -14,6 +14,7 @@ from etpgrf.quotes import QuotesProcessor
 from etpgrf.layout import LayoutProcessor
 from etpgrf.symbols import SymbolsProcessor
 from etpgrf.sanitizer import SanitizerProcessor
+from etpgrf.hanging import HangingPunctuationProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
 from etpgrf.config import PROTECTED_HTML_TAGS, SANITIZE_ALL_HTML
 
@@ -34,6 +35,7 @@ class Typographer:
                  layout: LayoutProcessor | bool | None = True,  # Правила для тире и спецсимволов
                  symbols: SymbolsProcessor | bool | None = True, # Правила для псевдографики
                  sanitizer: SanitizerProcessor | str | bool | None = None, # Правила очистки
+                 hanging_punctuation: str | bool | list[str] | None = None, # Висячая пунктуация
                  # ... другие модули правил ...
                  ):
 
@@ -96,6 +98,11 @@ class Typographer:
         elif sanitizer: # Если передана строка режима или True
              self.sanitizer = SanitizerProcessor(mode=sanitizer)
 
+        # J. --- Конфигурация висячей пунктуации ---
+        self.hanging: HangingPunctuationProcessor | None = None
+        if hanging_punctuation:
+            self.hanging = HangingPunctuationProcessor(mode=hanging_punctuation)
+
         # Z. --- Логирование инициализации ---
         logger.debug(f"Typographer `__init__`: langs: {self.langs}, mode: {self.mode}, "
                      f"hyphenation: {self.hyphenation is not None}, "
@@ -104,6 +111,7 @@ class Typographer:
                      f"layout: {self.layout is not None}, "
                      f"symbols: {self.symbols is not None}, "
                      f"sanitizer: {self.sanitizer is not None}, "
+                     f"hanging: {self.hanging is not None}, "
                      f"process_html: {self.process_html}")
 
 
@@ -215,6 +223,11 @@ class Typographer:
             # Теперь, когда структура восстановлена, запускаем наш старый рекурсивный обход,
             # который применит все остальные правила к каждому текстовому узлу.
             self._walk_tree(soup)
+
+            # --- ЭТАП 4.5: Висячая пунктуация ---
+            # Применяем после всех текстовых преобразований, но перед финальной сборкой
+            if self.hanging:
+                self.hanging.process(soup)
 
             # --- ЭТАП 5: Финальная сборка ---
             processed_html = str(soup)
