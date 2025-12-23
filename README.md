@@ -1,4 +1,4 @@
-# etpgrf — Экранный типограф для Web
+# etpgrf — типограф для Web
 
 [![PyPI version](https://badge.fury.io/py/etpgrf.svg)](https://badge.fury.io/py/etpgrf)
 [![Python Version](https://img.shields.io/pypi/pyversions/etpgrf.svg)](https://pypi.org/project/etpgrf/)
@@ -9,6 +9,22 @@
 
 Экранная типографика для веба — способствует повышению читабельности текста в интернете,
 приближая его к печатной типографике.
+
+## Установка
+
+```bash
+pip install etpgrf
+```
+## Быстрый старт
+
+```python
+import etpgrf
+# Создаем типограф с настройками по умолчанию
+typo = etpgrf.Typographer(langs='ru')
+# Обрабатываем текст
+result = typo.process(text="\"Пример текста для типографирования!\" - сказал он.")
+print(result)
+```
 
 ### Кодировки и html-мнемоники
 
