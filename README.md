@@ -1,6 +1,9 @@
-| in progress // в процессе разработки |
-|--------------------------------------|
-| -------->                            |
+# etpgrf — Экранный типограф для Web
+
+[![PyPI version](https://badge.fury.io/py/etpgrf.svg)](https://badge.fury.io/py/etpgrf)
+[![Python Version](https://img.shields.io/pypi/pyversions/etpgrf.svg)](https://pypi.org/project/etpgrf/)
+[![License](https://img.shields.io/pypi/l/etpgrf.svg)](https://pypi.org/project/etpgrf/)
+
 
 # Типограф для Web
 
@@ -331,13 +334,16 @@ typo = etpgrf.Typographer(hanging_punctuation=['blockquote', 'h2', 'h3'])
 
 Средства пойдут на улучшение моего настроения путем покупки виниловых пластинок. В списке желаний:
 
-| Bar-Code      | Artist                   | Album                                   | Format |                         |            | Label         | Цена    |        |
-|---------------|--------------------------|-----------------------------------------|--------|-------------------------|------------|---------------|---------|--------|
-| 0711297924305 | SUZANNE VEGA             | Flying With Angels                      | LP     | Grey Smoke              | 02.05.2025 | Cooking Vinyl | ₽ 4099  | куплен |
-| 0602475914716 | CRANBERRIES              | No Need To Argue                        | 2LP    | 30th Ann, Deluxe        | 15.08.2025 | Island        | ₽ 5499  | куплен | 
-| ATL 40 022    | IRON BUTTERFLY           | In-A-Gadda-Da-Vida                      | LP     | NM/NM, Germany (винтаж) | 1973       | Atlantic      | ₽ 2499  | куплен |
-| 5400863145637 | EELS                     | So Good                                 | LP     | coloured                | 15.12.2023 |               | ₽ 4360  |
-| 5400863157845 | EELS                     | Time!                                   | LP     | coloured                | 07.06.2024 |               | ₽ 4940  |
-| 8719262034853 | NICK CAVE & WARREN ELLIS | Mars (Original Sound Track)             | LP     | coloured                | 12.07.2024 |               | ₽ 3440  |
-| 5021732526007 | GORILLAZ                 | Demon Days Live From The Apollo Theater | 2LP    | RSD2025, Red            | 12.04.2025 | Warner        | ₽ 5999  |
-| 5021732526007 | GORILLAZ                 | TOMORROW COMES TODAY                    | EP 12" | color (white & blue)    | 20.06.2025 |               | ₽ 3600  |
+| Bar-Code       | Artist                   | Album                                   | Format | Note                 | Date       | Label   | Цена  |        |
+|----------------|--------------------------|-----------------------------------------|--------|----------------------|------------|---------|-------|--------|
+| 5400863157845  | EELS                     | Time!                                   | LP     | coloured             | 07.06.2024 |         | ₽4360 |
+| 5400863145637  | EELS                     | So Good                                 | LP     | coloured             | 15.12.2023 |         | ₽4940 |
+| 8719262034853  | NICK CAVE & WARREN ELLIS | Mars (Original Sound Track)             | LP     | coloured             | 12.07.2024 |         | ₽3440 |
+| 5021732526007  | GORILLAZ                 | Demon Days Live From The Apollo Theater | 2LP    | RSD2025, Red         | 12.04.2025 | Warner  | ₽5740 |
+| 5021732717696  | GORILLAZ                 | TOMORROW COMES TODAY                    | EP 12" | color (white & blue) | 20.06.2025 |         | ₽3600 |
+| 0198028824118  | Lou Reed                 | Metal Machine Music (RSD2025 50th)      | 2LP    | Ann Silver           | 04.12.2025 | RCA     | ₽5299 |
+
+## Credits
+
+**Разработка:**
+Проект разработан Sergei Erjemin при активном участии Gemini Assistant (LLM) в роли pair-programmer.
