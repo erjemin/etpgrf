@@ -1,11 +1,11 @@
-# etpgrf — типограф для Web
+# etpgrf — единый типограф для веба / effortless typography for web
 
 [![PyPI version](https://badge.fury.io/py/etpgrf.svg)](https://badge.fury.io/py/etpgrf)
 [![Python Version](https://img.shields.io/pypi/pyversions/etpgrf.svg)](https://pypi.org/project/etpgrf/)
 [![License](https://img.shields.io/pypi/l/etpgrf.svg)](https://pypi.org/project/etpgrf/)
 
 
-# Типограф для Web
+# Типограф для веба 
 
 Экранная типографика для веба — способствует повышению читабельности текста в интернете,
 приближая его к печатной типографике.
