@@ -27,13 +27,14 @@ classifiers = [
 dependencies = [
     "beautifulsoup4>=4.10.0",
     "lxml>=4.9.0",  # Рекомендуемый парсер
+    "regex>=2022.1.18", # Критически важная зависимость для Unicode
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/erjemin/etpgrf"
 "Bug Tracker" = "https://github.com/erjemin/etpgrf/issues"
 "Mirror (GitVerse)" = "https://gitverse.ru/erjemin/etpgrf"
-"Selfhosted (Gitea)" = "https://git.cube2.ru/erjemin/2025-etpgrf"
+"Selfhosted (Gitea)" = "https://gitverse.ru/erjemin/etpgrf"
 
 [tool.setuptools.packages.find]
 where = ["."]  # Искать пакеты в корне (найдет папку etpgrf)
