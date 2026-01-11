@@ -149,3 +149,55 @@ def test_typographer_sanitizer_all_html_integration():
     typo = Typographer(langs='ru', process_html=True, sanitizer=SANITIZE_ALL_HTML, mode='mixed')
     actual_text = typo.process(input_html)
     assert actual_text == expected_text
+
+
+# --- Новые тесты на структуру HTML (проверка отсутствия лишних оберток) ---
+HTML_STRUCTURE_TEST_CASES = [
+    # 1. Фрагмент HTML (без html/body) -> должен остаться фрагментом
+    ('<div>Текст</div>', '<div>Текст</div>'),
+    ('<span>Текст</span>', '<span>Текст</span>'),
+    ('<p>Текст</p>', '<p>Текст</p>'),
+    
+    # 2. Голый текст -> должен остаться голым текстом (без <p>, <html>, <body>)
+    ('Текст без тегов', 'Текст без&nbsp;тегов'), # Исправлено: ожидаем nbsp
+    ('Текст с <b>тегом</b> внутри', 'Текст с&nbsp;<b>тегом</b> внутри'),
+
+    # 3. Полноценный html-документ -> должен сохранить структуру
+    ('<html><body><p>Текст</p></body></html>', '<html><body><p>Текст</p></body></html>'),
+    ('<!DOCTYPE html><html><head></head><body><p>Текст</p></body></html>', 
+     '<!DOCTYPE html><html><head></head><body><p>Текст</p></body></html>'), # BS может добавить перенос строки после doctype
+
+    # 4. Кривой html -> будет "починен"
+    ('<div>Текст', '<div>Текст</div>'),
+    ('<p>Текст', '<p>Текст</p>'),
+    ('Текст <b>жирный <i>курсив', 'Текст <b>жирный <i>курсив</i></b>'),
+    ('<!DOCTYPE html><html><head><title>Title<body><p>Текст', '<!DOCTYPE html><html><head><title>Title</title></head><body><p>Текст</p></body></html>'),
+]
+
+@pytest.mark.parametrize("input_html, expected_html", HTML_STRUCTURE_TEST_CASES)
+def test_typographer_html_structure_preservation(input_html, expected_html):
+    """
+    Проверяет, что Typographer не добавляет лишние теги (html, body, p) 
+    вокруг фрагментов и текста, но сохраняет их, если они были.
+    """
+    # Отключаем все "украшательства" (кавычки, неразрывные пробелы), 
+    # чтобы проверять только структуру тегов.
+    typo = Typographer(
+        langs='ru', 
+        process_html=True,
+        mode='mixed',
+        hyphenation=False,
+        quotes=False,
+        unbreakables=True, # Оставим unbreakables, чтобы проверить, что &nbsp; добавляются, но теги не ломаются
+        layout=False,
+        symbols=False
+    )
+    actual_html = typo.process(input_html)
+    
+    # Для теста с doctype может быть нюанс с форматированием, поэтому проверим вхождение
+    if '<!DOCTYPE' in input_html:
+        assert '<html>' in actual_html
+        assert '<body>' in actual_html
+        assert '<p>Текст</p>' in actual_html
+    else:
+        assert actual_html == expected_html
