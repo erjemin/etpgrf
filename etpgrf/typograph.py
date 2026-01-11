@@ -3,6 +3,7 @@
 # Поддерживает обработку текста внутри HTML-тегов с помощью BeautifulSoup.
 import logging
 import html
+import regex # Для проверки наличия корневых тегов
 try:
     from bs4 import BeautifulSoup, NavigableString
 except ImportError:
@@ -164,13 +165,18 @@ class Typographer:
             return ""
         # Если включена обработка HTML и BeautifulSoup доступен
         if self.process_html:
-            # --- ЭТАП 1: Токенизация и "умная склейка" ---
+            # --- ЭТАП 1: Анализ структуры ---
+            # Проверяем, есть ли в начале текста теги <html> или <body>.
+            # Если есть - значит, это полноценный документ, и мы должны вернуть его целиком.
+            # Если нет - значит, это фрагмент, и мы должны вернуть только содержимое body.
+            is_full_document = bool(regex.search(r'^\s*<(?:!DOCTYPE|html|body)', text, regex.IGNORECASE))
+
+            # --- ЭТАП 2: Парсинг и Санитизация ---
             try:
                 soup = BeautifulSoup(text, 'lxml')
             except Exception:
                 soup = BeautifulSoup(text, 'html.parser')
 
-            # --- ЭТАП 0: Санитизация (Очистка) ---
             if self.sanitizer:
                 result = self.sanitizer.process(soup)
                 # Если режим SANITIZE_ALL_HTML, то результат - это строка (чистый текст)
@@ -189,20 +195,21 @@ class Typographer:
                 # Если результат - soup, продолжаем работу с ним
                 soup = result
 
-            # 1.1. Создаем "токен-стрим" из текстовых узлов, которые мы будем обрабатывать.
+            # --- ЭТАП 3: Подготовка (токен-стрим) ---
+            # 3.1. Создаем "токен-стрим" из текстовых узлов, которые мы будем обрабатывать.
             # soup.descendants возвращает все дочерние узлы (теги и текст) в порядке их следования.
             text_nodes = [node for node in soup.descendants
                           if isinstance(node, NavigableString)
                           # and node.strip()
                           and node.parent.name not in PROTECTED_HTML_TAGS]
-            # 1.2. Создаем "супер-строку" и "карту длин"
+            # 3.2. Создаем "супер-строку" и "карту длин"
             super_string = ""
             lengths_map = []
             for node in text_nodes:
                 super_string += str(node)
                 lengths_map.append(len(str(node)))
 
-            # --- ЭТАП 2: Контекстная обработка (ПОКА ЧТО ПРОПУСКАЕМ) ---
+            # --- ЭТАП 4: Контекстная обработка ---
             processed_super_string = super_string
             # Применяем правила, которым нужен полный контекст (вся супер-строка контекста, очищенная от html).
             # Важно, чтобы эти правила не меняли длину строки!!!! Иначе карта длин слетит и восстановление не получится.
@@ -211,7 +218,7 @@ class Typographer:
             if self.unbreakables:
                 processed_super_string = self.unbreakables.process(processed_super_string)
 
-            # --- ЭТАП 3: "Восстановление" ---
+            # --- ЭТАП 5: Восстановление структуры ---
             current_pos = 0
             for i, node in enumerate(text_nodes):
                 length = lengths_map[i]
@@ -219,18 +226,29 @@ class Typographer:
                 node.replace_with(new_text_part) # Заменяем содержимое узла на месте
                 current_pos += length
 
-            # --- ЭТАП 4: Локальная обработка (второй проход) ---
+            # --- ЭТАП 6: Локальная обработка (второй проход) ---
             # Теперь, когда структура восстановлена, запускаем наш старый рекурсивный обход,
             # который применит все остальные правила к каждому текстовому узлу.
             self._walk_tree(soup)
 
-            # --- ЭТАП 4.5: Висячая пунктуация ---
+            # --- ЭТАП 7: Висячая пунктуация ---
             # Применяем после всех текстовых преобразований, но перед финальной сборкой
             if self.hanging:
                 self.hanging.process(soup)
 
-            # --- ЭТАП 5: Финальная сборка ---
-            processed_html = str(soup)
+            # --- ЭТАП 8: Финальная сборка ---
+            if is_full_document:
+                # Если на входе был полноценный документ, возвращаем все дерево
+                processed_html = str(soup)
+            else:
+                # Если на входе был фрагмент, возвращаем только содержимое body.
+                # decode_contents() возвращает строку с содержимым тега (без самого тега).
+                # Если body нет (что странно для BS), возвращаем str(soup).
+                if soup.body:
+                    processed_html = soup.body.decode_contents()
+                else:
+                    processed_html = str(soup)
+
             # BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;), которые мы сгенерировали
             # в _process_text_node. Возвращаем их обратно.
             return processed_html.replace('&amp;', '&')
