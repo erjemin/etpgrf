@@ -17,6 +17,11 @@
 *   [GitHub](https://github.com/erjemin/etpgrf) (Главное зеркало & homepage/issues)
 *   [GitVerse](https://gitverse.ru/erjemin/etpgrf) (Зеркало на GitVerse)
 
+## Демострация / Demo
+
+Работа etpgrf-типографа представлена по адресу: [https://etpgrf.cube2.ru/](https://etpgrf.cube2.ru/). Сделайте верстку 
+вашего текста, сайтов, статей и постов профессиональным к публикации в интернете за один клик.
+
 ## Установка
 
 ```bash
