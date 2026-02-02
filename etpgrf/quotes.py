@@ -5,7 +5,7 @@ import regex
 import logging
 from .config import (LANG_RU, LANG_EN, CHAR_RU_QUOT1_OPEN, CHAR_RU_QUOT1_CLOSE, CHAR_EN_QUOT1_OPEN,
                      CHAR_EN_QUOT1_CLOSE, CHAR_RU_QUOT2_OPEN, CHAR_RU_QUOT2_CLOSE, CHAR_EN_QUOT2_OPEN,
-                     CHAR_EN_QUOT2_CLOSE)
+                     CHAR_EN_QUOT2_CLOSE, CHAR_NODE_SEPARATOR)
 from .comutil import parse_and_validate_langs
 
 # --- Настройки логирования ---
@@ -40,18 +40,21 @@ class QuotesProcessor:
                     f"QuotesProcessor: выбран стиль кавычек для языка '{lang}': '{self.open_quote}...{self.close_quote}'")
                 break  # Используем стиль первого найденного языка
 
+        # Экранируем разделитель для использования в regex
+        sep = regex.escape(CHAR_NODE_SEPARATOR)
+
         # Паттерн для открывающей кавычки: " перед буквой/цифрой,
-        # которой предшествует пробел, начало строки или открывающая скобка.
-        # (?<=^|\s|[\(\[„\"‘\']) - "просмотр назад" на начало строки... ищет пробел \s или знак из набора ([„"‘'
-        # (?=\p{L})              - "просмотр вперед" на букву \p{L} (но не цифру).
-        self._opening_quote_pattern = regex.compile(r'(?<=^|\s|[\(\[„\"‘\'])\"(?=\p{L})')
+        # которой предшествует пробел, начало строки, открывающая скобка ИЛИ разделитель узлов.
+        # (?<=^|\s|[\(\[„\"‘\']|sep) - "просмотр назад" на начало строки... ищет пробел \s или знак из набора ([„"‘' или разделитель
+        # (?=\p{L}|sep)          - "просмотр вперед" на букву \p{L} (но не цифру) ИЛИ разделитель узлов.
+        self._opening_quote_pattern = regex.compile(rf'(?<=^|\s|[\(\[„\"‘\']|{sep})\"(?=\p{{L}}|{sep})')
         # self._opening_quote_pattern = regex.compile(r'(?<=^|\s|\p{Pi}|["\'\(\)])\"(?=\p{L})')
 
         # Паттерн для закрывающей кавычки: " после буквы/цифры,
-        # за которой следует пробел, пунктуация или конец строки.
-        # (?<=\p{L}|[?!…\.])        - "просмотр назад" на букву или ?!… и точку.
-        # (?=\s|[.,;:!?\)\"»”’]|\Z) - "просмотр вперед" на пробел, пунктуацию или конец строки (\Z).
-        self._closing_quote_pattern = regex.compile(r'(?<=\p{L}|[?!…\.])\"(?=\s|[\.,;:!?\)\]»”’\"\']|\Z)')
+        # за которой следует пробел, пунктуация, конец строки ИЛИ разделитель узлов.
+        # (?<=\p{L}|[?!…\.]|sep)    - "просмотр назад" на букву или ?!… и точку ИЛИ разделитель узлов.
+        # (?=\s|[.,;:!?\)\"»”’]|\Z|sep) - "просмотр вперед" на пробел, пунктуацию, конец строки (\Z) или разделитель.
+        self._closing_quote_pattern = regex.compile(rf'(?<=\p{{L}}|[?!…\.]|{sep})\"(?=\s|[\.,;:!?\)\]»”’\"\']|\Z|{sep})')
         # self._closing_quote_pattern = regex.compile(r'(?<=\p{L}|\p{N})\"(?=\s|[\.,;:!?\)\"»”’]|\Z)')
         # self._closing_quote_pattern = regex.compile(r'(?<=\p{L}|[?!…])\"(?=\s|[\p{Po}\p{Pf}"\']|\Z)')
 

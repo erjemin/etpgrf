@@ -17,7 +17,7 @@ from etpgrf.symbols import SymbolsProcessor
 from etpgrf.sanitizer import SanitizerProcessor
 from etpgrf.hanging import HangingPunctuationProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
-from etpgrf.config import PROTECTED_HTML_TAGS, SANITIZE_ALL_HTML, CHAR_PLACEHOLDER
+from etpgrf.config import PROTECTED_HTML_TAGS, CHAR_PLACEHOLDER, CHAR_NODE_SEPARATOR
 
 
 # --- Настройки логирования ---
@@ -277,22 +277,23 @@ class Typographer:
             protected_tags = self._hide_protected_tags(soup)
 
             # --- ЭТАП 3: Подготовка (токен-стрим) ---
-            # 3.1. Создаем "токен-стрим" из текстовых узлов, которые мы будем обрабатывать.
-            # soup.descendants возвращает все дочерние узлы (теги и текст) в порядке их следования.
+            # 3.1. Создаем "токен-стрим" из текстовых узлов.
+            # Теперь здесь только обычный текст и плейсхолдеры.
             text_nodes = [node for node in soup.descendants
                           if isinstance(node, NavigableString)
                           # and node.strip()
                           and node.parent.name not in PROTECTED_HTML_TAGS] # PROTECTED уже скрыты, но на всякий случай
-            # 3.2. Создаем "супер-строку" и "карту длин"
+            # 3.2. Создаем "супер-строку" с маркерами границ
             super_string = ""
-            lengths_map = []
+            # lengths_map больше не нужен, так как мы используем разделители
+            
             for node in text_nodes:
                 # ВАЖНО: Используем node.string (Unicode), а не str(node) (HTML-encoded).
                 # str(node) может вернуть экранированные символы (например, &lt; вместо <),
                 # что увеличит длину строки и приведет к рассинхронизации карты длин (смещению текста).
                 node_text = node.string or ""
-                super_string += node_text
-                lengths_map.append(len(node_text))
+                # Добавляем текст и разделитель
+                super_string += node_text + CHAR_NODE_SEPARATOR
 
             # --- ЭТАП 4: Контекстная обработка ---
             processed_super_string = super_string
@@ -304,19 +305,40 @@ class Typographer:
                 processed_super_string = self.unbreakables.process(processed_super_string)
 
             # --- ЭТАП 5: Восстановление структуры ---
-            current_pos = 0
+            # Разбиваем строку по разделителям.
+            # split вернет список, где последний элемент будет пустым (из-за разделителя в конце).
+            # Поэтому берем все элементы, кроме последнего.
+            # Но если строка пустая, split вернет [''], и мы возьмем [].
+            # Если строка 'a\uFFFF', split -> ['a', '']. Берем ['a'].
+            parts = processed_super_string.split(CHAR_NODE_SEPARATOR)
+            
+            # Проверка на целостность: количество частей должно совпадать с количеством узлов.
+            # split всегда возвращает хотя бы один элемент. Если super_string пустая, parts=[''].
+            # Если super_string не пустая, parts будет иметь длину N+1 (где N - число разделителей).
+            # Нам нужны первые N частей.
+            
+            if len(parts) > len(text_nodes):
+                 parts = parts[:len(text_nodes)]
+            
+            # Если вдруг частей меньше (кто-то удалил разделитель), это проблема.
+            # Но \uFFFF - Non-character, его сложно удалить случайно.
+            
             for i, node in enumerate(text_nodes):
-                length = lengths_map[i]
-                new_text_part = processed_super_string[current_pos : current_pos + length]
-                node.replace_with(new_text_part) # Заменяем содержимое узла на месте
-                current_pos += length
+                if i < len(parts):
+                    new_text_part = parts[i]
+                    # Заменяем содержимое узла.
+                    # Важно: если new_text_part содержит CHAR_PLACEHOLDER, он останется как есть
+                    # и будет обработан на этапе 5.5.
+                    node.replace_with(new_text_part)
 
             # --- ЭТАП 5.5: Восстановление защищенных тегов ---
             self._restore_protected_tags(soup, protected_tags)
 
             # --- ЭТАП 6: Локальная обработка (второй проход) ---
-            # Теперь, когда структура восстановлена, запускаем наш старый рекурсивный обход,
-            # который применит все остальные правила к каждому текстовому узлу.
+            # Теперь, когда структура восстановлена (включая защищенные теги),
+            # запускаем рекурсивный обход.
+            # Важно: _walk_tree пропускает PROTECTED_HTML_TAGS, так что содержимое
+            # восстановленных тегов не будет обработано повторно.
             self._walk_tree(soup)
 
             # --- ЭТАП 7: Висячая пунктуация ---
@@ -337,8 +359,8 @@ class Typographer:
                 else:
                     processed_html = str(soup)
 
-            # Удаляем плейсхолдеры, если они вдруг просочились (хотя не должны)
-            processed_html = processed_html.replace(CHAR_PLACEHOLDER, '')
+            # Удаляем плейсхолдеры и разделители, если они вдруг просочились
+            processed_html = processed_html.replace(CHAR_PLACEHOLDER, '').replace(CHAR_NODE_SEPARATOR, '')
 
             # BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;), которые мы сгенерировали
             # в _process_text_node. Возвращаем их обратно.

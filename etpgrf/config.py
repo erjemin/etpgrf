@@ -72,7 +72,8 @@ CHAR_ARROW_LR_LONG_DOUBLE = '\u27fa' # Длинная двойная двуна�
 CHAR_MIDDOT = '\u00b7'    # Средняя точка (· иногда используется как знак умножения) / &middot;
 CHAR_UNIT_SEPARATOR = '\u25F0' # Символ временный разделитель для составных единиц (◰), чтобы не уходить
                                # в "мертвый" цикл при замене на тонкий пробел. Можно взять любой редкий символом.
-CHAR_PLACEHOLDER = '\uFFFC'    # Символ-заполнитель (Object Replacement Character) для защищенных тегов.
+CHAR_PLACEHOLDER = '\uFFFC'    # Уникальная строка-заполнитель для защищенных тегов.
+CHAR_NODE_SEPARATOR = '\uFFFF' # Маркер границы текстовых узлов (Non-character).
 
 
 # === КОНСТАНТЫ ПСЕВДОГРАФИКИ ===
@@ -254,7 +255,7 @@ CUSTOM_ENCODE_MAP = {
     '\u201d': '&rdquo;',		# ” /  &rdquo; / &rdquor; / &CloseCurlyDoubleQuote;
     '\u2019': '&rsquo;',		# ’ / &rsquo; / &rsquor; / &CloseCurlyQuote;
     '\u2237': '&Colon;',		# ∷ / &Colon; / &Proportion;
-    '\u2201': '&comp;',		    #  / &comp; / &complement;
+    '\u2201': '&comp;',		    # ∁ / &comp; / &complement;
     '\u2218': '&compfn;',		# ∘ / &compfn; / &SmallCircle;
     '\u2102': '&Copf;',		    # ℂ / &Copf; / &complexes;
     '\u222f': '&Conint;',		# ∯ / &Conint; / &DoubleContourIntegral;
