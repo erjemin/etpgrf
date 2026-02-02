@@ -355,21 +355,10 @@ typo = etpgrf.Typographer(hanging_punctuation=['blockquote', 'h2', 'h3'])
 
 ## P.S.
 
-Если вам нравится этот, можете поддержать отправив любую сумму на мой Т-банк
-[по ссылке](https://tbank.ru/cf/27hMw1BTFMs) или QR-коду.
+Если вам нравится этот проект, можете поддержать отправив любую сумму на мой Т-банк
+[по ссылке](https://tbank.ru/cf/27hMw1BTFMs) или, для приверженцев децентрализованного будущего,
+через Toncoin (TON) (адрес кошелька `UQApEkzNMYOg5qesWwlyfGFf4ayFyki5Mrpcd2yadgS2_1cx`)
 
-![Сбор средств](qr-code.png)
-
-Средства пойдут на улучшение моего настроения путем покупки виниловых пластинок. В списке желаний:
-
-| Bar-Code       | Artist                   | Album                                   | Format | Note                 | Date       | Label   | Цена  |        |
-|----------------|--------------------------|-----------------------------------------|--------|----------------------|------------|---------|-------|--------|
-| 5400863157845  | EELS                     | Time!                                   | LP     | coloured             | 07.06.2024 |         | ₽4360 |
-| 5400863145637  | EELS                     | So Good                                 | LP     | coloured             | 15.12.2023 |         | ₽4940 |
-| 8719262034853  | NICK CAVE & WARREN ELLIS | Mars (Original Sound Track)             | LP     | coloured             | 12.07.2024 |         | ₽3440 |
-| 5021732526007  | GORILLAZ                 | Demon Days Live From The Apollo Theater | 2LP    | RSD2025, Red         | 12.04.2025 | Warner  | ₽5740 |
-| 5021732717696  | GORILLAZ                 | TOMORROW COMES TODAY                    | EP 12" | color (white & blue) | 20.06.2025 |         | ₽3600 |
-| 0198028824118  | Lou Reed                 | Metal Machine Music (RSD2025 50th)      | 2LP    | Ann Silver           | 04.12.2025 | RCA     | ₽5299 |
 
 ## Credits
 

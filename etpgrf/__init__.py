@@ -8,7 +8,7 @@ etpgrf - библиотека для экранной типографики т�
 - Висячая пунктуация
 - Очистка и обработка HTML
 """
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "Sergei Erjemin"
 __email__ = "erjemin@gmail.com"
 __license__ = "MIT"
