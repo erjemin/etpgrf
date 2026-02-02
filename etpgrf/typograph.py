@@ -17,7 +17,7 @@ from etpgrf.symbols import SymbolsProcessor
 from etpgrf.sanitizer import SanitizerProcessor
 from etpgrf.hanging import HangingPunctuationProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
-from etpgrf.config import PROTECTED_HTML_TAGS, SANITIZE_ALL_HTML
+from etpgrf.config import PROTECTED_HTML_TAGS, SANITIZE_ALL_HTML, CHAR_PLACEHOLDER
 
 
 # --- Настройки логирования ---
@@ -156,6 +156,82 @@ class Typographer:
                 # Если это "обычный" html-тег, рекурсивно заходим в него
                 self._walk_tree(child)
 
+    def _hide_protected_tags(self, soup) -> list:
+        """
+        Находит все защищенные теги, заменяет их на плейсхолдеры и возвращает список сохраненных тегов.
+        """
+        protected_tags = []
+        if not PROTECTED_HTML_TAGS:
+            return protected_tags
+
+        # Формируем селектор для поиска
+        selector = ", ".join(PROTECTED_HTML_TAGS)
+        
+        # Находим все теги. Важно: find_all возвращает их в порядке появления в документе.
+        # Но если мы будем заменять их на лету, структура может измениться.
+        # Поэтому лучше собрать список, а потом заменить.
+        tags_to_replace = soup.select(selector)
+        
+        for tag in tags_to_replace:
+            # Сохраняем тег (он будет удален из дерева при replace_with, но объект останется в памяти)
+            protected_tags.append(tag)
+            # Заменяем на текстовый узел с плейсхолдером
+            tag.replace_with(NavigableString(CHAR_PLACEHOLDER))
+            
+        return protected_tags
+
+    def _restore_protected_tags(self, soup, protected_tags: list):
+        """
+        Восстанавливает защищенные теги на места плейсхолдеров.
+        """
+        if not protected_tags:
+            return
+
+        # Ищем все текстовые узлы, содержащие плейсхолдер
+        # Используем список, так как будем менять дерево
+        text_nodes_with_placeholder = [
+            node for node in soup.descendants 
+            if isinstance(node, NavigableString) and CHAR_PLACEHOLDER in node
+        ]
+
+        tag_index = 0
+        for node in text_nodes_with_placeholder:
+            text = str(node)
+            # Если в узле есть плейсхолдеры, нам нужно его разбить
+            if CHAR_PLACEHOLDER in text:
+                parts = text.split(CHAR_PLACEHOLDER)
+                
+                # Создаем список новых узлов для замены
+                new_nodes = []
+                for i, part in enumerate(parts):
+                    # Добавляем текст (если он не пустой)
+                    if part:
+                        new_nodes.append(NavigableString(part))
+                    
+                    # Если это не последняя часть, значит, здесь был плейсхолдер.
+                    # Вставляем тег.
+                    if i < len(parts) - 1:
+                        if tag_index < len(protected_tags):
+                            new_nodes.append(protected_tags[tag_index])
+                            tag_index += 1
+                        else:
+                            logger.warning("Mismatch in protected tags count during restoration.")
+                
+                # Заменяем исходный узел на новые
+                if new_nodes:
+                    first_node = new_nodes[0]
+                    node.replace_with(first_node)
+                    current_pos = first_node
+                    for next_node in new_nodes[1:]:
+                        current_pos.insert_after(next_node)
+                        current_pos = next_node
+                else:
+                    # Если узел состоял только из плейсхолдера и мы его заменили на тег,
+                    # то new_nodes может быть пустым (если тег был один и текст пустой).
+                    # Но split('') дает [''], так что parts не пустой.
+                    # Логика выше должна работать.
+                    pass
+
     def process(self, text: str) -> str:
         """
         Обрабатывает текст, применяя все активные правила типографики.
@@ -195,19 +271,28 @@ class Typographer:
                 # Если результат - soup, продолжаем работу с ним
                 soup = result
 
+            # --- ЭТАП 2.5: Скрытие защищенных тегов ---
+            # Заменяем <code>, <script> и т.д. на плейсхолдеры, чтобы они не мешали обработке
+            # и не ломали карту длин.
+            protected_tags = self._hide_protected_tags(soup)
+
             # --- ЭТАП 3: Подготовка (токен-стрим) ---
             # 3.1. Создаем "токен-стрим" из текстовых узлов, которые мы будем обрабатывать.
             # soup.descendants возвращает все дочерние узлы (теги и текст) в порядке их следования.
             text_nodes = [node for node in soup.descendants
                           if isinstance(node, NavigableString)
                           # and node.strip()
-                          and node.parent.name not in PROTECTED_HTML_TAGS]
+                          and node.parent.name not in PROTECTED_HTML_TAGS] # PROTECTED уже скрыты, но на всякий случай
             # 3.2. Создаем "супер-строку" и "карту длин"
             super_string = ""
             lengths_map = []
             for node in text_nodes:
-                super_string += str(node)
-                lengths_map.append(len(str(node)))
+                # ВАЖНО: Используем node.string (Unicode), а не str(node) (HTML-encoded).
+                # str(node) может вернуть экранированные символы (например, &lt; вместо <),
+                # что увеличит длину строки и приведет к рассинхронизации карты длин (смещению текста).
+                node_text = node.string or ""
+                super_string += node_text
+                lengths_map.append(len(node_text))
 
             # --- ЭТАП 4: Контекстная обработка ---
             processed_super_string = super_string
@@ -225,6 +310,9 @@ class Typographer:
                 new_text_part = processed_super_string[current_pos : current_pos + length]
                 node.replace_with(new_text_part) # Заменяем содержимое узла на месте
                 current_pos += length
+
+            # --- ЭТАП 5.5: Восстановление защищенных тегов ---
+            self._restore_protected_tags(soup, protected_tags)
 
             # --- ЭТАП 6: Локальная обработка (второй проход) ---
             # Теперь, когда структура восстановлена, запускаем наш старый рекурсивный обход,
@@ -248,6 +336,9 @@ class Typographer:
                     processed_html = soup.body.decode_contents()
                 else:
                     processed_html = str(soup)
+
+            # Удаляем плейсхолдеры, если они вдруг просочились (хотя не должны)
+            processed_html = processed_html.replace(CHAR_PLACEHOLDER, '')
 
             # BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;), которые мы сгенерировали
             # в _process_text_node. Возвращаем их обратно.

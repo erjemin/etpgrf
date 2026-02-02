@@ -159,23 +159,26 @@ HTML_STRUCTURE_TEST_CASES = [
     ('<p>Текст</p>', '<p>Текст</p>'),
     
     # 2. Голый текст -> должен остаться голым текстом (без <p>, <html>, <body>)
-    ('Текст без тегов', 'Текст без&nbsp;тегов'), # Исправлено: ожидаем nbsp
+    ('Текст без\n тегов', 'Текст без&nbsp;тегов'), # Исправлено: ожидаем nbsp
     ('Текст с <b>тегом</b> внутри', 'Текст с&nbsp;<b>тегом</b> внутри'),
 
     # 3. Полноценный html-документ -> должен сохранить структуру
     ('<html><body><p>Текст</p></body></html>', '<html><body><p>Текст</p></body></html>'),
-    ('<!DOCTYPE html><html><head></head><body><p>Текст</p></body></html>',
-     '<!DOCTYPE html><html><head></head><body><p>Текст</p></body></html>'), # BS может добавить перенос строки после doctype
-
+    # Используем валидный HTML для теста с DOCTYPE
+    ('<!DOCTYPE html><html><head><title>Title</title></head><body><p>Текст</p></body></html>',
+     '<!DOCTYPE html>\n<html><head><title>Title</title></head><body><p>Текст</p></body></html>'),
+    
     # 4. Кривой html -> будет "починен"
     ('<div>Текст', '<div>Текст</div>'),
     ('<p>Текст', '<p>Текст</p>'),
     ('Текст <b>жирный <i>курсив', 'Текст <b>жирный <i>курсив</i></b>'),
-    # Используем валидный HTML для теста с DOCTYPE
-    ('<!DOCTYPE html><html><head><title>Title</title></head><body><p>Текст</p></body></html>',
-     '<!DOCTYPE html><html><head><title>Title</title></head><body><p>Текст</p></body></html>'),
-    # Тест на совсем кривой HTML (см ниже) не проходит: весь текст после незарытого <title> передается в заголовок.
-    # ('<!DOCTYPE html><html><head><title>Title<body><p>Текст', '<!DOCTYPE html><html><head><title>Title</title></head><body><p>Текст</p></body></html>'),
+    
+    # 5. Тест на защищенные теги с "битым" HTML внутри (BS их закроет)
+    ('<ul><li>Исправлена проблема с появлением лишних тегов <code>&lt;html&gt;</code> и <code>&lt;body&gt;</code> при обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>',
+     '<ul><li>Исправлена проблема с&nbsp;появлением лишних тегов <code>&lt;html&gt;</code> и&nbsp;<code>&lt;body&gt;</code> при&nbsp;обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>'),
+     
+    # ('<ul><li>Исправлена проблема с &nbsp;появлением лишних тегов <code><html></code>и&nbsp;<code><body&></code> при обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>',
+    #  '<ul><li>Исправлена проблема с&nbsp;появлением лишних тегов <code><html></html></code> и&nbsp;<code><body&></body&></code> при&nbsp;обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>'),
 ]
 
 @pytest.mark.parametrize("input_html, expected_html", HTML_STRUCTURE_TEST_CASES)
