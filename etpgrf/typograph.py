@@ -17,7 +17,7 @@ from etpgrf.symbols import SymbolsProcessor
 from etpgrf.sanitizer import SanitizerProcessor
 from etpgrf.hanging import HangingPunctuationProcessor
 from etpgrf.codec import decode_to_unicode, encode_from_unicode
-from etpgrf.config import PROTECTED_HTML_TAGS, CHAR_PLACEHOLDER, CHAR_NODE_SEPARATOR
+from etpgrf.config import PROTECTED_HTML_TAGS, CHAR_PLACEHOLDER, CHAR_NODE_SEPARATOR, CHAR_AMP_PLACEHOLDER
 
 
 # --- Настройки логирования ---
@@ -239,6 +239,12 @@ class Typographer:
         """
         if not text:
             return ""
+            
+        # --- ЭТАП 0: Защита &amp; ---
+        # Заменяем &amp; на временный плейсхолдер, чтобы он не был декодирован в &
+        # и не был повторно закодирован в &amp;amp;
+        text = text.replace('&amp;', CHAR_AMP_PLACEHOLDER)
+
         # Если включена обработка HTML и BeautifulSoup доступен
         if self.process_html:
             # --- ЭТАП 1: Анализ структуры ---
@@ -264,10 +270,10 @@ class Typographer:
                     # Проще всего рекурсивно вызвать process с выключенным process_html,
                     # но чтобы не менять состояние объекта, просто выполним логику "else" блока здесь.
                     # Или, еще проще: присвоим text = result и пойдем в блок else? Нет, мы уже внутри if.
-                    
+
                     # Решение: Выполняем логику обработки простого текста прямо здесь
                     return self._process_plain_text(text)
-                
+
                 # Если результат - soup, продолжаем работу с ним
                 soup = result
 
@@ -287,6 +293,7 @@ class Typographer:
             super_string = ""
             # lengths_map больше не нужен, так как мы используем разделители
             
+            super_string = ""
             for node in text_nodes:
                 # ВАЖНО: Используем node.string (Unicode), а не str(node) (HTML-encoded).
                 # str(node) может вернуть экранированные символы (например, &lt; вместо <),
@@ -311,18 +318,18 @@ class Typographer:
             # Но если строка пустая, split вернет [''], и мы возьмем [].
             # Если строка 'a\uFFFF', split -> ['a', '']. Берем ['a'].
             parts = processed_super_string.split(CHAR_NODE_SEPARATOR)
-            
+
             # Проверка на целостность: количество частей должно совпадать с количеством узлов.
             # split всегда возвращает хотя бы один элемент. Если super_string пустая, parts=[''].
             # Если super_string не пустая, parts будет иметь длину N+1 (где N - число разделителей).
             # Нам нужны первые N частей.
-            
+
             if len(parts) > len(text_nodes):
                  parts = parts[:len(text_nodes)]
-            
+
             # Если вдруг частей меньше (кто-то удалил разделитель), это проблема.
             # Но \uFFFF - Non-character, его сложно удалить случайно.
-            
+
             for i, node in enumerate(text_nodes):
                 if i < len(parts):
                     new_text_part = parts[i]
@@ -364,9 +371,11 @@ class Typographer:
 
             # BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;), которые мы сгенерировали
             # в _process_text_node. Возвращаем их обратно.
-            return processed_html.replace('&amp;', '&')
+            processed_text = processed_html.replace('&amp;', '&')
         else:
-            return self._process_plain_text(text)
+            # Для простого текста тоже нужна защита &amp;
+            processed_text = self._process_plain_text(text)
+        return processed_text.replace(CHAR_AMP_PLACEHOLDER, '&amp;')
 
     def _process_plain_text(self, text: str) -> str:
         """

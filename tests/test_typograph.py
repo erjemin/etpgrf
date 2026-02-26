@@ -177,10 +177,15 @@ HTML_STRUCTURE_TEST_CASES = [
     ('<ul><li>Исправлена проблема с&nbsp;появлением лишних тегов <code>&lt;html&gt;</code> и&nbsp;<code>&lt;body&gt;</code> при обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>',
      '<ul><li>Исправлена проблема с&nbsp;появлением лишних тегов <code>&lt;html&gt;</code> и&nbsp;<code>&lt;body&gt;</code> при&nbsp;обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>'),
 
-     # 6/ Исправленный тест на защищенные теги с немаскированными HTML внутри
+     # 6. Исправленный тест на защищенные теги с немаскированными HTML внутри
     # (все незакрытые теги будут закрыты через BS, а тег <html> удалены)
     ('<ul><li>Исправлена проблема\n с   появлением лишних тегов <code><html>++</html></code> и&nbsp;<code><body&></code> при обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>',
      '<ul><li>Исправлена проблема\n с&nbsp;появлением лишних тегов <code>++</code> и&nbsp;<code><body&></body&></code> при&nbsp;обработке фрагментов HTML.</li></ul><h5>Заголовок</h5>'),
+
+    # 7. Тест на маскированные мнемоники и де-экранирование &amp;
+    ('<p>Текст с &lt; и &gt; и &amp; внутри.</p>', '<p>Текст с&nbsp;&lt; и&nbsp;&gt; и&nbsp;&amp; внутри.</p>'),
+    ('<p>Текст с &amp;lt; и &amp;gt; и &amp;amp; внутри.</p>', '<p>Текст с&nbsp;&amp;lt; и&nbsp;&amp;gt; и&nbsp;&amp;amp; внутри.</p>'),
+    ('<p>Мнемоника <code>&amp;nbsp;</code> превратится в неразрывный пробел</p>', '<p>Мнемоника <code>&amp;nbsp;</code> превратится в&nbsp;неразрывный пробел</p>'),
 ]
 
 @pytest.mark.parametrize("input_html, expected_html", HTML_STRUCTURE_TEST_CASES)
