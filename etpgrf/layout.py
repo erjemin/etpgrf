@@ -98,7 +98,7 @@ class LayoutProcessor:
                 units_pattern_part_clean = '|'.join(map(regex.escape, [u.replace('.', '') for u in sorted_units]))
 
                 # Простые единицы: число + единица
-                self._post_units_pattern = regex.compile(rf'({self._NUMBER_PATTERN})\s+({units_pattern_part_full})(?!\w)')
+                self._post_units_pattern = regex.compile(rf'({self._NUMBER_PATTERN}|{sep})\s+({units_pattern_part_full})(?!\w)')
                 # Составные единицы: ищет пару "единица." + "единица"
                 self._complex_unit_pattern = regex.compile(r'\b(' + units_pattern_part_clean + r')\.(\s*)('
                                                            + units_pattern_part_clean + r')(?!\w)')
