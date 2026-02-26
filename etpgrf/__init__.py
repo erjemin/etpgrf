@@ -13,3 +13,13 @@ __author__ = "Sergei Erjemin"
 __email__ = "erjemin@gmail.com"
 __license__ = "MIT"
 __copyright__ = "(с) 2025-2026, Sergei Erjemin"
+
+import etpgrf.defaults
+import etpgrf.logger
+from etpgrf.hyphenation import Hyphenator
+from etpgrf.layout import LayoutProcessor
+from etpgrf.quotes import QuotesProcessor
+from etpgrf.sanitizer import SanitizerProcessor
+from etpgrf.symbols import SymbolsProcessor
+from etpgrf.typograph import Typographer
+from etpgrf.unbreakables import Unbreakables
