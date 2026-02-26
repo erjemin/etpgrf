@@ -5,7 +5,7 @@ import regex
 import logging
 from etpgrf.config import (LANG_RU, LANG_EN, CHAR_NBSP, CHAR_THIN_SP, CHAR_NDASH, CHAR_MDASH, CHAR_HELLIP,
                            CHAR_UNIT_SEPARATOR, DEFAULT_POST_UNITS, DEFAULT_PRE_UNITS, UNIT_MATH_OPERATORS,
-                           ABBR_COMMON_FINAL, ABBR_COMMON_PREPOSITION)
+                           ABBR_COMMON_FINAL, ABBR_COMMON_PREPOSITION, CHAR_NODE_SEPARATOR)
 
 from etpgrf.comutil import parse_and_validate_langs
 
@@ -35,14 +35,17 @@ class LayoutProcessor:
         self.main_lang = self.langs[0] if self.langs else LANG_RU
         self.process_initials_and_acronyms = process_initials_and_acronyms
         self.process_units = process_units
+        # Экранируем разделитель для использования в regex
+        sep = regex.escape(CHAR_NODE_SEPARATOR)
+
         # 1. Паттерн для длинного (—) или среднего (–) тире, окруженного пробелами.
-        # (?<=[\p{L}\p{Po}\p{Pf}"\']) - просмотр назад на букву, пунктуацию или кавычку.
-        self._dash_pattern = regex.compile(rf'(?<=[\p{{L}}\p{{Po}}\p{{Pf}}"\'])\s+([{CHAR_MDASH}{CHAR_NDASH}])\s+(?=\S)')
+        # (?<=[\p{L}\p{Po}\p{Pf}"\']|sep) - просмотр назад на букву, пунктуацию, кавычку ИЛИ разделитель узлов.
+        self._dash_pattern = regex.compile(rf'(?<=[\p{{L}}\p{{Po}}\p{{Pf}}"\']|{sep})\s+([{CHAR_MDASH}{CHAR_NDASH}])\s+(?=\S)')
 
         # 2. Паттерн для многоточия, за которым следует пробел и слово.
         # Ставит неразрывный пробел после многоточия, чтобы не отрывать его от следующего слова.
-        # (?=[\p{L}\p{N}]) - просмотр вперед на букву или цифру.
-        self._ellipsis_pattern = regex.compile(rf'({CHAR_HELLIP})\s+(?=[\p{{L}}\p{{N}}])')
+        # (?=[\p{L}\p{N}]|sep) - просмотр вперед на букву или цифру ИЛИ разделитель узлов.
+        self._ellipsis_pattern = regex.compile(rf'({CHAR_HELLIP})\s+(?=[\p{{L}}\p{{N}}]|{sep})')
 
         # 3. Паттерн для отрицательных чисел.
         # Ставит неразрывный пробел перед знаком минус, если за минусом идет цифра (неразрывный пробел
