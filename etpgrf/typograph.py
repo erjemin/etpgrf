@@ -116,46 +116,6 @@ class Typographer:
                      f"process_html: {self.process_html}")
 
 
-    def _process_text_node(self, text: str) -> str:
-        """
-        Внутренний конвейер, который работает с чистым текстом.
-        """
-        # Шаг 1: Декодируем весь входящий текст в канонический Unicode
-        # (здесь можно использовать html.unescape, но наш кодек тоже подойдет)
-        processed_text = decode_to_unicode(text)
-        # processed_text = text  # ВРЕМЕННО: используем текст как есть
-
-        # Шаг 2: Применяем правила к чистому Unicode-тексту (только правила на уровне ноды)
-        if self.symbols is not None:
-            processed_text = self.symbols.process(processed_text)
-        if self.layout is not None:
-            processed_text = self.layout.process(processed_text)
-        if self.hyphenation is not None:
-            processed_text = self.hyphenation.hyp_in_text(processed_text)
-        # ... вызовы других активных модулей правил ...
-
-        # Финальный шаг: кодируем результат в соответствии с выбранным режимом
-        return encode_from_unicode(processed_text, self.mode)
-
-    def _walk_tree(self, node):
-        """
-        Рекурсивно обходит DOM-дерево, находя и обрабатывая все текстовые узлы.
-        """
-        # Список "детей" узла, который мы будем изменять.
-        # Копируем в список, так как будем изменять его во время итерации.
-        for child in list(node.children):
-            if isinstance(child, NavigableString):
-                # Если это текстовый узел, обрабатываем его
-                # Пропускаем пустые или состоящие из пробелов узлы
-                if not child.string.strip():
-                    continue
-
-                processed_node_text = self._process_text_node(child.string)
-                child.replace_with((processed_node_text))
-            elif child.name not in PROTECTED_HTML_TAGS:
-                # Если это "обычный" html-тег, рекурсивно заходим в него
-                self._walk_tree(child)
-
     def _hide_protected_tags(self, soup) -> list:
         """
         Находит все защищенные теги, заменяет их на плейсхолдеры и возвращает список сохраненных тегов.
@@ -164,18 +124,11 @@ class Typographer:
         if not PROTECTED_HTML_TAGS:
             return protected_tags
 
-        # Формируем селектор для поиска
         selector = ", ".join(PROTECTED_HTML_TAGS)
-        
-        # Находим все теги. Важно: find_all возвращает их в порядке появления в документе.
-        # Но если мы будем заменять их на лету, структура может измениться.
-        # Поэтому лучше собрать список, а потом заменить.
         tags_to_replace = soup.select(selector)
         
         for tag in tags_to_replace:
-            # Сохраняем тег (он будет удален из дерева при replace_with, но объект останется в памяти)
             protected_tags.append(tag)
-            # Заменяем на текстовый узел с плейсхолдером
             tag.replace_with(NavigableString(CHAR_PLACEHOLDER))
             
         return protected_tags
@@ -187,8 +140,6 @@ class Typographer:
         if not protected_tags:
             return
 
-        # Ищем все текстовые узлы, содержащие плейсхолдер
-        # Используем список, так как будем менять дерево
         text_nodes_with_placeholder = [
             node for node in soup.descendants 
             if isinstance(node, NavigableString) and CHAR_PLACEHOLDER in node
@@ -197,19 +148,14 @@ class Typographer:
         tag_index = 0
         for node in text_nodes_with_placeholder:
             text = str(node)
-            # Если в узле есть плейсхолдеры, нам нужно его разбить
             if CHAR_PLACEHOLDER in text:
                 parts = text.split(CHAR_PLACEHOLDER)
                 
-                # Создаем список новых узлов для замены
                 new_nodes = []
                 for i, part in enumerate(parts):
-                    # Добавляем текст (если он не пустой)
                     if part:
                         new_nodes.append(NavigableString(part))
                     
-                    # Если это не последняя часть, значит, здесь был плейсхолдер.
-                    # Вставляем тег.
                     if i < len(parts) - 1:
                         if tag_index < len(protected_tags):
                             new_nodes.append(protected_tags[tag_index])
@@ -217,7 +163,6 @@ class Typographer:
                         else:
                             logger.warning("Mismatch in protected tags count during restoration.")
                 
-                # Заменяем исходный узел на новые
                 if new_nodes:
                     first_node = new_nodes[0]
                     node.replace_with(first_node)
@@ -225,12 +170,6 @@ class Typographer:
                     for next_node in new_nodes[1:]:
                         current_pos.insert_after(next_node)
                         current_pos = next_node
-                else:
-                    # Если узел состоял только из плейсхолдера и мы его заменили на тег,
-                    # то new_nodes может быть пустым (если тег был один и текст пустой).
-                    # Но split('') дает [''], так что parts не пустой.
-                    # Логика выше должна работать.
-                    pass
 
     def process(self, text: str) -> str:
         """
@@ -240,20 +179,11 @@ class Typographer:
         if not text:
             return ""
             
-        # --- ЭТАП 0: Защита &amp; ---
-        # Заменяем &amp; на временный плейсхолдер, чтобы он не был декодирован в &
-        # и не был повторно закодирован в &amp;amp;
         text = text.replace('&amp;', CHAR_AMP_PLACEHOLDER)
 
-        # Если включена обработка HTML и BeautifulSoup доступен
         if self.process_html:
-            # --- ЭТАП 1: Анализ структуры ---
-            # Проверяем, есть ли в начале текста теги <html> или <body>.
-            # Если есть - значит, это полноценный документ, и мы должны вернуть его целиком.
-            # Если нет - значит, это фрагмент, и мы должны вернуть только содержимое body.
             is_full_document = bool(regex.search(r'^\s*<(?:!DOCTYPE|html|body)', text, regex.IGNORECASE))
 
-            # --- ЭТАП 2: Парсинг и Санитизация ---
             try:
                 soup = BeautifulSoup(text, 'lxml')
             except Exception:
@@ -261,138 +191,65 @@ class Typographer:
 
             if self.sanitizer:
                 result = self.sanitizer.process(soup)
-                # Если режим SANITIZE_ALL_HTML, то результат - это строка (чистый текст)
                 if isinstance(result, str):
-                    # Переключаемся на обработку обычного текста
-                    text = result
-                    # ВАЖНО: Мы выходим из ветки process_html и идем в ветку else,
-                    # но так как мы внутри if, нам нужно явно вызвать логику для текста.
-                    # Проще всего рекурсивно вызвать process с выключенным process_html,
-                    # но чтобы не менять состояние объекта, просто выполним логику "else" блока здесь.
-                    # Или, еще проще: присвоим text = result и пойдем в блок else? Нет, мы уже внутри if.
-
-                    # Решение: Выполняем логику обработки простого текста прямо здесь
-                    return self._process_plain_text(text)
-
-                # Если результат - soup, продолжаем работу с ним
+                    return self._process_plain_text(result).replace(CHAR_AMP_PLACEHOLDER, '&amp;')
                 soup = result
 
-            # --- ЭТАП 2.5: Скрытие защищенных тегов ---
-            # Заменяем <code>, <script> и т.д. на плейсхолдеры, чтобы они не мешали обработке
-            # и не ломали карту длин.
             protected_tags = self._hide_protected_tags(soup)
 
-            # --- ЭТАП 3: Подготовка (токен-стрим) ---
-            # 3.1. Создаем "токен-стрим" из текстовых узлов.
-            # Теперь здесь только обычный текст и плейсхолдеры.
-            text_nodes = [node for node in soup.descendants
-                          if isinstance(node, NavigableString)
-                          # and node.strip()
-                          and node.parent.name not in PROTECTED_HTML_TAGS] # PROTECTED уже скрыты, но на всякий случай
-            # 3.2. Создаем "супер-строку" с маркерами границ
-            super_string = ""
-            # lengths_map больше не нужен, так как мы используем разделители
+            text_nodes = [node for node in soup.descendants if isinstance(node, NavigableString)]
             
             super_string = ""
             for node in text_nodes:
-                # ВАЖНО: Используем node.string (Unicode), а не str(node) (HTML-encoded).
-                # str(node) может вернуть экранированные символы (например, &lt; вместо <),
-                # что увеличит длину строки и приведет к рассинхронизации карты длин (смещению текста).
                 node_text = node.string or ""
-                # Добавляем текст и разделитель
                 super_string += node_text + CHAR_NODE_SEPARATOR
 
-            # --- ЭТАП 4: Контекстная обработка ---
-            processed_super_string = super_string
-            # Применяем правила, которым нужен полный контекст (вся супер-строка контекста, очищенная от html).
-            # Важно, чтобы эти правила не меняли длину строки!!!! Иначе карта длин слетит и восстановление не получится.
-            if self.quotes:
-                processed_super_string = self.quotes.process(processed_super_string)
-            if self.unbreakables:
-                processed_super_string = self.unbreakables.process(processed_super_string)
+            processed_super_string = self._process_plain_text(super_string)
 
-            # --- ЭТАП 5: Восстановление структуры ---
-            # Разбиваем строку по разделителям.
-            # split вернет список, где последний элемент будет пустым (из-за разделителя в конце).
-            # Поэтому берем все элементы, кроме последнего.
-            # Но если строка пустая, split вернет [''], и мы возьмем [].
-            # Если строка 'a\uFFFF', split -> ['a', '']. Берем ['a'].
             parts = processed_super_string.split(CHAR_NODE_SEPARATOR)
-
-            # Проверка на целостность: количество частей должно совпадать с количеством узлов.
-            # split всегда возвращает хотя бы один элемент. Если super_string пустая, parts=[''].
-            # Если super_string не пустая, parts будет иметь длину N+1 (где N - число разделителей).
-            # Нам нужны первые N частей.
-
+            
             if len(parts) > len(text_nodes):
                  parts = parts[:len(text_nodes)]
-
-            # Если вдруг частей меньше (кто-то удалил разделитель), это проблема.
-            # Но \uFFFF - Non-character, его сложно удалить случайно.
-
+            
             for i, node in enumerate(text_nodes):
                 if i < len(parts):
                     new_text_part = parts[i]
-                    # Заменяем содержимое узла.
-                    # Важно: если new_text_part содержит CHAR_PLACEHOLDER, он останется как есть
-                    # и будет обработан на этапе 5.5.
                     node.replace_with(new_text_part)
 
-            # --- ЭТАП 5.5: Восстановление защищенных тегов ---
             self._restore_protected_tags(soup, protected_tags)
 
-            # --- ЭТАП 6: Локальная обработка (второй проход) ---
-            # Теперь, когда структура восстановлена (включая защищенные теги),
-            # запускаем рекурсивный обход.
-            # Важно: _walk_tree пропускает PROTECTED_HTML_TAGS, так что содержимое
-            # восстановленных тегов не будет обработано повторно.
-            self._walk_tree(soup)
-
-            # --- ЭТАП 7: Висячая пунктуация ---
-            # Применяем после всех текстовых преобразований, но перед финальной сборкой
             if self.hanging:
                 self.hanging.process(soup)
 
-            # --- ЭТАП 8: Финальная сборка ---
             if is_full_document:
-                # Если на входе был полноценный документ, возвращаем все дерево
                 processed_html = str(soup)
             else:
-                # Если на входе был фрагмент, возвращаем только содержимое body.
-                # decode_contents() возвращает строку с содержимым тега (без самого тега).
-                # Если body нет (что странно для BS), возвращаем str(soup).
                 if soup.body:
                     processed_html = soup.body.decode_contents()
                 else:
                     processed_html = str(soup)
-
-            # Удаляем плейсхолдеры и разделители, если они вдруг просочились
-            processed_html = processed_html.replace(CHAR_PLACEHOLDER, '').replace(CHAR_NODE_SEPARATOR, '')
-
-            # BeautifulSoup по умолчанию экранирует амперсанды (& -> &amp;), которые мы сгенерировали
-            # в _process_text_node. Возвращаем их обратно.
-            processed_text = processed_html.replace('&amp;', '&')
+            
+            processed_html = processed_html.replace('&amp;', '&')
+            return processed_html.replace(CHAR_AMP_PLACEHOLDER, '&amp;')
         else:
-            # Для простого текста тоже нужна защита &amp;
             processed_text = self._process_plain_text(text)
-        return processed_text.replace(CHAR_AMP_PLACEHOLDER, '&amp;')
+            return processed_text.replace(CHAR_AMP_PLACEHOLDER, '&amp;')
 
     def _process_plain_text(self, text: str) -> str:
         """
         Логика обработки обычного текста (вынесена из process для переиспользования).
         """
-        # Шаг 0: Нормализация
         processed_text = decode_to_unicode(text)
-        # Шаг 1: Применяем все правила последовательно
+        
+        if self.symbols:
+            processed_text = self.symbols.process(processed_text)
         if self.quotes:
             processed_text = self.quotes.process(processed_text)
         if self.unbreakables:
             processed_text = self.unbreakables.process(processed_text)
-        if self.symbols:
-            processed_text = self.symbols.process(processed_text)
         if self.layout:
             processed_text = self.layout.process(processed_text)
         if self.hyphenation:
             processed_text = self.hyphenation.hyp_in_text(processed_text)
-        # Шаг 2: Финальное кодирование
+
         return encode_from_unicode(processed_text, self.mode)
