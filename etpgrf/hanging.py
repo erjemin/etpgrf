@@ -6,7 +6,9 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 from .config import (
     HANGING_PUNCTUATION_LEFT_CHARS,
     HANGING_PUNCTUATION_RIGHT_CHARS,
-    HANGING_PUNCTUATION_CLASSES
+    HANGING_PUNCTUATION_CLASSES,
+    HANGING_PUNCTUATION_MODE_LEFT,
+    HANGING_PUNCTUATION_MODE_RIGHT,
 )
 
 logger = logging.getLogger(__name__)
@@ -21,30 +23,27 @@ class HangingPunctuationProcessor:
         """
         :param mode: Режим работы:
                      - None / False: отключено.
-                     - 'left': только левая пунктуация.
-                     - 'right': только правая пунктуация.
-                     - 'both' / True: и левая, и правая.
+                     - 'left': левая висячая пунктуация.
+                     - 'right': правая висячая пунктуация.
                      - list[str]: список тегов (например, ['p', 'blockquote']),
-                       внутри которых применять 'both'.
+                       внутри которых применять висячую пунктуацию в обе стороны.
+                     - True эквивалентно 'left'.
         """
         self.mode = mode
         self.target_tags = None
         self.active_chars = set()
 
-        # Определяем, какие символы будем обрабатывать
         if isinstance(mode, list):
             self.target_tags = set(t.lower() for t in mode)
-            # Если передан список тегов, включаем полный режим ('both') внутри них
             self.active_chars.update(HANGING_PUNCTUATION_LEFT_CHARS)
             self.active_chars.update(HANGING_PUNCTUATION_RIGHT_CHARS)
-        elif mode == 'left':
-            self.active_chars.update(HANGING_PUNCTUATION_LEFT_CHARS)
-        elif mode == 'right':
-            self.active_chars.update(HANGING_PUNCTUATION_RIGHT_CHARS)
-        elif mode == 'both' or mode is True:
-            self.active_chars.update(HANGING_PUNCTUATION_LEFT_CHARS)
-            self.active_chars.update(HANGING_PUNCTUATION_RIGHT_CHARS)
-        
+        else:
+            normalized_mode = HANGING_PUNCTUATION_MODE_LEFT if mode is True else mode
+            if normalized_mode == HANGING_PUNCTUATION_MODE_LEFT:
+                self.active_chars.update(HANGING_PUNCTUATION_LEFT_CHARS)
+            elif normalized_mode == HANGING_PUNCTUATION_MODE_RIGHT:
+                self.active_chars.update(HANGING_PUNCTUATION_RIGHT_CHARS)
+
         # Предварительно фильтруем карту классов, оставляя только активные символы
         self.char_to_class = {
             char: cls 

@@ -690,6 +690,13 @@ PROTECTED_HTML_TAGS = ['style', 'script', 'pre', 'code', 'kbd', 'samp', 'math']
 
 # === КОНСТАНТЫ ДЛЯ ВИСЯЧЕЙ ТИПОГРАФИКИ ===
 
+HANGING_PUNCTUATION_MODE_LEFT = 'left'
+HANGING_PUNCTUATION_MODE_RIGHT = 'right'
+HANGING_PUNCTUATION_MODES = frozenset([
+    HANGING_PUNCTUATION_MODE_LEFT,
+    HANGING_PUNCTUATION_MODE_RIGHT,
+])
+
 # 1. Набор символов, которые могут "висеть" слева
 HANGING_PUNCTUATION_LEFT_CHARS = frozenset([
     CHAR_RU_QUOT1_OPEN,   # «
@@ -723,3 +730,4 @@ HANGING_PUNCTUATION_CLASSES = {
     ',': 'etp-r-comma',
     ':': 'etp-r-colon',
 }
+
