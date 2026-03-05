@@ -4,9 +4,10 @@
 import logging
 from bs4 import BeautifulSoup
 from .config import (SANITIZE_ALL_HTML, SANITIZE_ETPGRF, SANITIZE_NONE,
-                     HANGING_PUNCTUATION_CLASSES, PROTECTED_HTML_TAGS,
+                     PROTECTED_HTML_TAGS,
                      HANGING_PUNCTUATION_SYMBOLS_CLASSES,
-                     HANGING_PUNCTUATION_SPACE_CLASSES_FLAT)
+                     HANGING_PUNCTUATION_SPACE_CLASSES_FLAT,
+                     CHARS_SYMBOLS_TO_BAN)
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,7 @@ class SanitizerProcessor:
         """
         if self.mode == SANITIZE_ETPGRF:
             if not self._etp_selector:
+                self._strip_banned_chars_from_soup(soup)
                 return soup
 
             # Используем CSS-селектор для быстрого поиска всех нужных элементов
@@ -60,6 +62,7 @@ class SanitizerProcessor:
             for span in spans_to_clean:
                 span.unwrap()
 
+            self._strip_banned_chars_from_soup(soup)
             return soup
 
         elif self.mode == SANITIZE_ALL_HTML:
@@ -74,7 +77,31 @@ class SanitizerProcessor:
 
             # 2. Извлекаем чистый текст из оставшегося дерева.
             #    get_text() работает на уровне C (в lxml) и намного быстрее ручного обхода.
-            return soup.get_text()
+            text = soup.get_text()
+            return self._strip_banned_chars_from_string(text)
 
         # Если режим не задан, ничего не делаем
         return soup
+
+    def _strip_banned_chars_from_soup(self, soup: BeautifulSoup) -> None:
+        """
+        Удаляет запрещенные символы из всего содержимого soup-объекта.
+
+        :param soup: Объект BeautifulSoup для обработки.
+        """
+        for element in soup.find_all(string=True):
+            if isinstance(element, str):
+                new_string = self._strip_banned_chars_from_string(element)
+                element.replace_with(new_string)
+
+    def _strip_banned_chars_from_string(self, text: str) -> str:
+        """
+        Удаляет запрещенные символы из строки.
+
+        :param text: Исходная строка.
+        :return: Строка без запрещенных символов.
+        """
+        # Удаляем все символы, которые есть в CHARS_SYMBOLS_TO_BAN
+        for char in CHARS_SYMBOLS_TO_BAN:
+            text = text.replace(char, "")
+        return text

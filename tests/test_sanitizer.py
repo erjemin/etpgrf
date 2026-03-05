@@ -4,7 +4,7 @@
 import pytest
 from bs4 import BeautifulSoup
 from etpgrf.sanitizer import SanitizerProcessor
-from etpgrf.config import SANITIZE_NONE, SANITIZE_ETPGRF, SANITIZE_ALL_HTML
+from etpgrf.config import SANITIZE_NONE, SANITIZE_ETPGRF, SANITIZE_ALL_HTML, CHARS_SYMBOLS_TO_BAN
 
 
 def test_sanitizer_mode_none():
@@ -84,3 +84,19 @@ def test_sanitizer_mode_etpgrf(case_id, description, html_input, expected_html):
     result_soup = processor.process(soup)
 
     assert str(result_soup) == expected_html
+
+
+@pytest.mark.parametrize("mode", [SANITIZE_ETPGRF, SANITIZE_ALL_HTML])
+def test_sanitizer_strips_service_placeholders(mode):
+    """
+    Проверяет, что в обоих режимах удаляются запрещенные символы (плейсхолдеры, используемые внутри типографа).
+    Это важно для защиты от потенциальных XSS-атак или других проблем с безопасностью, связанных с этими символами.
+    """
+    placeholder = next(iter(CHARS_SYMBOLS_TO_BAN))
+    html_input = f'<p>Start{placeholder}End</p>'
+    soup = BeautifulSoup(html_input, 'html.parser')
+    processor = SanitizerProcessor(mode=mode)
+    result = processor.process(soup)
+    output = str(result) if isinstance(result, BeautifulSoup) else result
+    assert placeholder not in output
+    assert 'StartEnd' in output

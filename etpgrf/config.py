@@ -102,8 +102,7 @@ CHAR_PLACEHOLDER = '\uFFFC'    # Уникальная строка-заполн�
 CHAR_AMP_PLACEHOLDER = '\uFFFD' # Маркер-плейсхолдер для амперсанда (&), чтобы избежать его двойного кодирования в &amp; при замене на мнемонику.
 CHAR_NODE_SEPARATOR = '\uFFFF' # Маркер границы текстовых узлов (Non-character).
 
-# === КОНСТАНТЫ ДЛЯ САНИТИЗАЦИИ ===
-# TODO: Их обработку (очистку) нужно добавить в модуль sanitization.py на входе.
+# === ПЛЕЙСХОЛДЕРЫ (ДЛЯ САНИТАЙЗИНГА НА ХОДЕ) ===
 CHARS_SYMBOLS_TO_BAN = frozenset([
     CHAR_UNIT_SEPARATOR, CHAR_PLACEHOLDER, CHAR_AMP_PLACEHOLDER, CHAR_NODE_SEPARATOR
 ])
