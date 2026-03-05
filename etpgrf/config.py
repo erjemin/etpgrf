@@ -69,12 +69,44 @@ CHAR_ARROW_LR = '\u27f7'   # Длинная двунаправленная ст�
 CHAR_ARROW_L_LONG_DOUBLE = '\u27f8'  # Длинная двойная стрелка влево
 CHAR_ARROW_R_LONG_DOUBLE = '\u27f9'  # Длинная двойная стрелка вправо
 CHAR_ARROW_LR_LONG_DOUBLE = '\u27fa' # Длинная двойная двунаправленная стрелка
-CHAR_MIDDOT = '\u00b7'    # Средняя точка (· иногда используется как знак умножения) / &middot;
+CHAR_MIDDOT = '\u00b7'     # Средняя точка (· иногда используется как знак умножения) / &middot;
+# ПРОБЕЛЫ
+CHAR_EN_SP = '\u2002'      # Полужирный пробел (En Space) -- &ensp;
+CHAR_EM_SP = '\u2003'      # Широкий пробел (Em Space) -- &emsp;
+CHAR_NUM_SP = '\u2007'     # Цифровой пробел -- &numsp;
+CHAR_PUNT_SP = '\u2008'    # Пунктуационный пробел -- &puncsp;
+CHAR_HAIR_SP = '\u200A'    # Толщина волоса (Hair Space) -- &hairsp;
+CHAR_MED_SP = '\u205F'     # Средний пробел (Medium Mathematical Space) -- &MediumSpace;
+CHAR_NULL_SP = '\u200B'    # Нулевой пробел (Zero Width Space)... в стандартах мнемоник путаница, и ее мнемоника &NegativeThinSpace;
+CHAR_THIN_NBSP = '\u202F'  # Тонкий неразрывной пробел (Narrow No-Break Space) который, к сожалению, не имеет html-мнемоники
+CHAR_ZWNJ = '\u200D'       # Нулевая ширина (с объединением) (Zero Width Joiner) -- &zwnj;
+CHAR_EN_QUAD_SP = '\u2000'       # Полукруглая шпация, ширина равна 1/2 от кегля (En Quad)
+CHAR_EM_QUAD_SP = '\u2001'       # Круглая шпация, ширина равна 1/1 (полный кегль), квадрат (Em Quad)
+CHAR_THREE_PER_EM_SP = '\u2004'  # «Толстый» пробел, ширина 1/3 от круглой шпации (Three-Per-Em Space) -- &emsp13;
+CHAR_FOUR_PER_EM_SP = '\u2005'   # Средний пробел, ширина 1/4 от круглой шпации (Four-Per-Em Space) -- &emsp14;
+CHAR_SIX_PER_EM_SP = '\u2006'    # «Тонкий» волосяной пробел, ширина 1/6 от круглой шпации (Six-Per-Em Space)
+# ПРОСТО ЧАСТО ИСПОЛЬЗУЕМЫЕ СИМВОЛЫ, ДЛЯ ЭКОНОМИИ ПАМЯТИ (эфемерно, т.к. Python все равно бы оптимизировал, но для ясности и удобства):
+CHAR_LPAR = '('            # Левая круглая скобка
+CHAR_LSQB = '['            # Левая квадратная скобка
+CHAR_LCUB = '{'            # Левая фигурная скобка
+CHAR_RPAR = ')'            # Правая круглая скобка
+CHAR_RSQB = ']'            # Правая квадратная скобка
+CHAR_RCUB = '}'            # Правая фигурная скобка
+CHAR_DOT = '.'             # Точка
+CHAR_COMMA = ','           # Запятая
+CHAR_COLON = ':'           # Двоеточие
+# СЛУЖЕБНЫЕ СИМВОЛЫ (НЕ ДОЛЖНЫ ПРИНИМАТЬСЯ ВВОДОМ И НЕ ДОЛЖНЫ ВЫВОДИТЬСЯ, ИСПОЛЬЗУЮТСЯ ТОЛЬКО ВНУТРИ ПРОЦЕССОРОВ ДЛЯ ВРЕМЕННОЙ ЗАМЕНЫ ИЛИ РАЗДЕЛЕНИЯ):
 CHAR_UNIT_SEPARATOR = '\u25F0' # Символ временный разделитель для составных единиц (◰), чтобы не уходить
                                # в "мертвый" цикл при замене на тонкий пробел. Можно взять любой редкий символом.
 CHAR_PLACEHOLDER = '\uFFFC'    # Уникальная строка-заполнитель для защищенных тегов.
 CHAR_AMP_PLACEHOLDER = '\uFFFD' # Маркер-плейсхолдер для амперсанда (&), чтобы избежать его двойного кодирования в &amp; при замене на мнемонику.
 CHAR_NODE_SEPARATOR = '\uFFFF' # Маркер границы текстовых узлов (Non-character).
+
+# === КОНСТАНТЫ ДЛЯ САНИТИЗАЦИИ ===
+# TODO: Их обработку (очистку) нужно добавить в модуль sanitization.py на входе.
+CHARS_SYMBOLS_TO_BAN = frozenset([
+    CHAR_UNIT_SEPARATOR, CHAR_PLACEHOLDER, CHAR_AMP_PLACEHOLDER, CHAR_NODE_SEPARATOR
+])
 
 
 # === КОНСТАНТЫ ПСЕВДОГРАФИКИ ===
@@ -108,8 +140,8 @@ STR_TO_SYMBOL_REPLACEMENTS = [
 
 # === КОНСТАНТЫ ДЛЯ КОДИРОВАНИЯ HTML-МНЕМНОИКОВ ===
 # --- ЧЕРНЫЙ СПИСОК: Символы, которые НИКОГДА не нужно кодировать в мнемоники ---
-NEVER_ENCODE_CHARS = (frozenset(['!', '#', '%', '(', ')', '*', ',', '.', '/', ':', ';', '=', '?', '@',
-                                 '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~', '\n', '\t', '\r'])
+NEVER_ENCODE_CHARS = (frozenset(['!', '#', '%', CHAR_LPAR, CHAR_RPAR, '*', CHAR_COMMA, CHAR_DOT, '/', CHAR_COLON, ';', '=', '?', '@',
+                                 CHAR_LSQB, '\\', CHAR_RSQB, '^', '_', '`', CHAR_LCUB, '|', CHAR_RCUB, '~', '\n', '\t', '\r'])
                       | RU_ALPHABET_FULL | EN_ALPHABET_FULL)
 
 # 2. БЕЛЫЙ СПИСОК (ДЛЯ БЕЗОПАСНОСТИ):
@@ -119,22 +151,25 @@ SAFE_MODE_CHARS_TO_MNEMONIC = frozenset([
     '<', '>', '&', '"', '\'',
     CHAR_SHY,  # Мягкий перенос (Soft Hyphen) -- &shy;
     CHAR_NBSP, # Неразрывный пробел (Non-Breaking Space) -- &nbsp;
-    '\u2002',  # Полужирный пробел (En Space) -- &ensp;
-    '\u2003',  # Широкий пробел (Em Space) -- &emsp;
-    '\u2007',  # Цифровой пробел -- &numsp;
-    '\u2008',  # Пунктуационный пробел -- &puncsp;
+    CHAR_EN_SP,  # Полужирный пробел (En Space) -- &ensp;
+    CHAR_EM_SP,  # Широкий пробел (Em Space) -- &emsp;
+    CHAR_NUM_SP,  # Цифровой пробел -- &numsp;
+    CHAR_PUNT_SP,  # Пунктуационный пробел -- &puncsp;
     CHAR_THIN_SP,  # Межсимвольный пробел, тонкий пробел, шпация -- &thinsp;'
-    '\u200A',  # Толщина волоса (Hair Space) -- &hairsp;
-    '\u200B',  # Негативный пробел (Negative Space) -- &NegativeThinSpace;
+    CHAR_HAIR_SP,  # Толщина волоса (Hair Space) -- &hairsp;
+    CHAR_NULL_SP,  # Нулевой пробел (Zero Width Space)... в стандартах мнемоник путаница, и ее мнемоника &NegativeThinSpace;
     '\u200C',  # Нулевая ширина (без объединения) (Zero Width Non-Joiner) -- &zwj;
-    '\u200D',  # Нулевая ширина (с объединением) (Zero Width Joiner) -- &zwnj;
+    CHAR_ZWNJ,     # Нулевая ширина (с объединением) (Zero Width Joiner) -- &zwnj;
+    CHAR_THREE_PER_EM_SP,  # «Толстый» пробел, ширина 1/3 от круглой шпации (Three-Per-Em Space) -- &emsp13;
+    CHAR_FOUR_PER_EM_SP,  # Средний пробел, ширина 1/4 от круглой шпации (Four-Per-Em Space) -- &emsp14;
     '\u200E',  # Изменить направление текста на слева-направо (Left-to-Right Mark /LRE) -- &lrm;
     '\u200F',  # Изменить направление текста направо-налево (Right-to-Left Mark /RLM) -- &rlm;
     '\u2010',  # Дефис (Hyphen) -- &dash;
-    '\u205F',  # Средний пробел (Medium Mathematical Space) -- &MediumSpace;
+    CHAR_MED_SP,  # Средний пробел (Medium Mathematical Space) -- &MediumSpace;
     '\u2060',  # &NoBreak;
     '\u2062',  # &InvisibleTimes; -- для семантической разметки математических выражений
     '\u2063',  # &InvisibleComma; -- для семантической разметки математических выражений
+
     ])
 
 # 3. СПИСОК ДЛЯ ЧИСЛОВОГО КОДИРОВАНИЯ: Символы без стандартного имени.
@@ -149,6 +184,10 @@ ALWAYS_ENCODE_TO_NUMERIC_CHARS = frozenset([
     '\u20BD',  # Знак русского рубля (₽)
     '\u20BE',  # Знак грузинский лари (₾)
     '\u20BF',  # Знак биткоина (₿)
+    CHAR_THIN_NBSP,  # Тонкий неразрывный пробел (Narrow No-Break Space) -- как &thinsp; но с поведением &nbsp; (к сожалению, не имеет html-мнемоники)
+    CHAR_EN_QUAD_SP, # Полукруглая шпация, ширина равна 1/2 от кегля (En Quad)
+    CHAR_EM_QUAD_SP, # Круглая шпация, ширина равна 1/1 (полный кегль), квадрат (Em Quad)
+    CHAR_SIX_PER_EM_SP,    # «Тонкий» волосяной пробел, ширина 1/6 от круглой шпации (Six-Per-Em Space)
 ])
 
 # 4. СЛОВАРЬ ПРИОРИТЕТОВ: Кастомные и/или предпочитаемые мнемоники.
@@ -605,7 +644,7 @@ def _build_translation_maps() -> dict[str, str]:
     # На его основе строим нашу карту для кодирования.
     encode_map = {}
 
-    # ШАГ 2: Высший приоритет. Загружаем наши кастомные правила.
+    # ШАГ 2: Высший приоритет. Загружаем кастомные правила.
     encode_map.update(CUSTOM_ENCODE_MAP)
 
     # ШАГ 3: Следующий приоритет. Добавляем числовое кодирование.
@@ -697,37 +736,114 @@ HANGING_PUNCTUATION_MODES = frozenset([
     HANGING_PUNCTUATION_MODE_RIGHT,
 ])
 
+# Пробелы ( символы-ищейки) которые могут использоваться как разделители "компенсационных сдвигов" для висячей пунктуации.
+# Их соседство с висячими символами позволяет "компенсировать" их смещение относительно прилегающего символа.
+HANGING_PUNCTUATION_SPACE_CHARS = frozenset([
+    ' ',                      # обычный пробел
+    # CHAR_NBSP,                # неразрывный пробел (&nbsp;)
+    CHAR_SHY,                 # мягкий перенос (&shy;)
+    CHAR_THIN_SP,             # тонкий пробел (&thinsp;)
+    CHAR_EN_QUAD_SP,          # Полукруглая шпация, ширина равна 1/2 от кегля (En Quad)
+    CHAR_EM_QUAD_SP,          # Круглая шпация, ширина равна 1/1 (полный кегль), квадрат (Em Quad)
+    CHAR_EN_SP,               # EN-пробел (en space)
+    CHAR_EM_SP,               # EM-пробел (em space)
+    CHAR_THREE_PER_EM_SP,     # «Толстый» пробел, ширина 1/3 от круглой шпации (Three-Per-Em Space)
+    CHAR_FOUR_PER_EM_SP,      # Средний пробел, ширина 1/4 от круглой шпации (Four-Per-Em Space)
+    CHAR_SIX_PER_EM_SP,       # «Тонкий» волосяной пробел, ширина 1/6 от круглой шпации (Six-Per-Em Space)
+    CHAR_NUM_SP,              # цифровой пробел (figure space)
+    CHAR_PUNT_SP,             # пунктуационный пробел (punctuation space)
+    CHAR_HAIR_SP,             # волосной пробел (hair space)
+    # CHAR_THIN_NBSP,           # Тонкий неразрывной пробел (Narrow No-Break Space) который, к сожалению, не имеет html-мнемоники
+    CHAR_MED_SP,              # средний пробел (medium space)
+    CHAR_NULL_SP,             # нулевой пробел (zero width space)... в мнемонике &NegativeThinSpace;
+    '\t',                     # табуляция
+    '\n',                     # перевод строки
+    '\r',                     # возврат каретки
+    '\u000b',                 # вертикальная табуляция
+    '\f'                      # перевод страницы
+])
+
 # 1. Набор символов, которые могут "висеть" слева
+# ВАЖНО: кавычки второго уровня (CHAR_EN_QUOT2_OPEN = '„' и CHAR_RU_QUOT2_OPEN = '„') НЕ ВКЛЮЧЕНЫ,
+#        т.к. CHAR_RU_QUOT2_CLOSE == CHAR_EN_QUOT1_OPEN и невозможно отличить закрывающую кавычку (ru)
+#        от открывающей кавычки (en) и однозначно решить к какую сторону делать вывешивание.
+# TODO: в будущем можно попробовать определять это по прилегающему пробелу (слева или справа).
 HANGING_PUNCTUATION_LEFT_CHARS = frozenset([
     CHAR_RU_QUOT1_OPEN,   # «
     CHAR_EN_QUOT1_OPEN,   # “
-    '(', '[', '{',
+    CHAR_LPAR,       # (
+    CHAR_LSQB,       # [
+    CHAR_LCUB,       # {
 ])
 
 # 2. Набор символов, которые могут "висеть" справа
 HANGING_PUNCTUATION_RIGHT_CHARS = frozenset([
     CHAR_RU_QUOT1_CLOSE,  # »
     CHAR_EN_QUOT1_CLOSE,  # ”
-    ')', ']', '}',
-    '.', ',', ':',
+    CHAR_RPAR,            # )
+    CHAR_RSQB,            # ]
+    CHAR_RCUB,            # }
+    CHAR_DOT,             # .
+    CHAR_COMMA,           # ,
+    CHAR_COLON,           # :
 ])
 
 # 3. Словарь, сопоставляющий символ с его CSS-классом
-HANGING_PUNCTUATION_CLASSES = {
+HANGING_PUNCTUATION_SYMBOLS_CLASSES = {
     # Левая пунктуация: все классы начинаются с 'etp-l'
-    CHAR_RU_QUOT1_OPEN: 'etp-laquo',
-    CHAR_EN_QUOT1_OPEN: 'etp-ldquo',
-    '(': 'etp-lpar',
-    '[': 'etp-lsqb',
-    '{': 'etp-lcub',
+    CHAR_RU_QUOT1_OPEN: 'etp-laquo',   # ` «` -- левая открывающая кавычка-ёлочка
+    CHAR_EN_QUOT1_OPEN: 'etp-ldquo',   # ` “` -- левая открывающая кавычка-лапка
+    CHAR_LPAR: 'etp-lpar',             # ` (` -- левая открывающая скобка
+    CHAR_LSQB: 'etp-lsqb',             # ` [` -- левая открывающая квадратная скобка
+    CHAR_LCUB: 'etp-lcub',             # ` {` -- левая открывающая фигурная скобка
     # Правая пунктуация: все классы начинаются с 'etp-r'
-    CHAR_RU_QUOT1_CLOSE: 'etp-raquo',
-    CHAR_EN_QUOT1_CLOSE: 'etp-rdquo',
-    ')': 'etp-rpar',
-    ']': 'etp-rsqb',
-    '}': 'etp-rcub',
-    '.': 'etp-r-dot',
-    ',': 'etp-r-comma',
-    ':': 'etp-r-colon',
+    CHAR_RU_QUOT1_CLOSE: 'etp-raquo',  # `» ` -- правая закрывающая кавычка-ёлочка
+    CHAR_EN_QUOT1_CLOSE: 'etp-rdquo',  # `” ` -- правая закрывающая кавычка-лапка
+    CHAR_RPAR: 'etp-rpar',             # `) ` -- правая закрывающая скобка
+    CHAR_RSQB: 'etp-rsqb',             # `] ` -- правая закрывающая квадратная скобка
+    CHAR_RCUB: 'etp-rcub',             # `} ` -- правая закрывающая фигурная скобка
+    CHAR_DOT: 'etp-r-dot',             # `. ` -- точка (обычно в конце предложения и висит справа)
+    CHAR_COMMA: 'etp-r-comma',         # `, ` -- запятая (обычно висит справа)
+    CHAR_COLON: 'etp-r-colon',         # `: ` -- двоеточие (обычно висит справа)
 }
 
+# 4. Словарь, сопоставляющий классам висячей пунктуации классы для компенсационных пробелов
+HANGING_PUNCTUATION_SPACE_CLASSES = {
+    'left': {
+        # Для левой пунктуации (компенсационный пробел слева от висячей пунктуации)
+        CHAR_RU_QUOT1_OPEN: 'etp-sp-laquo',     # ` «` -- для пробела пред открывающей кавычкой-ёлочкой
+        CHAR_EN_QUOT1_OPEN: 'etp-sp-ldquo',     # ` “` -- для пробела пред открывающей кавычкой-лапкой
+        CHAR_LPAR: 'etp-sp-lpar',               # ` (` -- для пробела пред левой открывающей скобкой
+        CHAR_LSQB: 'etp-sp-lsqb',               # ` [` -- для пробела пред левой открывающей квадратной скобкой
+        CHAR_LCUB: 'etp-sp-lcub',               # ` {` -- для пробела пред левой открывающей фигурной скобкой
+    },
+    'right': {
+        # Для правой пунктуации (компенсационный пробел справа от висячей пунктуации)
+        CHAR_RU_QUOT1_CLOSE: 'etp-sp-raquo',    # `» ` -- для пробела после закрывающей кавычки-ёлочки
+        CHAR_EN_QUOT1_CLOSE: 'etp-sp-rdquo',    # `” ` -- для пробела после закрывающей кавычки-лапки
+        CHAR_RPAR: 'etp-sp-rpar',               # `) ` -- для пробела после правой закрывающей скобки
+        CHAR_RSQB: 'etp-sp-rsqb',               # `] ` -- для пробела после правой закрывающей квадратной скобки
+        CHAR_RCUB: 'etp-sp-rcub',               # `} ` -- для пробела после правой закрывающей фигурной скобки
+        CHAR_DOT: 'etp-sp-r-dot',               # `. ` -- для пробела после точки
+        CHAR_COMMA: 'etp-sp-r-comma',           # `, ` -- для пробела после запятой
+        CHAR_COLON: 'etp-sp-r-colon',           # `: ` -- для пробела после двоеточия
+    },
+}
+
+#  5. Набор пробелов (неразрывные) которые ОТМЕНЯЮТ висячую пунктуацию у прилегающего символа. Т.к. это неразрывный
+#  пробел, то символ не может "висеть" в принципе, он "прилеплен" к соседу и не может от него отрываться
+HANGING_CANCELLATION_SP = frozenset([
+    CHAR_NBSP,          # неразрывный пробел (&nbsp;)
+    CHAR_ZWNJ,          # нулевой неразрывный пробел (zero width non-joiner, &zwnj;)
+    CHAR_THIN_NBSP,     # узкий неразрывной пробел (narrow no-break space)
+])
+
+HANGING_PUNCTUATION_SPACE_CLASSES_FLAT = {
+    **HANGING_PUNCTUATION_SPACE_CLASSES['left'],
+    **HANGING_PUNCTUATION_SPACE_CLASSES['right'],
+}
+
+HANGING_PUNCTUATION_CLASSES = {
+    **HANGING_PUNCTUATION_SYMBOLS_CLASSES,
+    **HANGING_PUNCTUATION_SPACE_CLASSES_FLAT,
+}

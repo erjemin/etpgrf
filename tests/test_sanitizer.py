@@ -67,7 +67,8 @@ ETPGRF_SANITIZE_TEST_CASES = [
     ),
     (
         "complex_case", "Сложный случай с несколькими разными span'ами",
-        '<h1><span class="etp-laquo">«</span>Title<span class="etp-raquo">»</span></h1>\n<p>And <span class="note">note</span>.</p>',
+        '<h1><span class="etp-laquo">«</span>Title<span class="etp-raquo">»</span></h1>\n'
+        '<p>And <span class="note">note</span>.</p>',
         '<h1>«Title»</h1>\n<p>And <span class="note">note</span>.</p>'
     ),
 ]

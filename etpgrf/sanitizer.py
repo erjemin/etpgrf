@@ -4,7 +4,9 @@
 import logging
 from bs4 import BeautifulSoup
 from .config import (SANITIZE_ALL_HTML, SANITIZE_ETPGRF, SANITIZE_NONE,
-                     HANGING_PUNCTUATION_CLASSES, PROTECTED_HTML_TAGS)
+                     HANGING_PUNCTUATION_CLASSES, PROTECTED_HTML_TAGS,
+                     HANGING_PUNCTUATION_SYMBOLS_CLASSES,
+                     HANGING_PUNCTUATION_SPACE_CLASSES_FLAT)
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +26,13 @@ class SanitizerProcessor:
         if mode is False:
             mode = SANITIZE_NONE
         self.mode = mode
-        
+
         # Оптимизация: заранее готовим CSS-селектор для поиска висячей пунктуации
         if self.mode == SANITIZE_ETPGRF:
-            # Собираем уникальные классы
-            unique_classes = sorted(list(frozenset(HANGING_PUNCTUATION_CLASSES.values())))
+            # Собираем уникальные классы из отдельных коллекций (чтобы избежать пустого селектора)
+            symbol_classes = set(HANGING_PUNCTUATION_SYMBOLS_CLASSES.values())
+            space_classes = set(HANGING_PUNCTUATION_SPACE_CLASSES_FLAT.values())
+            unique_classes = sorted(symbol_classes | space_classes)
             # Формируем селектор вида: span.class1, span.class2, ...
             # Это позволяет использовать нативный парсер (lxml) для поиска, что намного быстрее python-лямбд.
             self._etp_selector = ", ".join(f"span.{cls}" for cls in unique_classes)
