@@ -5,7 +5,7 @@ import logging
 from bs4 import BeautifulSoup
 from .config import (SANITIZE_ALL_HTML, SANITIZE_ETPGRF, SANITIZE_NONE,
                      PROTECTED_HTML_TAGS,
-                     HANGING_PUNCTUATION_SYMBOLS_CLASSES,
+                     HANGING_PUNCTUATION_SYMBOLS_CLASSES_FLAT,
                      HANGING_PUNCTUATION_SPACE_CLASSES_FLAT,
                      CHARS_SYMBOLS_TO_BAN)
 
@@ -31,7 +31,7 @@ class SanitizerProcessor:
         # Оптимизация: заранее готовим CSS-селектор для поиска висячей пунктуации
         if self.mode == SANITIZE_ETPGRF:
             # Собираем уникальные классы из отдельных коллекций (чтобы избежать пустого селектора)
-            symbol_classes = set(HANGING_PUNCTUATION_SYMBOLS_CLASSES.values())
+            symbol_classes = set(HANGING_PUNCTUATION_SYMBOLS_CLASSES_FLAT.values())
             space_classes = set(HANGING_PUNCTUATION_SPACE_CLASSES_FLAT.values())
             unique_classes = sorted(symbol_classes | space_classes)
             # Формируем селектор вида: span.class1, span.class2, ...

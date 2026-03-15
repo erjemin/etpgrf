@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 from .config import (
     HANGING_PUNCTUATION_LEFT_CHARS,
     HANGING_PUNCTUATION_RIGHT_CHARS,
-    HANGING_PUNCTUATION_SYMBOLS_CLASSES,
+    HANGING_PUNCTUATION_SYMBOLS_CLASSES_FLAT,
     HANGING_PUNCTUATION_MODE_LEFT,
     HANGING_PUNCTUATION_MODE_RIGHT,
 )
@@ -47,7 +47,7 @@ class HangingPunctuationProcessor:
         # Предварительно фильтруем карту классов, оставляя только активные символы
         self.char_to_class = {
             char: cls 
-            for char, cls in HANGING_PUNCTUATION_SYMBOLS_CLASSES.items()
+            for char, cls in HANGING_PUNCTUATION_SYMBOLS_CLASSES_FLAT.items()
             if char in self.active_chars
         }
 

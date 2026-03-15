@@ -727,7 +727,6 @@ ABBR_COMMON_PREPOSITION = [
 PROTECTED_HTML_TAGS = ['style', 'script', 'pre', 'code', 'kbd', 'samp', 'math']
 
 # === КОНСТАНТЫ ДЛЯ ВИСЯЧЕЙ ТИПОГРАФИКИ ===
-
 HANGING_PUNCTUATION_MODE_LEFT = 'left'
 HANGING_PUNCTUATION_MODE_RIGHT = 'right'
 HANGING_PUNCTUATION_MODES = frozenset([
@@ -766,49 +765,60 @@ HANGING_PUNCTUATION_SPACE_CHARS = frozenset([
 # ВАЖНО: кавычки второго уровня (CHAR_EN_QUOT2_OPEN = '„' и CHAR_RU_QUOT2_OPEN = '„') НЕ ВКЛЮЧЕНЫ,
 #        т.к. CHAR_RU_QUOT2_CLOSE == CHAR_EN_QUOT1_OPEN и невозможно отличить закрывающую кавычку (ru)
 #        от открывающей кавычки (en) и однозначно решить к какую сторону делать вывешивание.
-# TODO: в будущем можно попробовать определять это по прилегающему пробелу (слева или справа).
-HANGING_PUNCTUATION_LEFT_CHARS = frozenset([
-    CHAR_RU_QUOT1_OPEN,   # «
-    CHAR_EN_QUOT1_OPEN,   # “
-    CHAR_LPAR,       # (
-    CHAR_LSQB,       # [
-    CHAR_LCUB,       # {
-])
+HANGING_PUNCTUATION_CHARS = {
+    HANGING_PUNCTUATION_MODE_LEFT: frozenset([
+        CHAR_RU_QUOT1_OPEN,   # «
+        CHAR_EN_QUOT1_OPEN,   # “
+        CHAR_LPAR,       # (
+        CHAR_LSQB,       # [
+        CHAR_LCUB,       # {
+    ]),
+    HANGING_PUNCTUATION_MODE_RIGHT: frozenset([
+        CHAR_RU_QUOT1_CLOSE,  # »
+        CHAR_EN_QUOT1_CLOSE,  # ”
+        CHAR_RPAR,            # )
+        CHAR_RSQB,            # ]
+        CHAR_RCUB,            # }
+        CHAR_DOT,             # .
+        CHAR_COMMA,           # ,
+        CHAR_COLON,           # :
+    ]),
+}
 
-# 2. Набор символов, которые могут "висеть" справа
-HANGING_PUNCTUATION_RIGHT_CHARS = frozenset([
-    CHAR_RU_QUOT1_CLOSE,  # »
-    CHAR_EN_QUOT1_CLOSE,  # ”
-    CHAR_RPAR,            # )
-    CHAR_RSQB,            # ]
-    CHAR_RCUB,            # }
-    CHAR_DOT,             # .
-    CHAR_COMMA,           # ,
-    CHAR_COLON,           # :
-])
+# Сохраняем старые имена ради совместимости, пока модуль не переписан полностью
+HANGING_PUNCTUATION_LEFT_CHARS = HANGING_PUNCTUATION_CHARS[HANGING_PUNCTUATION_MODE_LEFT]
+HANGING_PUNCTUATION_RIGHT_CHARS = HANGING_PUNCTUATION_CHARS[HANGING_PUNCTUATION_MODE_RIGHT]
 
 # 3. Словарь, сопоставляющий символ с его CSS-классом
 HANGING_PUNCTUATION_SYMBOLS_CLASSES = {
-    # Левая пунктуация: все классы начинаются с 'etp-l'
-    CHAR_RU_QUOT1_OPEN: 'etp-laquo',   # ` «` -- левая открывающая кавычка-ёлочка
-    CHAR_EN_QUOT1_OPEN: 'etp-ldquo',   # ` “` -- левая открывающая кавычка-лапка
-    CHAR_LPAR: 'etp-lpar',             # ` (` -- левая открывающая скобка
-    CHAR_LSQB: 'etp-lsqb',             # ` [` -- левая открывающая квадратная скобка
-    CHAR_LCUB: 'etp-lcub',             # ` {` -- левая открывающая фигурная скобка
-    # Правая пунктуация: все классы начинаются с 'etp-r'
-    CHAR_RU_QUOT1_CLOSE: 'etp-raquo',  # `» ` -- правая закрывающая кавычка-ёлочка
-    CHAR_EN_QUOT1_CLOSE: 'etp-rdquo',  # `” ` -- правая закрывающая кавычка-лапка
-    CHAR_RPAR: 'etp-rpar',             # `) ` -- правая закрывающая скобка
-    CHAR_RSQB: 'etp-rsqb',             # `] ` -- правая закрывающая квадратная скобка
-    CHAR_RCUB: 'etp-rcub',             # `} ` -- правая закрывающая фигурная скобка
-    CHAR_DOT: 'etp-r-dot',             # `. ` -- точка (обычно в конце предложения и висит справа)
-    CHAR_COMMA: 'etp-r-comma',         # `, ` -- запятая (обычно висит справа)
-    CHAR_COLON: 'etp-r-colon',         # `: ` -- двоеточие (обычно висит справа)
+    HANGING_PUNCTUATION_MODE_LEFT: {
+        # Левая пунктуация: все классы начинаются с 'etp-l'
+        CHAR_RU_QUOT1_OPEN: 'etp-laquo',   # ` «` -- левая открывающая кавычка-ёлочка
+        CHAR_EN_QUOT1_OPEN: 'etp-ldquo',   # ` “` -- левая открывающая кавычка-лапка
+        CHAR_LPAR: 'etp-lpar',             # ` (` -- левая открывающая скобка
+        CHAR_LSQB: 'etp-lsqb',             # ` [` -- левая открывающая квадратная скобка
+        CHAR_LCUB: 'etp-lcub',             # ` {` -- левая открывающая фигурная скобка
+    },
+    HANGING_PUNCTUATION_MODE_RIGHT: {
+        # Правая пунктуация: все классы начинаются с 'etp-r'
+        CHAR_RU_QUOT1_CLOSE: 'etp-raquo',  # `» ` -- правая закрывающая кавычка-ёлочка
+        CHAR_EN_QUOT1_CLOSE: 'etp-rdquo',  # `” ` -- правая закрывающая кавычка-лапка
+        CHAR_RPAR: 'etp-rpar',             # `) ` -- правая закрывающая скобка
+        CHAR_RSQB: 'etp-rsqb',             # `] ` -- правая закрывающая квадратная скобка
+        CHAR_RCUB: 'etp-rcub',             # `} ` -- правая закрывающая фигурная скобка
+        CHAR_DOT: 'etp-r-dot',             # `. ` -- точка (обычно в конце предложения и висит справа)
+        CHAR_COMMA: 'etp-r-comma',         # `, ` -- запятая (обычно висит справа)
+        CHAR_COLON: 'etp-r-colon',         # `: ` -- двоеточие (обычно висит справа)
+    },
+}
+HANGING_PUNCTUATION_SYMBOLS_CLASSES_FLAT = {
+    **HANGING_PUNCTUATION_SYMBOLS_CLASSES[HANGING_PUNCTUATION_MODE_LEFT],
+    **HANGING_PUNCTUATION_SYMBOLS_CLASSES[HANGING_PUNCTUATION_MODE_RIGHT],
 }
 
 # 4. Словарь, сопоставляющий классам висячей пунктуации классы для компенсационных пробелов
 HANGING_PUNCTUATION_SPACE_CLASSES = {
-    'left': {
+    HANGING_PUNCTUATION_MODE_LEFT: {
         # Для левой пунктуации (компенсационный пробел слева от висячей пунктуации)
         CHAR_RU_QUOT1_OPEN: 'etp-sp-laquo',     # ` «` -- для пробела пред открывающей кавычкой-ёлочкой
         CHAR_EN_QUOT1_OPEN: 'etp-sp-ldquo',     # ` “` -- для пробела пред открывающей кавычкой-лапкой
@@ -816,7 +826,7 @@ HANGING_PUNCTUATION_SPACE_CLASSES = {
         CHAR_LSQB: 'etp-sp-lsqb',               # ` [` -- для пробела пред левой открывающей квадратной скобкой
         CHAR_LCUB: 'etp-sp-lcub',               # ` {` -- для пробела пред левой открывающей фигурной скобкой
     },
-    'right': {
+    HANGING_PUNCTUATION_MODE_RIGHT: {
         # Для правой пунктуации (компенсационный пробел справа от висячей пунктуации)
         CHAR_RU_QUOT1_CLOSE: 'etp-sp-raquo',    # `» ` -- для пробела после закрывающей кавычки-ёлочки
         CHAR_EN_QUOT1_CLOSE: 'etp-sp-rdquo',    # `” ` -- для пробела после закрывающей кавычки-лапки
@@ -843,6 +853,6 @@ HANGING_PUNCTUATION_SPACE_CLASSES_FLAT = {
 }
 
 HANGING_PUNCTUATION_CLASSES = {
-    **HANGING_PUNCTUATION_SYMBOLS_CLASSES,
+    **HANGING_PUNCTUATION_SYMBOLS_CLASSES_FLAT,
     **HANGING_PUNCTUATION_SPACE_CLASSES_FLAT,
 }
