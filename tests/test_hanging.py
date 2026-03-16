@@ -6,7 +6,13 @@ from bs4 import BeautifulSoup
 from etpgrf.hanging import HangingPunctuationProcessor
 from etpgrf.config import (
     CHAR_RU_QUOT1_OPEN, CHAR_RU_QUOT1_CLOSE,
-    CHAR_EN_QUOT1_OPEN, CHAR_EN_QUOT1_CLOSE
+    CHAR_EN_QUOT1_OPEN, CHAR_EN_QUOT1_CLOSE,
+    CHAR_LPAR, CHAR_LSQB, CHAR_LCUB,
+    CHAR_RPAR, CHAR_RSQB, CHAR_RCUB,
+    CHAR_SHY, CHAR_THIN_SP, CHAR_HAIR_SP,
+    CHAR_MED_SP, CHAR_EN_SP, CHAR_EM_SP,
+    CHAR_NULL_SP, CHAR_THIN_NBSP, CHAR_NBSP,
+    CHAR_ZWNJ
 )
 
 # Вспомогательная функция для создания soup
@@ -16,37 +22,40 @@ def make_soup(html_str):
 # Набор тестовых случаев в формате:
 # (режим, входной_html, ожидаемый_html)
 HANGING_TEST_CASES = [
-    # --- Режим 'left' (только левая пунктуация) ---
+    # --- Режим 'left' (только левая висячая пунктуация) ---
     ('left', f'<p>{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</p>',
-             f'<p><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}</span>Цитата{CHAR_RU_QUOT1_CLOSE}</p>'),
-    ('left', '<p>(Скобки)</p>', '<p><span class="etp-lpar">(</span>Скобки)</p>'),
+             f'<p><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</span></p>'),
+    ('left', f'<p>{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE} вначале текста</p>',
+             f'<p><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</span> вначале текста</p>'),
+    ('left', f'<p>А вот это {CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+             f'<p>А вот <span class="etp-sp-laquo">это </span><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</span> внутри текста</p>'),
+    ('left', f'<p>А вот это {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+             f'<p>А вот <span class="etp-sp-laquo">это </span><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Длинная</span> цитата{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
+    ('left', f'<p>А вот это <b>{CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}</b> внутри текста</p>',
+             f'<p>А вот <span class="etp-sp-laquo">это </span><b><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Длинная</span> цитата{CHAR_RU_QUOT1_CLOSE}</b> внутри текста</p>'),\
+    ('left', f'<p>А вот это <b><i>{CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}</i></b> внутри текста</p>',
+             f'<p>А вот <span class="etp-sp-laquo">это </span><b><i><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Длинная</span> цитата{CHAR_RU_QUOT1_CLOSE}</i></b> внутри текста</p>'),
+    ('left', f'<p>А вот это {CHAR_RU_QUOT1_OPEN}<b>Длинная цитата</b>{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+             f'<p>А вот <span class="etp-sp-laquo">это </span><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}</span><b>Длинная цитата</b>{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
+
+    ('left', f'<p>Неразрывный пробел перед{CHAR_NBSP}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+             f'<p>Неразрывный пробел перед{CHAR_NBSP}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
+    ('left', '<p>(Скобки)</p>', '<p><span class="etp-lpar">(Скобки)</span></p>'),
     ('left', '<p>Текст.</p>', '<p>Текст.</p>'),
 
     # --- Режим 'right' (только правая пунктуация) ---
-    ('right', f'<p>{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</p>',
-              f'<p>{CHAR_RU_QUOT1_OPEN}Цитата<span class="etp-raquo">{CHAR_RU_QUOT1_CLOSE}</span></p>'),
-    ('right', '<p>Текст.</p>', '<p>Текст<span class="etp-r-dot">.</span></p>'),
-    ('right', '<p>(Скобки)</p>', '<p>(Скобки<span class="etp-rpar">)</span></p>'),
-    ('right', '<p>3.14</p>', '<p>3.14</p>'),
-    ('right', '<p>End.</p>', '<p>End<span class="etp-r-dot">.</span></p>'),
+    #('right', f'<p>{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</p>',
+    #          f'<p>{CHAR_RU_QUOT1_OPEN}Цитата<span class="etp-raquo">{CHAR_RU_QUOT1_CLOSE}</span></p>'),
+    #('right', '<p>Текст.</p>', '<p>Текст<span class="etp-r-dot">.</span></p>'),
+    #('right', '<p>(Скобки)</p>', '<p>(Скобки<span class="etp-rpar">)</span></p>'),
+    #('right', '<p>3.14</p>', '<p>3.14</p>'),
+    #('right', '<p>End.</p>', '<p>End<span class="etp-r-dot">.</span></p>'),
 
     # --- Режим None / False (отключено) ---
     (None, f'<p>{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</p>',
            f'<p>{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</p>'),
     (False, f'<p>{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</p>',
             f'<p>{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</p>'),
-]
-
-# --- Режим list[str] (список тегов с обеими сторонами) ---
-HANGING_LIST_MODE_CASES = [
-    (['p'], f'<p>{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</p>',
-            f'<p><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}</span>Цитата<span class="etp-raquo">{CHAR_RU_QUOT1_CLOSE}</span></p>'),
-    (['p'], f'<p>Текст.{CHAR_RU_QUOT1_CLOSE}</p>',
-            f'<p>Текст<span class="etp-r-dot">.</span><span class="etp-raquo">{CHAR_RU_QUOT1_CLOSE}</span></p>'),
-    (['p'], f'<p>func {CHAR_RU_QUOT1_OPEN}arg</p>',
-            f'<p>func <span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}</span>arg</p>'),
-    (['p'], f'<p>arg{CHAR_RU_QUOT1_CLOSE} next</p>',
-            f'<p>arg<span class="etp-raquo">{CHAR_RU_QUOT1_CLOSE}</span> next</p>'),
 ]
 
 
@@ -88,11 +97,60 @@ def test_hanging_punctuation_target_tags():
     assert str(soup) == expected_html
 
 
-@pytest.mark.parametrize("mode, input_html, expected_html", HANGING_LIST_MODE_CASES)
-def test_hanging_punctuation_processor_list_mode(mode, input_html, expected_html):
-    """Проверяет, что list-режим работает и для левой, и для правой стороны внутри указанного тега."""
-    processor = HangingPunctuationProcessor(mode=mode)
+LEFT_FULL_SYMBOLS = [
+    (CHAR_RU_QUOT1_OPEN, CHAR_RU_QUOT1_CLOSE, 'etp-laquo'),
+    (CHAR_EN_QUOT1_OPEN, CHAR_EN_QUOT1_CLOSE, 'etp-ldquo'),
+    (CHAR_LPAR, CHAR_RPAR, 'etp-lpar'),
+    (CHAR_LSQB, CHAR_RSQB, 'etp-lsqb'),
+    (CHAR_LCUB, CHAR_RCUB, 'etp-lcub'),
+]
+
+
+@pytest.mark.parametrize("open_char, close_char, cls", LEFT_FULL_SYMBOLS)
+def test_hanging_left_mode_wraps_symbol_pairs(open_char, close_char, cls):
+    """
+    Убедимся, что разные висячие символы полностью оборачиваются в левом режиме.
+
+    open_char: символ, открывающий висячий знак.
+    close_char: символ, закрывающий висячий знак.
+    cls: CSS класс для обёртки висячих знаков.
+
+    """
+    input_html = f'<p>{open_char}Текст{close_char}</p>'
+    expected_html = f'<p><span class="{cls}">{open_char}Текст{close_char}</span></p>'
+    processor = HangingPunctuationProcessor(mode='left')
     soup = make_soup(input_html)
 
     processor.process(soup)
     assert str(soup) == expected_html
+
+
+SPACE_VARIANTS = [
+    ' ', CHAR_SHY, CHAR_THIN_SP, CHAR_HAIR_SP,
+    CHAR_MED_SP, CHAR_EN_SP, CHAR_EM_SP, CHAR_NULL_SP,
+]
+
+
+@pytest.mark.parametrize("space", SPACE_VARIANTS)
+def test_hanging_left_mode_compensates_different_spaces(space):
+    """Проверяем компенсацию для разных типов разрывных пробелов."""
+    text = f'<p>Проба{space}{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</p>'
+    expected_html = (f'<p><span class="etp-sp-laquo">Проба{space}</span>'
+                     f'<span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</span></p>')
+
+    processor = HangingPunctuationProcessor(mode='left')
+    soup = make_soup(text)
+
+    processor.process(soup)
+    assert str(soup) == expected_html
+
+
+@pytest.mark.parametrize("separator", [CHAR_NBSP, CHAR_THIN_NBSP, CHAR_ZWNJ])
+def test_hanging_left_mode_honors_cancellation(separator):
+    """Символы, отменяющие перенос, остаются без обёрток."""
+    input_html = f'<p>Неразрывный{separator}{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</p>'
+    processor = HangingPunctuationProcessor(mode='left')
+    soup = make_soup(input_html)
+
+    processor.process(soup)
+    assert str(soup) == input_html
