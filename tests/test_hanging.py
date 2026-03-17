@@ -37,10 +37,35 @@ HANGING_TEST_CASES = [
              f'<p>А вот <span class="etp-sp-laquo">это </span><b><i><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Длинная</span> цитата{CHAR_RU_QUOT1_CLOSE}</i></b> внутри текста</p>'),
     ('left', f'<p>А вот это {CHAR_RU_QUOT1_OPEN}<b>Длинная цитата</b>{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
              f'<p>А вот <span class="etp-sp-laquo">это </span><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}</span><b>Длинная цитата</b>{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
-
+    # Английские кавычки "лапки"
+    ('left', f'<p>This is some {CHAR_EN_QUOT1_OPEN}<b>wisdom quote</b>{CHAR_EN_QUOT1_CLOSE} for the test.</p>',
+             f'<p>This is <span class="etp-sp-ldquo">some </span><span class="etp-ldquo">{CHAR_EN_QUOT1_OPEN}</span><b>wisdom quote</b>{CHAR_EN_QUOT1_CLOSE} for the test.</p>'),
+    # Неразрывные пробелы и символы, отменяющие перенос, не должны оборачиваться, но должны сохраняться в тексте
     ('left', f'<p>Неразрывный пробел перед{CHAR_NBSP}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
              f'<p>Неразрывный пробел перед{CHAR_NBSP}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
+    ('left', f'<p>Неразрывный пробел перед{CHAR_ZWNJ}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+             f'<p>Неразрывный пробел перед{CHAR_ZWNJ}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
+    ('left', f'<p>Неразрывный пробел перед{CHAR_THIN_NBSP}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+             f'<p>Неразрывный пробел перед{CHAR_THIN_NBSP}{CHAR_RU_QUOT1_OPEN}Цитатой{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
+    # Примеры "круглая скобка"
     ('left', '<p>(Скобки)</p>', '<p><span class="etp-lpar">(Скобки)</span></p>'),
+    ('left', '<p>Висячая пунктуация оборачивает (Скобки)</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lpar">оборачивает </span><span class="etp-lpar">(Скобки)</span></p>'),
+    ('left', '<p>Висячая пунктуация оборачивает (Круглые скобки) вот так.</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lpar">оборачивает </span><span class="etp-lpar">(Круглые</span> скобки) вот так.</p>'),
+    # Примеры "квадратная скобка"
+    ('left', '<p>[Скобки]</p>', '<p><span class="etp-lsqb">[Скобки]</span></p>'),
+    ('left', '<p>Висячая пунктуация оборачивает [Скобки]</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lsqb">оборачивает </span><span class="etp-lsqb">[Скобки]</span></p>'),
+    ('left', '<p>Висячая пунктуация оборачивает [Квадратные скобки] вот так.</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lsqb">оборачивает </span><span class="etp-lsqb">[Квадратные</span> скобки] вот так.</p>'),
+    # Примеры "фигурная скобка"
+    ('left', '<p>{Скобки}</p>', '<p><span class="etp-lcub">{Скобки}</span></p>'),
+    ('left', '<p>Висячая пунктуация оборачивает {Скобки}</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает </span><span class="etp-lcub">{Скобки}</span></p>'),
+    ('left', '<p>Висячая пунктуация оборачивает {Квадратные скобки} вот так.</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает </span><span class="etp-lcub">{Квадратные</span> скобки} вот так.</p>'),
+    # Обычный текст, в котором нет символов для висячей пунктуации, не должен изменяться
     ('left', '<p>Текст.</p>', '<p>Текст.</p>'),
 
     # --- Режим 'right' (только правая пунктуация) ---
