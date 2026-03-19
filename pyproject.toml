@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "etpgrf"
-version = "0.1.5"
+version = "0.1.6"
 description = "Electro-Typographer: Python library for advanced web typography (non-breaking spaces, hyphenation, hanging punctuation and ."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,7 +12,7 @@ license = {text = "MIT"}  # Или выбери другую лицензию
 authors = [
   {name = "Sergei Erjemin", email = "erjemin@gmail.com"},
 ]
-keywords = ["typography", "html", "non-breaking-spaces", "hanging-punctuation", "hyphenation", "russian", "english"]
+keywords = ["typography", "html", "html-typography", "non-breaking-spaces", "hanging-punctuation", "hyphenation", "symbols", "russian", "english"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -31,10 +31,11 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/erjemin/etpgrf"
+"Homepage" = "https://typograph.cube2.ru/"
 "Bug Tracker" = "https://github.com/erjemin/etpgrf/issues"
 "Mirror1 (GitVerse)" = "https://gitverse.ru/erjemin/etpgrf"
 "Mirror2 (Gitea Selfhosted)" = "https://git.cube2.ru/erjemin/2025-etpgrf"
+"Online Demo" = "https://typograph.cube2.ru/"
 
 [tool.setuptools.packages.find]
 where = ["."]  # Искать пакеты в корне (найдет папку etpgrf)

@@ -372,9 +372,9 @@ typo = etpgrf.Typographer(hanging_punctuation='left')
 Пример вывода для `'right'`:
 
 ```html
-Right “long <span class="etp-rdquo">quote”</span><span class="etp-sp-rdquo"> 
+Right “long <span class="etp-rdquo">quote”</span><span class="etp-sp-rdquo"> </span>with&nbsp;compensation space
 
-Отсутствие смещения «висячей <span class="etp-raquo">пунктуации»</span><span class="etp-sp-raquo"> </span>внутри строки обеспечивает компенсирующий пробел справа <span class="etp-r-dot">от&nbsp;неё.</span>
+Отсутствие смещения «символа висячей <span class="etp-raquo">пунктуации»</span><span class="etp-sp-raquo"> </span>внутри строки обеспечивает компенсирующий пробел справа <span class="etp-r-dot">от&nbsp;неё.</span>
 
 Символ правой «висячей пунктуации»&nbsp;не может оказаться в конце строки, если за&nbsp;ним стоит неразрывный пробел.
 ```
