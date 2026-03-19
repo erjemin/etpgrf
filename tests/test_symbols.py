@@ -8,6 +8,7 @@ from etpgrf.config import (
     CHAR_TRADE, CHAR_AP, CHAR_ARROW_L, CHAR_ARROW_R, CHAR_ARROW_LR,
     CHAR_ARROW_L_DOUBLE, CHAR_ARROW_R_DOUBLE, CHAR_ARROW_LR_DOUBLE,
     CHAR_ARROW_L_LONG_DOUBLE, CHAR_ARROW_R_LONG_DOUBLE, CHAR_ARROW_LR_LONG_DOUBLE,
+    CHAR_NBSP,
 )
 
 SYMBOLS_TEST_CASES = [
@@ -50,7 +51,17 @@ SYMBOLS_TEST_CASES = [
     ("I-V век", f"I{CHAR_NDASH}V век"),
     ("ix-vi до н.э.", f"ix{CHAR_NDASH}vi до н.э."),
 
-    # 3. --- Комбинированные и пограничные случаи ---
+    # 3. --- Проверка замены `x`, `X`, `х` и `Х` на `×` ---
+    ("222 x 333 = 73926", f"222{CHAR_NBSP}×{CHAR_NBSP}333 = 73926"),
+    ("222 X 333 = 73926", f"222{CHAR_NBSP}×{CHAR_NBSP}333 = 73926"),
+    ("222 х 333 = 73926", f"222{CHAR_NBSP}×{CHAR_NBSP}333 = 73926"),  # русская х
+    ("222 Х 333 = 73926", f"222{CHAR_NBSP}×{CHAR_NBSP}333 = 73926"),  # русская Х
+    ("Размер 5x10 см", f"Размер 5×10 см"),
+    ("Размер 5X10 см", f"Размер 5×10 см"),
+    ("Размер 5х10 см", f"Размер 5×10 см"),   # русская х
+    ("Размер 5Х10 см", f"Размер 5×10 см"),   # русская Х
+
+    # 4. --- Комбинированные и пограничные случаи ---
     # Сначала сработает простая замена '---' -> '—', потом диапазон '1-5' -> '1–5'
     ("1-5 --- это диапазон (c)", f"1{CHAR_NDASH}5 {CHAR_MDASH} это диапазон {CHAR_COPY}"),
     # Простая замена '--' -> '–' не должна мешать диапазону '1-5'

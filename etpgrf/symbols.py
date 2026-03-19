@@ -3,7 +3,7 @@
 
 import regex
 import logging
-from .config import CHAR_NDASH, STR_TO_SYMBOL_REPLACEMENTS
+from .config import CHAR_NDASH, CHAR_NBSP, CHAR_TIMES, STR_TO_SYMBOL_REPLACEMENTS
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +20,7 @@ class SymbolsProcessor:
         # Паттерн для диапазонов: цифра-дефис-цифра -> цифра–цифра (среднее тире).
         # Обрабатываем арабские и римские цифры.
         self._range_pattern = regex.compile(pattern=r'(\d)-(\d)|([IVXLCDM]+)-([IVXLCDM]+)', flags=regex.IGNORECASE)
+        self._times_pattern = regex.compile(pattern=r'(?<=\d)(?P<pre>\s*)(?P<letter>[xхXХ])(?P<post>\s*)(?=\d)')
 
         logger.debug("SymbolsProcessor `__init__`")
 
@@ -30,6 +31,14 @@ class SymbolsProcessor:
         if match.group(3) is not None:  # Римские цифры
             return f'{match.group(3)}{CHAR_NDASH}{match.group(4)}'
         return match.group(0)  # На всякий случай
+
+    def _replace_times(self, match: regex.Match) -> str:
+        # Встраивает CHAR_TIMES между цифрами и защищает его от переноса
+        pre = match.group('pre')
+        post = match.group('post')
+        before = CHAR_NBSP if pre else ''
+        after = CHAR_NBSP if post else ''
+        return f'{before}{CHAR_TIMES}{after}'
 
 
     def process(self, text: str) -> str:
@@ -45,6 +54,7 @@ class SymbolsProcessor:
         # Шаг 2: Обрабатываем диапазоны с помощью регулярного выражения.
         # Эта замена более специфична и требует контекста (цифры вокруг дефиса).
         processed_text = self._range_pattern.sub(self._replace_range, processed_text)
+        processed_text = self._times_pattern.sub(self._replace_times, processed_text)
 
         return processed_text
 

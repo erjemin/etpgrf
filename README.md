@@ -254,6 +254,7 @@ result = typo.process("А. С. Пушкин") # Останется без изм
 *   Если между единицами изменений есть математические символы (например, умножение или деление):
     `10 км / ч` → `10&nbsp;км/ч` (неважно есть пробелы вокруг `/` или нет). Распознаются и другие символы:
     `·`, `*`, `×`, `÷`.
+*   Символы `x`, `X`, `х`, `Х`, стоящие между двумя числами, заменяются на знак умножения `×`, чтобы выражения вида `100x100` или `100 х 100` корректно обрабатывались и выглядели типографски правильными (`100×100` или `100&nbsp;×&nbsp;100`).
 
 Библиотека "знает" множество стандартных единиц для русского и английского языков. Но не все. Вы можете расширить этот
 список, передав свои кастомные единицы через параметр `process_units`:
@@ -401,18 +402,18 @@ Right “long <span class="etp-rdquo">quote”</span><span class="etp-sp-rdquo">
 /* --- ПРАВЫЕ ВИСЯЧИЕ СИМВОЛЫ --- */
 .etp-raquo { padding-right: 0.44em; margin-left: -0.44em; }
 .etp-rdquo { padding-right: 0.4em; margin-left: -0.4em; }
+.etp-rsquo { padding-right: 0.22em; margin-left: -0.22em; }
 .etp-r-comma { padding-right: 0.28em; margin-left: -0.28em; }
 .etp-r-colon { padding-right: 0.32em; margin-left: -0.32em; }
 .etp-r-dot { padding-right: 0.12em; margin-left: -0.12em; }
-.etp-rsquo { padding-right: 0.22em; margin-left: -0.22em; }
 .etp-rpar, .etp-rsqb, .etp-rcub { padding-right: 0.25em; margin-left: -0.25em; }
 /* компенсирующие пробелы для правых висячих символов */
 .etp-sp-raquo { margin-left: -0.44em; }
 .etp-sp-rdquo { margin-left: -0.4em; }
+.etp-sp-rsquo { margin-left: -0.22em; }
 .etp-sp-r-comma { margin-left: -0.28em; }
 .etp-sp-r-colon { margin-left: -0.32em; }
 .etp-sp-r-dot { margin-left: -0.12em; }
-.etp-sp-rsquo { margin-left: -0.22em; }
 .etp-sp-rpar, .etp-sp-rsqb, .etp-sp-rcub { margin-left: -0.25em; }
 ```
 
