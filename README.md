@@ -389,32 +389,32 @@ Right “long <span class="etp-rdquo">quote”</span><span class="etp-sp-rdquo">
 
 ```css
 /* --- ЛЕВЫЕ ВИСЯЧИЕ СИМВОЛЫ --- */
-.etp-laquo { margin-left: -0.44em; }
-.etp-ldquo, .etp-bdquo { margin-left: -0.4em; }
-.etp-lsquo { margin-left: -0.22em; }
-.etp-lpar, .etp-lsqb, .etp-lcub { margin-left: -0.25em; }
+.etp-laquo { margin-left: -0.49em; }            /* « */
+.etp-ldquo, .etp-bdquo { margin-left: -0.4em; } /* “ “ */
+.etp-lsquo { margin-left: -0.22em; }            /* ’ */
+.etp-lpar, .etp-lsqb, .etp-lcub { margin-left: -0.23em; } /* ( [ { */
 /* компенсирующие пробелы для левых висячих символов */
-.etp-sp-laquo { padding-right: 0.44em; }
+.etp-sp-laquo { padding-right: 0.49em; }
 .etp-sp-ldquo, .etp-sp-bdquo { padding-right: 0.4em; }
 .etp-sp-lsquo { padding-right: 0.22em; }
-.etp-sp-lpar, .etp-sp-lsqb, .etp-sp-lcub { padding-right: 0.25em; }
+.etp-sp-lpar, .etp-sp-lsqb, .etp-sp-lcub { padding-right: 0.35em; }
 
 /* --- ПРАВЫЕ ВИСЯЧИЕ СИМВОЛЫ --- */
-.etp-raquo { padding-right: 0.44em; margin-left: -0.44em; }
-.etp-rdquo { padding-right: 0.4em; margin-left: -0.4em; }
-.etp-rsquo { padding-right: 0.22em; margin-left: -0.22em; }
-.etp-r-comma { padding-right: 0.28em; margin-left: -0.28em; }
-.etp-r-colon { padding-right: 0.32em; margin-left: -0.32em; }
-.etp-r-dot { padding-right: 0.12em; margin-left: -0.12em; }
-.etp-rpar, .etp-rsqb, .etp-rcub { padding-right: 0.25em; margin-left: -0.25em; }
+.etp-raquo { margin-right: -0.49em; }    /* » */
+.etp-rdquo { margin-right: -0.4em; }     /* ” */
+.etp-rsquo { margin-right: -0.22em; }    /* ’ */
+.etp-r-comma { margin-right: -0.06ex; }  /* , */
+.etp-r-colon { margin-right: -0.06ex;; } /* : */
+.etp-r-dot { margin-right: -0.06ex; }    /* . */
+.etp-rpar, .etp-rsqb, .etp-rcub { margin-right: -0.23em; } /* ) ] } */
 /* компенсирующие пробелы для правых висячих символов */
-.etp-sp-raquo { margin-left: -0.44em; }
-.etp-sp-rdquo { margin-left: -0.4em; }
-.etp-sp-rsquo { margin-left: -0.22em; }
-.etp-sp-r-comma { margin-left: -0.28em; }
-.etp-sp-r-colon { margin-left: -0.32em; }
-.etp-sp-r-dot { margin-left: -0.12em; }
-.etp-sp-rpar, .etp-sp-rsqb, .etp-sp-rcub { margin-left: -0.25em; }
+.etp-sp-raquo { padding-left: 0.49em; }
+.etp-sp-rdquo { padding-left: 0.4em; }
+.etp-sp-rsquo { padding-left: 0.22em; }
+.etp-sp-r-comma { padding-left: 0.06ex; }
+.etp-sp-r-colon { padding-left: 0.06ex; }
+.etp-sp-r-dot { padding-left: 0.06ex; }
+.etp-sp-rpar, .etp-sp-rsqb, .etp-sp-rcub { padding-left: 0.23em; }
 ```
 
 *Комментарии:* Двухстороннее выравнивание текстового блока с помощью стиля `text-justify` в принципе плохо совместим концепцией типографики — он растягивает или сжимает пробелы по всей строке (а это пробелы между словами) и уже этими, переменными, пробелами, делает текст трудночитаемым. Если же вы используете `text-justify` для выравнивания текста по ширине, то, чтобы сохранить оптимальную читаемость текста, включать висячую типографику не рекомендуется.
