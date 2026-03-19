@@ -12,7 +12,7 @@ from etpgrf.config import (
     CHAR_SHY, CHAR_THIN_SP, CHAR_HAIR_SP,
     CHAR_MED_SP, CHAR_EN_SP, CHAR_EM_SP,
     CHAR_NULL_SP, CHAR_THIN_NBSP, CHAR_NBSP,
-    CHAR_ZWNJ
+    CHAR_ZWNJ, CHAR_PUNT_SP
 )
 
 # Вспомогательная функция для создания soup
@@ -37,6 +37,8 @@ HANGING_TEST_CASES = [
              f'<p>А вот <span class="etp-sp-laquo">это </span><b><i><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Длинная</span> цитата{CHAR_RU_QUOT1_CLOSE}</i></b> внутри текста</p>'),
     ('left', f'<p>А вот это {CHAR_RU_QUOT1_OPEN}<b>Длинная цитата</b>{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
              f'<p>А вот <span class="etp-sp-laquo">это </span><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}</span><b>Длинная цитата</b>{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
+    ('left', f'<p>А вот{CHAR_NBSP}это {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+             f'<p>А <span class="etp-sp-laquo">вот{CHAR_NBSP}это </span><span class="etp-laquo">{CHAR_RU_QUOT1_OPEN}Длинная</span> цитата{CHAR_RU_QUOT1_CLOSE} внутри текста</p>'),
     # Английские кавычки "лапки"
     ('left', f'<p>This is some {CHAR_EN_QUOT1_OPEN}<b>wisdom quote</b>{CHAR_EN_QUOT1_CLOSE} for the test.</p>',
              f'<p>This is <span class="etp-sp-ldquo">some </span><span class="etp-ldquo">{CHAR_EN_QUOT1_OPEN}</span><b>wisdom quote</b>{CHAR_EN_QUOT1_CLOSE} for the test.</p>'),
@@ -53,6 +55,8 @@ HANGING_TEST_CASES = [
              '<p>Висячая пунктуация <span class="etp-sp-lpar">оборачивает </span><span class="etp-lpar">(Скобки)</span></p>'),
     ('left', '<p>Висячая пунктуация оборачивает (Круглые скобки) вот так.</p>',
              '<p>Висячая пунктуация <span class="etp-sp-lpar">оборачивает </span><span class="etp-lpar">(Круглые</span> скобки) вот так.</p>'),
+    ('left', '<p>Перечисли, (элемент списка)</p>',
+             '<p><span class="etp-sp-lpar">Перечисли, </span><span class="etp-lpar">(элемент</span> списка)</p>'),
     # Примеры "квадратная скобка"
     ('left', '<p>[Скобки]</p>', '<p><span class="etp-lsqb">[Скобки]</span></p>'),
     ('left', '<p>Висячая пунктуация оборачивает [Скобки]</p>',
@@ -63,18 +67,58 @@ HANGING_TEST_CASES = [
     ('left', '<p>{Скобки}</p>', '<p><span class="etp-lcub">{Скобки}</span></p>'),
     ('left', '<p>Висячая пунктуация оборачивает {Скобки}</p>',
              '<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает </span><span class="etp-lcub">{Скобки}</span></p>'),
-    ('left', '<p>Висячая пунктуация оборачивает {Квадратные скобки} вот так.</p>',
-             '<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает </span><span class="etp-lcub">{Квадратные</span> скобки} вот так.</p>'),
+    ('left', '<p>Висячая пунктуация оборачивает {Фигурные скобки} вот так.</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает </span><span class="etp-lcub">{Фигурные</span> скобки} вот так.</p>'),
     # Обычный текст, в котором нет символов для висячей пунктуации, не должен изменяться
     ('left', '<p>Текст.</p>', '<p>Текст.</p>'),
+    ('left', '<p>Пароль `89(fg#_Wfgq0[89`</p>', '<p>Пароль `89(fg#_Wfgq0[89`</p>'),
+    # Проверка на альтернативный разрывной символ (не пробел)
+    ('left', '<p>Висячая пунктуация оборачивает\t{Скобки}</p>',
+             '<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает\t</span><span class="etp-lcub">{Скобки}</span></p>'),
+    ('left', f'<p>Висячая пунктуация оборачивает{CHAR_SHY}{{Скобки}}</p>',
+             f'<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает{CHAR_SHY}</span><span class="etp-lcub">{{Скобки}}</span></p>'),
+    ('left', f'<p>Висячая пунктуация оборачивает{CHAR_PUNT_SP}{{Скобки}}</p>',
+             f'<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает{CHAR_PUNT_SP}</span><span class="etp-lcub">{{Скобки}}</span></p>'),
+    ('left', f'<p>Висячая пунктуация оборачивает\n{{Скобки}}</p>',
+             f'<p>Висячая пунктуация <span class="etp-sp-lcub">оборачивает\n</span><span class="etp-lcub">{{Скобки}}</span></p>'),
+    ('left', f'<p>Висячая пунктуация обора{CHAR_SHY}чивает {{Скобки}}</p>',
+             f'<p>Висячая пунктуация обора{CHAR_SHY}<span class="etp-sp-lcub">чивает </span><span class="etp-lcub">{{Скобки}}</span></p>'),
 
     # --- Режим 'right' (только правая пунктуация) ---
-    #('right', f'<p>{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</p>',
-    #          f'<p>{CHAR_RU_QUOT1_OPEN}Цитата<span class="etp-raquo">{CHAR_RU_QUOT1_CLOSE}</span></p>'),
+    ('right', f'<p>{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</p>',
+              f'<p><span class="etp-raquo">{CHAR_RU_QUOT1_OPEN}Цитата{CHAR_RU_QUOT1_CLOSE}</span></p>'),
+    ('right', f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}</p>',
+              f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная <span class="etp-raquo">цитата{CHAR_RU_QUOT1_CLOSE}</span></p>'),
+    ('right', f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE} внутри текста</p>',
+              f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная <span class="etp-raquo">цитата{CHAR_RU_QUOT1_CLOSE}</span><span class="etp-sp-raquo"> </span>внутри текста</p>'),
+    ('right', f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE} внутри текста.</p>',
+              f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная <span class="etp-raquo">цитата{CHAR_RU_QUOT1_CLOSE}</span><span class="etp-sp-raquo"> </span>внутри <span class="etp-r-dot">текста.</span></p>'),
+    ('right', f'<p>Right {CHAR_EN_QUOT1_OPEN}long quote{CHAR_EN_QUOT1_CLOSE} within the text.</p>',
+              f'<p>Right {CHAR_EN_QUOT1_OPEN}long <span class="etp-rdquo">quote{CHAR_EN_QUOT1_CLOSE}</span><span class="etp-sp-rdquo"> </span>within the <span class="etp-r-dot">text.</span></p>'),
+    ## С границами узлов
+    ('right', f'<p>Right {CHAR_EN_QUOT1_OPEN}<b>long quote</b>{CHAR_EN_QUOT1_CLOSE} within the text.</p>',
+              f'<p>Right {CHAR_EN_QUOT1_OPEN}<b>long quote</b><span class="etp-rdquo">{CHAR_EN_QUOT1_CLOSE}</span><span class="etp-sp-rdquo"> </span>within the <span class="etp-r-dot">text.</span></p>'),
+    ('right', f'<p>Right <b>{CHAR_EN_QUOT1_OPEN}long quote{CHAR_EN_QUOT1_CLOSE}</b> within the text.</p>',
+              f'<p>Right <b>{CHAR_EN_QUOT1_OPEN}long <span class="etp-rdquo">quote{CHAR_EN_QUOT1_CLOSE}</span></b><span class="etp-sp-rdquo"> </span>within the <span class="etp-r-dot">text.</span></p>'),
+    # Неразрывные пробелы и символы, отменяющие перенос, не должны оборачиваться, но должны сохраняться в тексте
+    ('right', f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}{CHAR_NBSP}внутри текста 2</p>',
+              f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}{CHAR_NBSP}внутри текста 2</p>'),
+    ('right', f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}{CHAR_ZWNJ}внутри текста 2</p>',
+              f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}{CHAR_ZWNJ}внутри текста 2</p>'),
+    ('right', f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}{CHAR_THIN_NBSP}внутри текста 2</p>',
+              f'<p>Правая {CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}{CHAR_THIN_NBSP}внутри текста 2</p>'),
+    ('right', f'<p>Правая <b>{CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}</b>{CHAR_NBSP}внутри текста 2</p>',
+              f'<p>Правая <b>{CHAR_RU_QUOT1_OPEN}Длинная цитата{CHAR_RU_QUOT1_CLOSE}</b>{CHAR_NBSP}внутри текста 2</p>'),
     #('right', '<p>Текст.</p>', '<p>Текст<span class="etp-r-dot">.</span></p>'),
     #('right', '<p>(Скобки)</p>', '<p>(Скобки<span class="etp-rpar">)</span></p>'),
-    #('right', '<p>3.14</p>', '<p>3.14</p>'),
-    #('right', '<p>End.</p>', '<p>End<span class="etp-r-dot">.</span></p>'),
+    ('right', '<p>End.</p>', '<p><span class="etp-r-dot">End.</span></p>'),
+    # Внутри цифр и текста висячие символы не должны оборачиваться, так как они не являются висячими в этом контексте
+    ('right', '<p>3.14</p>', '<p>3.14</p>'),
+    ('right', '3.14', '3.14'),
+    ('right', '<p>3,14</p>', '<p>3,14</p>'),
+    ('right', '<p>Переменная <code>self.right_chars</code></p>', '<p>Переменная <code>self.right_chars</code></p>'),
+    ('right', 'Переменная `self.right_chars`', 'Переменная `self.right_chars`'),
+
 
     # --- Режим None / False (отключено) ---
     (None, f'<p>{CHAR_RU_QUOT1_OPEN}Текст{CHAR_RU_QUOT1_CLOSE}</p>',
